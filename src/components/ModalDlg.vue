@@ -6,7 +6,9 @@
       :value="modalDlg.show"
       @keydown.esc="cancel"
       persistent
-      max-width="400px">
+      max-width="400px"
+      :overlayColor="$vuetify.theme.dark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
+    >
       <v-card>
         <v-card-title>
           <h3 class="headline mb-0">{{ this.modalDlg.title }}</h3>

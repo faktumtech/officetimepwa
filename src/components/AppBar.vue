@@ -4,7 +4,6 @@
     app
     outlined
     flat
-    :color="$vuetify.theme.dark ? '#373737' : '#fff'"
   >
     <TimerBtn
       v-if="activeProjectId"
