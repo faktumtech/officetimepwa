@@ -36,7 +36,7 @@
         <p
           class="body-1"
         >
-          Copyright <b>cfbutt</b>. Licensed under GPL v3. <!--Source code at <a href="https://github.com/cfbutt/officetimepwa">https://github.com/cfbutt/officetimepwa</a>.-->
+          Copyright <b>cfbutt</b>. Licensed under GPL v3. Source code at <a href="https://github.com/cfbutt/officetimepwa">https://github.com/cfbutt/officetimepwa</a>.
         </p>
 
         <v-alert

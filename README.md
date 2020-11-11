@@ -6,8 +6,6 @@ Time tracking tool for freelancers. Heavely inspired by OfficeTime. All data is 
 
 This application is designed as a Progressive Web Application (PWA) and once installed ('Add to desktop') it can be used offline.
 
-Copyright cfbutt.
-
 
 ## Project setup
 ```
@@ -31,3 +29,6 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## LICENSE
+GPL v3
