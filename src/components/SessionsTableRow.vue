@@ -18,10 +18,11 @@
       </timer-btn>
     </td>
 
-    <td v-if="session.id === selectedSessionId"
+    <td
       class="tableDateRow"
     >
       <v-text-field
+        v-if="session.id === selectedSessionId"
         class="dateField"
         :value="session.d"
         @change="updateDate(session.id, $event)"
@@ -29,34 +30,48 @@
         required
         dense
       ></v-text-field>
-    </td>
-    <td v-else
-      class="tableDateRow"
-    >
-      <div class="dateDisplay">
+      <span
+        v-else
+        class="dateDisplay"
+      >
         {{ formatDate(session.d) }}
-      </div>
+      </span>
     </td>
-    <td v-if="session.id === selectedSessionId"
-      class="tableTimeRow"
+    <td
+      class="tableTimeRow text-end"
     >
       <TimerTimeInput
+         v-if="session.id === selectedSessionId"
         class="timerField"
         :session="session"
       ></TimerTimeInput>
+      <span
+        v-else
+        class="timeDisplay text-end"
+      >
+        {{ formatTime(session.t) }}
+      </span>
     </td>
     <td
-      class="tableTimeRow"
-      v-else
+      class="tableAmountRow text-end"
     >
-      <div class="timeDisplay text-end">
-        {{ formatTime(session.t) }}
-      </div>
+      <TimerAmountInput
+         v-if="session.id === selectedSessionId"
+        class="amountField"
+        :session="session"
+      ></TimerAmountInput>
+      <span
+        v-else
+        class="amountDisplay"
+      >
+        {{ formatAmount(session.a) }}
+      </span>
     </td>
-    <td v-if="session.id === selectedSessionId"
+    <td
       class="tableCategoryRow"
     >
       <v-select
+         v-if="session.id === selectedSessionId"
         class="categoryField"
         :value="session.c"
         @change="updateCategory(session.id, $event)"
@@ -65,47 +80,44 @@
         item-value="id"
         dense
       ></v-select>
+      <span
+        v-else
+      >
+        {{ categoryLookup[session.c] }}
+      </span>
     </td>
-    <td v-else
-      class="tableCategoryRow"
-    >{{ categoryLookup[session.c] }}</td>
-    <td v-if="session.id === selectedSessionId"
+    <td
       class="tableNotesRow"
     >
       <v-text-field
+        v-if="session.id === selectedSessionId"
         class="noteField"
         :value="session.n"
         @change="updateNote(session.id, $event)"
         type="text"
         dense
       ></v-text-field>
+      <span
+        v-else
+      >
+        {{ session.n }}
+      </span>
     </td>
-    <td v-else
-      class="tableNotesRow"
-    >{{ session.n }}</td>
   </tr>
 </template>
 
 <script>
 import TimerBtn from '@/components/TimerBtn'
-import TimerTimeInput from './TimerTimeInput'
+import TimerTimeInput from '@/components/TimerTimeInput'
+import TimerAmountInput from '@/components/TimerAmountInput'
 
 export default {
   name: 'TimerLog',
   components: {
     TimerBtn,
-    TimerTimeInput
+    TimerTimeInput,
+    TimerAmountInput
   },
-  data: () => ({
-    headers: [
-      { text: '', value: false },
-      { text: 'Date', value: 'd' },
-      { text: 'Time', value: 't' },
-      { text: 'Category', value: 'c' },
-      { text: 'Notes', value: 'n' }
-    ],
-    search: null
-  }),
   props: {
     // row timerId when used in timerLog table
     session: Object
@@ -150,6 +162,9 @@ export default {
       // (item.d).slice(0, -3)
       return new Date(date).toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     },
+    formatAmount: function (amount) {
+      return Math.round((amount + 0.00001) * 100) / 100
+    },
     updateDate: async function (timerId, value) {
       const payload = { id: timerId, changes: { d: value } }
       await this.$store.dispatch('updateSession', payload)
@@ -165,6 +180,10 @@ export default {
     },
     updateCategory: async function (timerId, value) {
       const payload = { id: timerId, changes: { c: value } }
+      await this.$store.dispatch('updateSession', payload)
+    },
+    updateAmount: async function (timerId, value) {
+      const payload = { id: timerId, changes: { a: value } }
       await this.$store.dispatch('updateSession', payload)
     },
     updateNote: async function (timerId, value) {
@@ -206,6 +225,13 @@ export default {
     white-space: nowrap;
     max-width: 100px;
   }
+  .tableAmountRow {
+    width: max(150px, 15vw);
+    white-space: nowrap;
+  }
+  .amountField input {
+    text-align: right;
+  }
   .tableCategoryRow {
     width: max(150px, 15vw);
     white-space: nowrap;
@@ -224,13 +250,17 @@ export default {
   /* hide hint */
   .sessionsTable .dateField .v-text-field__details,
   .sessionsTable .timerField .v-text-field__details,
+  .sessionsTable .amountField .v-text-field__details,
   .sessionsTable .categoryField .v-text-field__details,
   .sessionsTable .noteField .v-text-field__details {
     display: none;
   }
 
-  .sessionsTable .dateField, .sessionsTable .timerField,
-  .sessionsTable .categoryField, .sessionsTable .noteField {
+  .sessionsTable .dateField,
+  .sessionsTable .timerField,
+  .sessionsTable .amountField,
+  .sessionsTable .categoryField,
+  .sessionsTable .noteField {
     margin-bottom: 4px;
   }
 

@@ -128,10 +128,10 @@ export default {
             timerId = this.$store.state.timerSessionId
           }
         }
-        const timer = this.$store.getters.getSession(timerId)
+        const session = this.$store.getters.getSession(timerId)
         // don't select automatically but unselect any
-        this.$store.commit('selectedSessionId', timer.id)
-        Timer.start(timer.id, timer.t)
+        this.$store.commit('selectedSessionId', session.id)
+        Timer.start(session.id, session.t, session.r)
       }
     }
   }

@@ -18,6 +18,7 @@
       <Settings></Settings>
       <Backup></Backup>
       <About></About>
+      <AddExpense></AddExpense>
     </v-main>
     <ModalDlg></ModalDlg>
     <Alert></Alert>
@@ -36,6 +37,7 @@ import Backup from '@/components/Backup'
 import About from '@/components/About'
 import AboutText from '@/components/AboutText'
 import Reports from '@/components/Reports'
+import AddExpense from '@/components/AddExpense'
 
 export default {
   name: 'App',
@@ -51,7 +53,8 @@ export default {
     Reports,
     Backup,
     About,
-    AboutText
+    AboutText,
+    AddExpense
   },
   data () {
     return {

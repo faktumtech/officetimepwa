@@ -325,23 +325,34 @@
                   v-for="item in items"
                   :key="item.id"
                 >
-                  <td v-if="item.type === 'session'">
+                  <td v-if="item.type === 'session' || item.type === 'expense'">
                     {{ item.p }}
                   </td>
                   <td v-else colspan="2">
                       <b>{{ item.p }}</b>
                   </td>
-                  <td v-if="item.type === 'session'">
+                  <td v-if="item.type === 'session' || item.type === 'expense'">
                     {{ formatDate(item.d) }}
                   </td>
                   <td
                   >
-                    <div class="timeDisplay text-endDate">
-                      <span v-if="item.type === 'session'">
+                    <div class="timeDisplay">
+                      <span v-if="item.type === 'session' || item.type === 'expense'">
                         {{ formatTime(item.t) }}
                       </span>
                       <span v-else>
                         <b>{{ formatTime(item.t) }}</b>
+                      </span>
+                    </div>
+                  </td>
+                  <td
+                  >
+                    <div class="amountDisplay">
+                      <span v-if="item.type === 'session' || item.type === 'expense'">
+                        {{ formatAmount(item.a) }}
+                      </span>
+                      <span v-else>
+                        <b>{{ formatAmount(item.a) }}</b>
                       </span>
                     </div>
                   </td>
@@ -380,6 +391,7 @@ export default {
         { text: 'Project', value: 'p' },
         { text: 'Date', value: 'd' },
         { text: 'Time', value: 't' },
+        { text: 'Amount', value: 'a' },
         { text: 'Category', value: 'c' },
         { text: 'Notes', value: 'n' }
       ],
@@ -488,11 +500,12 @@ export default {
       // local date string in format "yyyy-MM-dd"
       // https://stackoverflow.com/questions/10830357/javascript-toisostring-ignores-timezone-offset
       const tzoffset = (date).getTimezoneOffset() * 60000 // offset in milliseconds
-      return (new Date(date - tzoffset)).toISOString().slice(0, -17)
+      return (new Date(date - tzoffset)).toISOString().slice(0, -14)
     },
 
     getDatePresets: function () {
       const today = new Date()
+      console.log(this.getLocalDateStr(today))
       const longAgo = new Date(2000, 0, 1) // month jan = 0
       const weekStart = new Date(new Date().setDate(today.getDate() - today.getDay()))
       const yearStart = new Date(today.getFullYear(), 0, 1) // month jan = 0
@@ -538,6 +551,11 @@ export default {
       console.log('getSessionsByQuery', this.rawSessions.length)
       this.formatSessions()
     },
+    /**
+     * sort and group rawSessions
+     * and format ready to show in table
+     * @return undefined
+    */
     formatSessions: function () {
       this.loading = true
       this.groupedSessions = []
@@ -635,13 +653,17 @@ export default {
           }
         })
 
-        let actTime = 0
         let actProject = input[0].p
-        let actProjectTime = 0
         let actCategory = input[0].c
+        let actTotalTime = 0
+        let actProjectTime = 0
         let actCategoryTime = 0
+        let actTotalAmount = 0
+        let actProjectAmount = 0
+        let actCategoryAmount = 0
 
         for (const row of input) {
+          // make category subtotal if change of category or project
           if (
             (this.groupByCategory && actCategory !== row.c) ||
             (this.groupByProject && this.groupByCategory && actProject !== row.p)
@@ -650,6 +672,7 @@ export default {
               p: 'Sum category "' + actCategory + '"',
               d: '',
               t: actCategoryTime,
+              a: actCategoryAmount,
               c: '',
               n: '',
               type: 'subtotal'
@@ -657,11 +680,13 @@ export default {
             actCategoryTime = 0
             actCategory = row.c
           }
+          // make project subtotal if change of project
           if (this.groupByProject && actProject !== row.p) {
             output.push({
               p: 'Sum project "' + projects[actProject] + '"',
               d: '',
               t: actProjectTime,
+              a: actProjectAmount,
               c: '',
               n: '',
               type: 'subtotal'
@@ -669,47 +694,75 @@ export default {
             actProjectTime = 0
             actProject = row.p
           }
-          if (this.showSessions) {
+          if (this.showSessions && !row.e) {
             output.push({
               p: projects[row.p] || '',
               d: row.d,
               t: row.t,
+              a: row.a,
               c: row.c,
               n: row.n,
               type: 'session'
             })
           }
-          actTime += row.t
-          actProjectTime += row.t
-          actCategoryTime += row.t
+          if (this.showExpenses && row.e) {
+            output.push({
+              p: projects[row.p] || '',
+              d: row.d,
+              t: row.t,
+              a: row.a,
+              c: row.c,
+              n: row.n,
+              type: 'expense'
+            })
+          }
+          if (
+            // don't sum expenses
+            (this.showSessions && !this.showExpenses && !row.e) ||
+            // don't sum sessions
+            (!this.showSessions && this.showExpenses && row.e) ||
+            (!this.showSessions && !this.showExpenses) ||
+            (this.showSessions && this.showExpenses)
+          ) {
+            actTotalTime += row.t
+            actProjectTime += row.t
+            actCategoryTime += row.t
+            actTotalAmount += row.a
+            actProjectAmount += row.a
+            actCategoryAmount += row.a
+          }
         }
-        // final groupByCategory result
+        // final category subtotal
         if (this.groupByCategory) {
           output.push({
             p: 'Sum category "' + actCategory + '"',
             d: '',
             t: actCategoryTime,
+            a: actCategoryAmount,
             c: '',
             n: '',
             type: 'subtotal'
           })
         }
-        // final groupByProject result
+        // final project subtotal
         if (this.groupByProject) {
           output.push({
             p: 'Sum project "' + projects[actProject] + '"',
             d: '',
             t: actProjectTime,
+            a: actProjectAmount,
             c: '',
             n: '',
             type: 'subtotal'
           })
         }
 
+        // final total
         output.push({
           p: 'TOTAL SUM',
           d: '',
-          t: actTime,
+          t: actTotalTime,
+          a: actTotalAmount,
           c: '',
           n: '',
           type: 'total'
@@ -730,6 +783,9 @@ export default {
     formatDate: function (date) {
       // (item.d).slice(0, -3)
       return new Date(date).toLocaleString()
+    },
+    formatAmount: function (amount) {
+      return Math.round((amount + 0.00001) * 100) / 100
     },
     toggleProjectSelect () {
       this.$nextTick(() => {

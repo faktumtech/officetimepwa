@@ -82,7 +82,7 @@
           link
           @click="deleteSession"
         >
-          <v-list-item-title>Delete session</v-list-item-title>
+          <v-list-item-title>{{ contextMenuSessionIsExpense ? 'Delete expense' : 'Delete session' }}</v-list-item-title>
         </v-list-item>
         <v-hover
           v-if="otherProjects && otherProjects.length > 0"
@@ -95,7 +95,7 @@
           <template v-slot:activator>
             <v-list-item-title
             >
-              Move to proyect
+              Move to project
             </v-list-item-title>
           </template>
 
@@ -130,7 +130,8 @@ export default {
     headers: [
       { text: '', value: false },
       { text: 'Date', value: 'd' },
-      { text: 'Time', value: 't' },
+      { text: 'Time', value: 't', align: 'end' },
+      { text: 'Amount', value: 'a', align: 'end' },
       { text: 'Category', value: 'c' },
       { text: 'Notes', value: 'n' }
     ],
@@ -138,7 +139,9 @@ export default {
     contextMenuShow: false,
     contextMenuPosX: null,
     contextMenuPosY: null,
-    contextMenuSessionId: null
+    contextMenuSessionId: null,
+    contextMenuSessionIsExpense: false
+
   }),
   computed: {
     sessions () {
@@ -179,6 +182,7 @@ export default {
   methods: {
     rightClick: function (id, event) {
       this.contextMenuSessionId = id
+      this.contextMenuSessionIsExpense = this.$store.getters.getSession(id).e
       this.contextMenuPosX = event.clientX
       this.contextMenuPosY = event.clientY
       // console.log('right click', id, this.contextMenuPosX, this.contextMenuPosY)

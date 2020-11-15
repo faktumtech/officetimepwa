@@ -32,7 +32,6 @@
         outlined
         filled
       >
-
       </v-select>
     </div>
     <v-btn
@@ -43,6 +42,40 @@
     >
       Create your first project
     </v-btn>
+
+    <v-menu
+      v-if="activeProjectId"
+      bottom
+      left
+      offset-y
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          class="mr-2"
+          icon
+          v-bind="attrs"
+          v-on="on"
+          aria-label="Settings"
+        >
+          <v-icon>{{ mdiPlus }}</v-icon>
+        </v-btn>
+      </template>
+        <v-list>
+          <v-list-item
+            link
+            @click="addSession()"
+          >
+            <v-list-item-title>Add session</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            link
+            @click="showModalComponent('addExpense')"
+          >
+            <v-list-item-title>Add expense</v-list-item-title>
+          </v-list-item>
+        </v-list>
+    </v-menu>
+
     <v-menu
       bottom
       left
@@ -105,7 +138,7 @@
 <script>
 import TimerBtn from '@/components/TimerBtn'
 import TimerTimeInput from '@/components/TimerTimeInput'
-import { mdiDotsVertical } from '@mdi/js'
+import { mdiDotsVertical, mdiPlus } from '@mdi/js'
 
 export default {
   components: {
@@ -114,6 +147,7 @@ export default {
   },
   data: () => ({
     mdiDotsVertical: mdiDotsVertical,
+    mdiPlus: mdiPlus,
     backup: {}
   }),
   computed: {
@@ -121,9 +155,9 @@ export default {
       return this.$store.state.projects
     },
     activeProjectId: {
-      set (id) {
+      async set (id) {
         if (id !== this.activeProjectId) {
-          this.$store.dispatch('updateSetting', { key: 'activeProjectId', value: id })
+          await this.$store.dispatch('updateSetting', { key: 'activeProjectId', value: id })
         }
       },
       get () {
@@ -140,6 +174,12 @@ export default {
 
   methods: {
     showModalComponent: function (component) {
+      this.$store.commit('showModalComponent', component)
+    },
+    addSession: async function (component) {
+      await this.$store.dispatch('createSession', this.activeProjectId)
+    },
+    addExpense: function (component) {
       this.$store.commit('showModalComponent', component)
     }
   }

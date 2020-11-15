@@ -9,6 +9,29 @@ db.version(1).stores({
   sessions: '++id,p,d,c' // '++id,p(roject),d(ate),t(ime),c(ategory),n(otes)',
 })
 
+db.version(2).stores({
+  settings: 'k', // k, v
+  projects: '++id,defaultCategory', // id, defaultCategory, title
+  categories: '++id,title', // id, title, rate
+  sessions: '++id,p,e,d,c' // '++id,p(roject),e(xpense),d(ate),t(ime),a(mount),c(ategory),r(ate),n(otes)',
+}).upgrade(async (tx) => {
+  const categories = await db.categories.toArray()
+  const lookup = []
+  for (const item of categories) {
+    lookup[item.id] = item.rate
+  }
+
+  // Upgrade from version 1 to 2
+  return tx.table('sessions').toCollection().modify(session => {
+    const rate = lookup[session.c] || 0
+    // Modify each session
+    session.e = false
+    // https://stackoverflow.com/questions/11832914/round-to-at-most-2-decimal-places-only-if-necessary
+    session.a = Math.round(((rate * session.t / 60) + 0.00001) * 100) / 100
+    session.r = rate
+  })
+})
+
 export default {
   /**
    * create a backup

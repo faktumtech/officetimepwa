@@ -85,7 +85,9 @@ export default {
         console.log('updateTime on running timer', this.timerValue, this.session.t)
         this.timerOffset = this.timerOffset + this.timerValue - this.session.t
       } else {
-        const payload = { id: this.session.id, changes: { t: this.timerValue } }
+        // cast to number
+        const amount = Math.round((this.timerValue * this.session.r / 60 + 0.00001) * 100) / 100
+        const payload = { id: this.session.id, changes: { t: this.timerValue, a: amount } }
         await this.$store.dispatch('updateSession', payload)
       }
     },

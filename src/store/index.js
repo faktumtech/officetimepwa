@@ -304,18 +304,20 @@ export default new Vuex.Store({
       try {
         console.log('createSession')
         const defaultCategory = context.getters.getProject(projectId).defaultCategory
+        const defaultCategoryRate = context.getters.getCategory(defaultCategory).rate
         // local time string in format "yyyy-MM-ddThh:mm:ss"
         // https://stackoverflow.com/questions/10830357/javascript-toisostring-ignores-timezone-offset
         const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
         const localDateTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -8)
         const session = {
           p: projectId, // project
+          e: false, // expense
           d: localDateTime, // start
           t: 0, // time
           a: 0, // amount
           c: defaultCategory,
-          n: '',
-          e: false // expense
+          r: defaultCategoryRate,
+          n: ''
         }
         // store in db and get id
         const sessionId = await db.createSession(session)
@@ -353,6 +355,25 @@ export default new Vuex.Store({
       } catch (err) {
         console.log(err)
       }
+    },
+
+    /**
+     * create expense type session
+     * @param {Object} expense
+     * @return {Promise} undefined
+    */
+    async createExpense (context, expense) {
+      try {
+        console.log('createExpense')
+        // store in db and get id
+        const sessionId = await db.createSession(expense)
+        expense.id = sessionId
+        context.commit('createSession', expense)
+        return sessionId
+      } catch (err) {
+        console.log(err)
+      }
     }
+
   }
 })

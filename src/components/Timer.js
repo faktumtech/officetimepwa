@@ -11,9 +11,10 @@ export default {
    * start timer run and persist timerCount regularily
    * @param {Number} timerId
    * @param {Number} initialTimerCount // elapsed time in seconds
+   * @param {Number} timerRate // rate
    * @return {undefined}
   */
-  start: function (timerId, initialTimerCount) {
+  start: function (timerId, initialTimerCount, timerRate) {
     this.sound()
 
     // clear any active timer
@@ -33,9 +34,10 @@ export default {
       // the timerOffset can be manipulated by other components during a timer run
       const timerOffset = store.state.timerOffset
       const timerCount = Math.floor((now - start + timerOffset * 60000 + initialTimerCount * 60000) / 60000)
+      const amount = Math.round(((timerCount * timerRate / 60) + 0.00001) * 100) / 100
       // console.log('timer', timerOffset, timerCount)
       store.commit('timerCount', timerCount)
-      const payload = { id: timerId, changes: { t: timerCount } }
+      const payload = { id: timerId, changes: { t: timerCount, a: amount } }
       await store.dispatch('updateSession', payload)
     }, 1000)
   },
@@ -81,12 +83,12 @@ export default {
         }
         if (audioContext.state === 'running') {
           shortBeep()
-        } else if (this.audioContext.state === 'suspended') {
+        } else if (audioContext.state === 'suspended') {
           audioContext.resume().then(() => {
             shortBeep()
           })
         } else {
-          console.error(this.audioContext.state)
+          console.error(audioContext.state)
         }
       } catch (err) {
         console.error(err)

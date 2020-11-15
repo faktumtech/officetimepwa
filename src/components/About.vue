@@ -94,7 +94,7 @@
                 x-large
                 @click="mockSessions"
               >
-                Add 10000 sessions with random<br>data to actual proyect
+                Add 10000 sessions with random<br>data to actual project
               </v-btn>
             </v-col>
           </v-row>
