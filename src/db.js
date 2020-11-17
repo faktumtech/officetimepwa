@@ -301,13 +301,18 @@ export default {
     // create syntetic data
     const sessions = []
     const categories = await db.categories.toArray()
+    const projects = await db.projects.toArray()
+    const selectedProject = projects.find(project => project.id === projectId)
+    const selectedCategory = categories.find(category => category.id === selectedProject.defaultCategory)
     const start = new Date().getTime()
     for (let i = 0; i < records; i++) {
       sessions.push({
         p: projectId,
         d: new Date(start + i * 1000).toISOString().substr(0, 16),
         t: i,
-        c: categories[0].id,
+        a: 0,
+        c: selectedCategory.id,
+        r: selectedProject.rate,
         n: ''
       })
     }

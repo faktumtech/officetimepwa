@@ -1,6 +1,6 @@
 {
   "name": "officetimepwa",
-  "version": "0.5.0",
+  "version": "0.5.3",
   "dbVersion": 2,
   "private": true,
   "scripts": {

@@ -3,21 +3,42 @@
     :value="show"
     :color="color"
     :timeout="-1"
+    elevation="4"
     text
+    multi-line
+    class="v-snack--has-background"
   >
-    <v-icon
-      :color="color"
-      class="mr-4"
+    <v-container
+      class="pa-0"
     >
-      {{ icon }}
-    </v-icon>
-    {{ alert.text }}
-    <v-btn
-      text
-      @click.stop="show = false"
-    >
-      Close
-    </v-btn>
+      <v-row
+      >
+        <v-col
+          cols="auto"
+        >
+          <v-icon
+            :color="color"
+            class="mr-4"
+          >
+            {{ icon }}
+          </v-icon>
+        </v-col>
+        <v-col
+        >
+          {{ alert.text }}
+        </v-col>
+        <v-col
+          cols="auto"
+        >
+          <v-btn
+            text
+            @click.stop="show = false"
+          >
+            Close
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-snackbar>
 </template>
 
@@ -26,6 +47,8 @@
  * Alert component that uses v-snackbar
  * use 'no-click-animation' and 'persistent' when using in modal (v-dialog)
  */
+import { mdiThumbUp, mdiInformation, mdiAlert, mdiAlertOctagon } from '@mdi/js'
+
 export default {
   data () {
     return {
@@ -38,6 +61,12 @@ export default {
   computed: {
     alert () {
       return this.$store.state.alert
+    },
+    modalComponent () {
+      return this.$store.state.showModalComponent === 'backup'
+    },
+    modalDlg () {
+      return this.$store.state.modalDlg.show
     }
   },
   watch: {
@@ -50,6 +79,13 @@ export default {
     },
     show: function (value) {
       this.$store.commit('alert', { show: value })
+    },
+    // close alert if opening or closing any modal
+    modalComponent: function () {
+      this.hide()
+    },
+    modalDlg: function () {
+      this.hide()
     }
   },
   methods: {
@@ -73,19 +109,28 @@ export default {
       switch (alert.type) {
         case 'success':
           this.color = 'success'
-          this.icon = 'mdi-thumb-up'
+          this.icon = mdiThumbUp
           break
         case 'warning':
           this.color = 'warning'
-          this.icon = '{{ mdiAlert }}'
+          this.icon = mdiAlert
           break
         case 'error':
           this.color = 'error'
-          this.icon = '{{ mdiAlert }}'
+          this.icon = mdiAlertOctagon
           break
         default:
           this.color = 'info'
-          this.icon = 'mdi-information'
+          this.icon = mdiInformation
+      }
+    },
+    hide: function () {
+      if (this.show) {
+        this.show = false
+        // cancel timer
+        if (this.timeout) {
+          clearTimeout(this.timeout)
+        }
       }
     }
   }

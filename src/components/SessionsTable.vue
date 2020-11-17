@@ -34,7 +34,7 @@
             class="noData"
           >
             <td
-              colspan="5"
+              colspan="6"
               class="pl-0 pr-0"
             >
               <p
@@ -128,7 +128,7 @@ export default {
   data: () => ({
     mdiDatabaseOff: mdiDatabaseOff,
     headers: [
-      { text: '', value: false },
+      { text: '', value: false, sortable: false },
       { text: 'Date', value: 'd' },
       { text: 'Time', value: 't', align: 'end' },
       { text: 'Amount', value: 'a', align: 'end' },

@@ -296,7 +296,7 @@
                   class="noData"
                 >
                   <td
-                    colspan="5"
+                    colspan="6"
                     class="ps-0"
                   >
                     <p
@@ -674,10 +674,12 @@ export default {
               t: actCategoryTime,
               a: actCategoryAmount,
               c: '',
+              r: null,
               n: '',
               type: 'subtotal'
             })
             actCategoryTime = 0
+            actCategoryAmount = 0
             actCategory = row.c
           }
           // make project subtotal if change of project
@@ -688,10 +690,12 @@ export default {
               t: actProjectTime,
               a: actProjectAmount,
               c: '',
+              r: null,
               n: '',
               type: 'subtotal'
             })
             actProjectTime = 0
+            actProjectAmount = 0
             actProject = row.p
           }
           if (this.showSessions && !row.e) {
@@ -701,6 +705,7 @@ export default {
               t: row.t,
               a: row.a,
               c: row.c,
+              r: row.r,
               n: row.n,
               type: 'session'
             })
@@ -712,6 +717,7 @@ export default {
               t: row.t,
               a: row.a,
               c: row.c,
+              r: 0,
               n: row.n,
               type: 'expense'
             })
@@ -740,6 +746,7 @@ export default {
             t: actCategoryTime,
             a: actCategoryAmount,
             c: '',
+            r: null,
             n: '',
             type: 'subtotal'
           })
@@ -752,6 +759,7 @@ export default {
             t: actProjectTime,
             a: actProjectAmount,
             c: '',
+            r: null,
             n: '',
             type: 'subtotal'
           })
@@ -764,6 +772,7 @@ export default {
           t: actTotalTime,
           a: actTotalAmount,
           c: '',
+          r: null,
           n: '',
           type: 'total'
         })

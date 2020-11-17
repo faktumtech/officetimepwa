@@ -35,7 +35,15 @@
                 text
                 type="info"
               >
-                Remember that clearing the browsers site data, will delete all data stored by OfficeTimePwa! Please make backups regularly.
+                <p>
+                  Please remember that due to the nature of Progressive Web Apps (Pwa) the clearing the browsers site data, will delete all data stored by OfficeTimePwa!<br>
+                </p>
+                <p>
+                  <b>Please make backups regularly and move them from the download folder to save location!</b>
+                </p>
+                <p>
+                  Your last backup is from <b>{{ $store.getters.getSetting('lastBackup') }}</b>
+                </p>
               </v-alert>
             </v-col>
           </v-row>
@@ -68,18 +76,6 @@
           >
             </v-col>
           </v-row>
-          <!--
-          <v-row>
-            <v-col>
-              <v-btn
-                text
-                @click="emptyDb"
-              >
-                Empty db
-              </v-btn>
-            </v-col>
-          </v-row>
-          -->
         </v-container>
       </v-card-text>
     </v-card>
@@ -130,8 +126,9 @@ export default {
         this.$store.commit('alert',
           {
             show: true,
-            text: 'Backup saved!',
-            type: 'info'
+            text: 'Backup saved successfully to download folder! Please move the backup to a save location!',
+            type: 'warning',
+            timeout: 15000
           }
         )
       } catch (err) {
@@ -139,7 +136,8 @@ export default {
           {
             show: true,
             text: 'An error has occurred creating backup!',
-            type: 'error'
+            type: 'error',
+            timeout: 15000
           }
         )
       }
@@ -174,11 +172,11 @@ export default {
         confirmText: 'Restore backup'
       }
       this.$store.commit('showModalDlg', modalDlg)
-      EventBus.$on('modalEvent', (e) => {
-        this.$store.commit('hideModalDlg')
+      EventBus.$on('modalEvent', async (e) => {
         EventBus.$off('modalEvent')
+        this.$store.commit('hideModalDlg')
         if (e === 'confirm') {
-          this.restoreBackupConfirm()
+          await this.restoreBackupConfirm()
         }
       })
     },
@@ -191,7 +189,8 @@ export default {
           {
             show: true,
             text: 'Backup restored successfully!',
-            type: 'info'
+            type: 'info',
+            timeout: 15000
           }
         )
       } catch (err) {
@@ -201,7 +200,8 @@ export default {
           {
             show: true,
             text: 'Unkown error during restore!',
-            type: 'error'
+            type: 'error',
+            timeout: 15000
           }
         )
       }

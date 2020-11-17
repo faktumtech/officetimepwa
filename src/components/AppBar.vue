@@ -34,14 +34,6 @@
       >
       </v-select>
     </div>
-    <v-btn
-      class="mr-3"
-      v-else
-      color="primary"
-      @click="showModalComponent('projects')"
-    >
-      Create your first project
-    </v-btn>
 
     <v-menu
       v-if="activeProjectId"

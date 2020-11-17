@@ -24,11 +24,55 @@
       <v-card-text
         class="dlgScroll"
       >
-        <AboutText></AboutText>
         <v-container
           fluid
         >
           <v-row>
+            <v-col
+              cols="12"
+              md="8"
+              offset-md="2"
+              lg="6"
+              offset-lg="3"
+              xl="4"
+              offset-xl="4"
+            >
+              <p
+                class="text-h4 primary--text"
+              >
+                <v-icon
+                  x-large
+                  class="mr-3"
+                >
+                  $vuetify.icons.logo
+                </v-icon>
+                OfficeTimePwa
+              </p>
+              <p
+                class="body-1"
+              >
+                Time tracking tool for freelancers. Heavely inspired by OfficeTime. All data is stored locally in the browser (through IndexedDB) and is never send to any server.
+              </p>
+              <p
+                class="body-1"
+              >
+                This application is designed as a Progressive Web Application (PWA) and once installed ('Add to desktop') it can be used offline.
+              </p>
+              <p
+                class="body-1"
+              >
+                Copyright <b>cfbutt</b>. Licensed under GPL v3. Source code at <a target="_blank" rel="noopener noreferrer" href="https://github.com/cfbutt/officetimepwa">https://github.com/cfbutt/officetimepwa</a>.
+              </p>
+
+              <v-alert
+                :icon="mdiDeleteAlert"
+                prominent
+                text
+                type="info"
+              >
+                Remember that clearing the browsers site data, will delete all data stored by OfficeTimePwa! Please make backups regularly.
+              </v-alert>
+            </v-col>
             <v-col
               cols="12"
               md="8"
@@ -73,29 +117,42 @@
                       <td>Last backup:</td>
                       <td><b>{{ $store.getters.getSetting('lastBackup') }}</b></td>
                     </tr>
+                    <tr
+                    >
+                      <td
+                        colspan="2"
+                        class="text-center"
+                        style="border-bottom: none"
+                      >
+                        <v-btn
+                          color="primary"
+                          text
+                          @click="reload"
+                        >
+                          Reload app
+                        </v-btn>
+                      </td>
+                    </tr>
+                    <tr
+                    >
+                      <td
+                        v-if="activeProjectId"
+                        colspan="2"
+                        class="text-center"
+                        style="border-bottom: none"
+                      >
+                        <v-btn
+                          color="error"
+                          text
+                          @click="mockSessions"
+                        >
+                          Add 10000 sessions with random<br>data to actual project
+                        </v-btn>
+                      </td>
+                    </tr>
                   </tbody>
                 </template>
               </v-simple-table>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              cols="12"
-              md="8"
-              offset-md="2"
-              lg="6"
-              offset-lg="3"
-              xl="4"
-              offset-xl="4"
-              class="text-center"
-            >
-              <v-btn
-                color="warning"
-                x-large
-                @click="mockSessions"
-              >
-                Add 10000 sessions with random<br>data to actual project
-              </v-btn>
             </v-col>
           </v-row>
         </v-container>
@@ -106,16 +163,13 @@
 
 <script>
 import db from '@/db'
-import AboutText from '@/components/AboutText'
-import { mdiClose } from '@mdi/js'
+import { mdiClose, mdiDeleteAlert } from '@mdi/js'
 
 export default {
   data: () => ({
-    mdiClose: mdiClose
+    mdiClose: mdiClose,
+    mdiDeleteAlert: mdiDeleteAlert
   }),
-  components: {
-    AboutText
-  },
   computed: {
     show: {
       get () {
@@ -124,11 +178,18 @@ export default {
       set (value) {
         this.$store.commit('showModalComponent', value ? 'about' : false)
       }
+    },
+    activeProjectId () {
+      return this.$store.getters.getSetting('activeProjectId')
     }
   },
   methods: {
     mockSessions: async function (params) {
       await db.mockSessions(this.$store.getters.getSetting('activeProjectId'), 10000)
+      this.reload()
+    },
+    reload: function () {
+      window.location.reload()
     }
   }
 }

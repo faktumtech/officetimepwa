@@ -5,16 +5,17 @@
     :overlayColor="$vuetify.theme.dark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
   >
     <v-card>
-      <v-card-title>
-        <span class="headline">{{ formTitle }}</span>
-      </v-card-title>
+      <v-form
+        @submit.prevent="save"
+        ref="form"
+        v-model="valid"
+        lazy-validation
+      >
+        <v-card-title>
+          <span class="headline">{{ formTitle }}</span>
+        </v-card-title>
 
-      <v-card-text>
-        <v-form
-          ref="form"
-          v-model="valid"
-          lazy-validation
-        >
+        <v-card-text>
           <v-container>
             <v-row>
               <v-col
@@ -40,25 +41,25 @@
               </v-col>
             </v-row>
           </v-container>
-        </v-form>
-      </v-card-text>
+        </v-card-text>
 
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
-          text
-          @click="close"
-        >
-          Cancel
-        </v-btn>
-        <v-btn
-          color="primary"
-          text
-          @click="save"
-        >
-          Save
-        </v-btn>
-      </v-card-actions>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            text
+            @click="close"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            type="submit"
+            text
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-form>
     </v-card>
   </v-dialog>
 </template>

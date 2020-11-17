@@ -57,7 +57,7 @@
                   <template v-slot:[`item.actions`]="{ item }">
                     <v-icon
                       small
-                      class="mr-2"
+                      class="mr-4"
                       @click="editItem(item.id)"
                     >
                       {{ mdiPencil }}
@@ -151,16 +151,20 @@ export default {
       }
       this.$store.commit('showModalDlg', modalDlg)
 
-      EventBus.$on('modalEvent', (e) => {
-        this.$store.commit('hideModalDlg')
+      EventBus.$on('modalEvent', async (e) => {
         EventBus.$off('modalEvent')
+        // mantain dlg open during execution
         if (e === 'confirm') {
-          this.deleteItemConfirm(itemId)
+          await this.deleteItemConfirm(itemId)
         }
+        this.$store.commit('hideModalDlg')
       })
     },
     deleteItemConfirm: async function (itemId) {
       await this.$store.dispatch('deleteProject', itemId)
+      const firstProject = this.projects[0]
+      const activeProjectId = firstProject ? firstProject.id : null
+      await this.$store.dispatch('updateSetting', { key: 'activeProjectId', value: activeProjectId })
     }
   }
 

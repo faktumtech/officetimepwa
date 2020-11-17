@@ -5,9 +5,9 @@
       <SessionsTable
         v-if="activeProjectId"
       ></SessionsTable>
-      <AboutText
+      <Greeting
         v-else
-      ></AboutText>
+      ></Greeting>
       <!--
         use v-if or eager on v-dialog until focus bug is solved
         https://github.com/vuetifyjs/vuetify/issues/11257
@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import SwUpdate from '@/mixins/SwUpdate'
 import AppBar from '@/components/AppBar'
 import ModalDlg from '@/components/ModalDlg'
 import Alert from '@/components/Alert'
@@ -35,7 +36,7 @@ import Categories from '@/components/Categories'
 import Settings from '@/components/Settings'
 import Backup from '@/components/Backup'
 import About from '@/components/About'
-import AboutText from '@/components/AboutText'
+import Greeting from '@/components/Greeting'
 import Reports from '@/components/Reports'
 import AddExpense from '@/components/AddExpense'
 
@@ -53,13 +54,14 @@ export default {
     Reports,
     Backup,
     About,
-    AboutText,
+    Greeting,
     AddExpense
   },
   data () {
     return {
     }
   },
+  mixins: [SwUpdate],
   computed: {
     dark () {
       return this.$store.getters.getSetting('dark')
