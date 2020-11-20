@@ -38,6 +38,7 @@
       </span>
     </td>
     <td
+      align='right'
       class="tableTimeRow text-end"
     >
       <TimerTimeInput
@@ -270,6 +271,10 @@ export default {
 
   .sessionsTable .dateField {
     margin-top: 1px !important;
+  }
+
+  .sessionsTable .timerField {
+    display: inline-flex;
   }
 
 </style>

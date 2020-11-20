@@ -243,12 +243,13 @@ export default new Vuex.Store({
     /**
      * create category
      * @param {Object} category
-     * @return {Promise} undefined
+     * @return {Promise} id of created category
     */
     async createCategory (context, category) {
       const id = await db.createCategory(category)
       category.id = id
       context.commit('createCategory', category)
+      return id
     },
 
     /**
@@ -373,7 +374,23 @@ export default new Vuex.Store({
       } catch (err) {
         console.log(err)
       }
-    }
+    },
 
+    /**
+     * bulk import sessions (to actualProject)
+     * @param {Array} newSessions
+     * @return {Promise} undefined
+    */
+    async importSessions (context, newSessions) {
+      try {
+        await db.bulkAddSessions(newSessions)
+        // get all sessions of project
+        const sessions = await db.getSessionsByProjectId(context.state.settings.activeProjectId)
+        console.log(sessions.length)
+        context.commit('setSessions', sessions)
+      } catch (err) {
+        console.log(err)
+      }
+    }
   }
 })

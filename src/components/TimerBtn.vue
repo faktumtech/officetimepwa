@@ -3,7 +3,7 @@
     <v-btn
       v-if="tableTimer || btnStatus!=='running'"
       @click.left.stop="timerClick"
-      @click.right.prevent="timerClickRight"
+      @click.right.prevent.stop="timerClickRight"
       :title="btn[btnStatus].title"
       :color="btn[btnStatus].color"
       elevation="1"
@@ -26,6 +26,8 @@
       <v-btn
         @click.left.stop="timerClick"
         @click.right.prevent="timerClickRight"
+        v-on:keyup.space="timerClick"
+        @keyup.native.alt.67="timerClick"
         :title="btn[btnStatus].title"
         :color="btn[btnStatus].color"
         elevation="1"
@@ -42,7 +44,7 @@
 
 <script>
 import Timer from '@/components/Timer'
-import { mdiPlay, mdiPause, mdiStop } from '@mdi/js'
+import { mdiPlay, mdiPlayPause, mdiStop } from '@mdi/js'
 
 export default {
   name: 'TimerBtn',
@@ -55,17 +57,17 @@ export default {
         stopped: {
           color: 'primary',
           icon: mdiPlay,
-          title: 'Start'
+          title: 'Start session\n(Keyboard: space)'
         },
         paused: {
           color: 'error',
-          icon: mdiPause,
-          title: 'Resume / Stop (Right clic)'
+          icon: mdiPlayPause,
+          title: 'Resume session\n(Keyboard: space)\n\nStop (Right clic)\n(Keyboard: ctrl+space)'
         },
         running: {
           color: 'success',
           icon: mdiStop,
-          title: 'Stop / Pause (Right clic)'
+          title: 'Stop\n(Keyboard: ctrl+space)\n\nPause (Right clic)\n(Keyboard: space)'
         }
       }
     }
@@ -80,6 +82,23 @@ export default {
     timerId: {
       type: Number,
       default: null
+    }
+  },
+  created () {
+    // component will be loaded twice => only add listener for component in appbar
+    if (!this.tableTimer) {
+      window.addEventListener(
+        'keyup',
+        this.listenForKeyboardShortcuts
+      )
+    }
+  },
+  destroyed () {
+    if (!this.tableTimer) {
+      window.removeEventListener(
+        'keyup',
+        this.listenForKeyboardShortcuts
+      )
     }
   },
   computed: {
@@ -104,6 +123,30 @@ export default {
   },
 
   methods: {
+    listenForKeyboardShortcuts (event) {
+      console.log(event)
+      const tagName = (event && event.target) ? event.target.tagName : false
+      const ignoredTags = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON']
+      // space key => avoid triggering in forms
+      if (event.keyCode === 32 && !ignoredTags.includes(tagName)) {
+        console.log('space key')
+        if (this.btnStatus === 'running') {
+          if (event.ctrlKey) {
+            Timer.stop()
+          } else {
+            Timer.pause()
+          }
+        } else if (this.btnStatus === 'paused') {
+          if (event.ctrlKey) {
+            Timer.stop()
+          } else {
+            this.timerStart()
+          }
+        } else {
+          this.timerStart()
+        }
+      }
+    },
     timerClickRight: function () {
       console.log('right click')
       if (this.btnStatus === 'running') {
@@ -117,22 +160,31 @@ export default {
       if (this.btnStatus === 'running') {
         Timer.stop()
       } else {
-        // stopped or paused
-        let timerId = this.timerId
-        if (timerId === null) {
-          // mainbtn
-          if (this.btnStatus === 'stopped') {
-            timerId = await this.$store.dispatch('createSession', this.activeProjectId)
-          } else if (this.btnStatus === 'paused') {
-            // timerSessionId should still be set
-            timerId = this.$store.state.timerSessionId
-          }
-        }
-        const session = this.$store.getters.getSession(timerId)
-        // don't select automatically but unselect any
-        this.$store.commit('selectedSessionId', session.id)
-        Timer.start(session.id, session.t, session.r)
+        this.timerStart()
       }
+    },
+    /**
+     * resume or create new session according to btnStatus
+    */
+    timerStart: async function () {
+      if (this.btnStatus === 'running') {
+        return
+      }
+      // stopped or paused
+      let timerId = this.timerId
+      if (timerId === null) {
+        // mainbtn
+        if (this.btnStatus === 'stopped') {
+          timerId = await this.$store.dispatch('createSession', this.activeProjectId)
+        } else if (this.btnStatus === 'paused') {
+          // timerSessionId should still be set
+          timerId = this.$store.state.timerSessionId
+        }
+      }
+      const session = this.$store.getters.getSession(timerId)
+      // don't select automatically but unselect any
+      this.$store.commit('selectedSessionId', session.id)
+      Timer.start(session.id, session.t, session.r)
     }
   }
 }

@@ -23,10 +23,19 @@
         <v-toolbar-items>
           <v-btn
             text
-            @click="exportReport"
+            @click="copyReport(true)"
             :disabled="!rawSessions || rawSessions.length === 0"
           >
             Copy to clipboard
+          </v-btn>
+        </v-toolbar-items>
+        <v-toolbar-items>
+          <v-btn
+            text
+            @click="saveReport(false)"
+            :disabled="!rawSessions || rawSessions.length === 0"
+          >
+            Save
           </v-btn>
         </v-toolbar-items>
       </v-toolbar>
@@ -379,8 +388,10 @@
 </template>
 
 <script>
+import Utils from '@/mixins/Utils'
 import db from '@/db'
 import { mdiClose, mdiDatabaseOff, mdiCloseBox, mdiMinusBox, mdiCheckboxBlankOutline } from '@mdi/js'
+import { saveAs } from 'file-saver'
 
 export default {
   data () {
@@ -496,51 +507,44 @@ export default {
     }
   },
   methods: {
-    getLocalDateStr: function (date) {
-      // local date string in format "yyyy-MM-dd"
-      // https://stackoverflow.com/questions/10830357/javascript-toisostring-ignores-timezone-offset
-      const tzoffset = (date).getTimezoneOffset() * 60000 // offset in milliseconds
-      return (new Date(date - tzoffset)).toISOString().slice(0, -14)
-    },
-
     getDatePresets: function () {
       const today = new Date()
-      console.log(this.getLocalDateStr(today))
       const longAgo = new Date(2000, 0, 1) // month jan = 0
       const weekStart = new Date(new Date().setDate(today.getDate() - today.getDay()))
       const yearStart = new Date(today.getFullYear(), 0, 1) // month jan = 0
       const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
-      console.log(this.getLocalDateStr(today), this.getLocalDateStr(monthStart), this.getLocalDateStr(yearStart))
+      // getLocalDateStr => from mixins
+      console.log(Utils.getLocalDateStr(today), Utils.getLocalDateStr(monthStart), Utils.getLocalDateStr(yearStart))
       return [
         {
           id: 1,
           title: 'All times',
-          startDate: this.getLocalDateStr(longAgo),
-          endDate: this.getLocalDateStr(today)
+          startDate: Utils.getLocalDateStr(longAgo),
+          endDate: Utils.getLocalDateStr(today)
         },
         {
           id: 2,
           title: 'Today',
-          startDate: this.getLocalDateStr(today),
-          endDate: this.getLocalDateStr(today)
+          startDate: Utils.getLocalDateStr(today),
+          endDate: Utils.getLocalDateStr(today)
         },
         {
           id: 3,
           title: 'This week',
-          startDate: this.getLocalDateStr(weekStart),
-          endDate: this.getLocalDateStr(today)
+          startDate: Utils.getLocalDateStr(weekStart),
+          endDate: Utils.getLocalDateStr(today)
         },
         {
           id: 4,
           title: 'This month',
-          startDate: this.getLocalDateStr(monthStart),
-          endDate: this.getLocalDateStr(today)
+          startDate: Utils.getLocalDateStr(monthStart),
+          endDate: Utils.getLocalDateStr(today)
         },
         {
           id: 5,
           title: 'This year',
-          startDate: this.getLocalDateStr(yearStart),
-          endDate: this.getLocalDateStr(today)
+          startDate: Utils.getLocalDateStr(yearStart),
+          endDate: Utils.getLocalDateStr(today)
         }
       ]
     },
@@ -801,7 +805,7 @@ export default {
         if (this.allProjectsSelected) {
           this.selectedProjects = []
         } else {
-          // projects: array of objs
+          // projects: array of objIds
           this.selectedProjects = this.projects.map((obj) => { return obj.id })
         }
       })
@@ -816,7 +820,7 @@ export default {
         }
       })
     },
-    exportReport: async function () {
+    copyReport: async function () {
       try {
         if (!this.$store.state.clipboardApi) {
           this.$store.commit(
@@ -827,9 +831,9 @@ export default {
               type: 'error'
             }
           )
+          return
         }
 
-        // const text = JSON.stringify(this.groupedSessions)
         const input = this.groupedSessions
         if (!input || input.length === 0) {
           return
@@ -846,7 +850,53 @@ export default {
         }
         await navigator.clipboard.writeText(output)
       } catch (err) {
-        console.err(err)
+        this.$store.commit('alert',
+          {
+            show: true,
+            text: 'An error has occurred copying this report to the clipboard!',
+            type: 'error'
+          }
+        )
+      }
+    },
+    saveReport: async function () {
+      try {
+        // getLocalDateStr => from mixins
+        const dateTimeStr = Utils.getLocalDateTimeStr(new Date())
+        const filename = 'officetime_report_' + dateTimeStr + '.csv'
+        const input = this.groupedSessions
+        if (!input || input.length === 0) {
+          return
+        }
+
+        let output = '\tProject\tDate\tTime (min)\tTime (hh:mm)\tCategory\tNotes\n\n'
+        output += 'Report OfficeTimePWA from ' + this.startDate + ' to ' + this.endDate + '.\n\n'
+
+        for (const row of input) {
+          output += '\t' + row.p + '\t' + row.d + '\t' + row.t + '\t"' + this.formatTime(row.t, true) + '"\t' + row.c + '\t' + row.n + '\n'
+          if (row.type === 'subtotal') {
+            output += '\n'
+          }
+        }
+
+        const blob = new Blob([output], { type: '"text/plain;charset=utf-8' })
+        saveAs(blob, filename)
+        this.$store.commit('alert',
+          {
+            show: true,
+            text: 'Report saved successfully to download folder!',
+            type: 'info'
+          }
+        )
+      } catch (err) {
+        console.log(err)
+        this.$store.commit('alert',
+          {
+            show: true,
+            text: 'An error has occurred saving report!',
+            type: 'error'
+          }
+        )
       }
     }
   }

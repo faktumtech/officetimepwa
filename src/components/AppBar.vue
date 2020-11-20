@@ -105,6 +105,12 @@
           </v-list-item>
           <v-list-item
             link
+            @click="showModalComponent('import')"
+          >
+            <v-list-item-title>Import</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            link
             @click="showModalComponent('backup')"
           >
             <v-list-item-title>Backups</v-list-item-title>
@@ -163,7 +169,12 @@ export default {
       return this.$store.getters.getSession(this.timerSessionId)
     }
   },
-
+  watch: {
+    activeProjectId: function (activeProjectId) {
+      const activeProjectTitle = this.$store.getters.getProject(activeProjectId).title
+      this.$store.commit('activeProjectTitle', activeProjectTitle)
+    }
+  },
   methods: {
     showModalComponent: function (component) {
       this.$store.commit('showModalComponent', component)

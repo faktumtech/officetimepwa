@@ -17,6 +17,7 @@
       <Reports></Reports>
       <Settings></Settings>
       <Backup></Backup>
+      <Import></Import>
       <About></About>
       <AddExpense></AddExpense>
     </v-main>
@@ -38,11 +39,12 @@ import Backup from '@/components/Backup'
 import About from '@/components/About'
 import Greeting from '@/components/Greeting'
 import Reports from '@/components/Reports'
+import Import from '@/components/Import'
 import AddExpense from '@/components/AddExpense'
 
 export default {
   name: 'App',
-
+  mixins: [SwUpdate],
   components: {
     ModalDlg,
     Alert,
@@ -55,13 +57,13 @@ export default {
     Backup,
     About,
     Greeting,
+    Import,
     AddExpense
   },
   data () {
     return {
     }
   },
-  mixins: [SwUpdate],
   computed: {
     dark () {
       return this.$store.getters.getSetting('dark')

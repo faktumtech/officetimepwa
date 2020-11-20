@@ -4,9 +4,15 @@
 
 ## Roadmap / Ideas
 - Reminder for backups
-- Allow Keyboard shortcuts for stop / start / pause
 
 ## Changelog
+
+v0.6.0
+- let user imports data from csv
+
+v0.5.4
+- Allow Keyboard shortcuts for stop / start / pause
+- Save option for reports
 
 v0.5.3
 - mechanism to trigger serviceWorker update manually (important for IOS)

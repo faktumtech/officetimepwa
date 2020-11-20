@@ -317,5 +317,14 @@ export default {
       })
     }
     return db.sessions.bulkPut(sessions)
+  },
+
+  /**
+   * add sessions in bulk
+   * @param {Number} newSessions
+   * @return {Promise}
+  */
+  bulkAddSessions: async (newSessions) => {
+    return db.sessions.bulkPut(newSessions)
   }
 }

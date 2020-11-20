@@ -83,6 +83,7 @@
 </template>
 
 <script>
+import Utils from '@/mixins/Utils'
 import { saveAs } from 'file-saver'
 import EventBus from '@/components/EventBus'
 import db from '@/db'
@@ -105,23 +106,18 @@ export default {
     }
   },
   methods: {
-    getLocalDateTimeStr: function (date) {
-      // local date string in format "yyyy-MM-dd"
-      // https://stackoverflow.com/questions/10830357/javascript-toisostring-ignores-timezone-offset
-      const tzoffset = (date).getTimezoneOffset() * 60000 // offset in milliseconds
-      return (new Date(date - tzoffset)).toISOString().slice(0, -5)
-    },
     emptyDb: async function () {
       await db.dbErase()
     },
     saveBackup: async function () {
       try {
-        const dateTimeStr = this.getLocalDateTimeStr(new Date())
+        // getLocalDateStr => from mixins
+        const dateTimeStr = Utils.getLocalDateTimeStr(new Date())
         const filename = 'officetime_backup_' + dateTimeStr + '.bak'
         const backupStr = await db.dbBackup(dateTimeStr)
         await this.$store.dispatch('updateSetting', { key: 'lastBackup', value: dateTimeStr })
 
-        var blob = new Blob([backupStr], { type: '"text/plain;charset=utf-8' })
+        const blob = new Blob([backupStr], { type: '"text/plain;charset=utf-8' })
         saveAs(blob, filename)
         this.$store.commit('alert',
           {
