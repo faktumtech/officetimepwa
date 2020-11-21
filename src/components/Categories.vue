@@ -45,7 +45,8 @@
                   :mobile-breakpoint="0"
                   :headers="headers"
                   :items="categories"
-                  :items-per-page="100"
+                  :items-per-page="10"
+                  :footer-props="footerProps"
                   :sort-by="'id'"
                   :sort-desc="true"
                 >
@@ -98,6 +99,9 @@ export default {
         { text: 'Rate ', value: 'rate' },
         { text: 'Actions', value: 'actions', sortable: false }
       ],
+      footerProps: {
+        'items-per-page-options': [10, 25, 100, -1]
+      },
       showEditDlg: false,
       showDeleteDlg: false,
       editedItemId: null

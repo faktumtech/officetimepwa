@@ -74,17 +74,19 @@
             <v-col
             >
               <v-data-table
+                :mobile-breakpoint="0"
                 :headers="loadedHeaders"
                 :items="loadedItems"
-                :items-per-page="100"
+                :items-per-page="10"
+                :footer-props="footerProps"
                 hide-default-header
-                class="elevation-3"
+                class="elevation-0"
               >
                 <template
                   v-slot:top
                 >
                   <div
-                    class="pa-4 text-subtitle-1 warning--text"
+                    class="py-2 text-subtitle-1 warning--text"
                   >
                     Please select the columns to be imported and their target data field!
                   </div>
@@ -96,6 +98,7 @@
                     <tr>
                       <th
                         v-for="item in headers" :key="item.value"
+                        style="font-weight: normal;"
                       >
                         <v-select
                           v-model="item.parserId"
@@ -139,10 +142,11 @@
             <v-col
             >
               <v-data-table
+                :mobile-breakpoint="0"
                 :headers="parsedHeaders"
                 :items="parsedItems"
-                :items-per-page="100"
-                class="elevation-3"
+                :items-per-page="10"
+                :footer-props="footerProps"
               >
                 <template
                   v-slot:top
@@ -153,6 +157,12 @@
                     This is the data that will be imported to project <b>{{ activeProject.title }}</b>!
                   </div>
                 </template>
+                <template
+                  v-slot:[`item.d`]="{ item }"
+                >
+                  {{ Utils.formatDate(item.d) }}
+                </template>
+
               </v-data-table>
             </v-col>
           </v-row>
@@ -185,12 +195,14 @@
 
 <script>
 import Papa from 'papaparse'
-import Utils from '@/mixins/Utils'
+import Utils from '@/utils/Utils'
 // import db from '@/db'
 import { mdiClose, mdiDatabaseImport } from '@mdi/js'
 
 export default {
-  mixins: [Utils],
+  beforeCreate () {
+    this.Utils = Utils
+  },
   data: () => ({
     mdiClose: mdiClose,
     mdiDatabaseImport: mdiDatabaseImport,
@@ -204,18 +216,23 @@ export default {
       { text: 'Amount ', value: 'a' },
       { text: 'Expense', value: 'e' },
       { text: 'Category ', value: 'c' },
-      { text: 'Notes', value: 'c' }
+      { text: 'Notes', value: 'n' }
     ],
+    footerProps: {
+      'items-per-page-options': [10, 25, 100, -1]
+    },
     parsers: [
       { id: 0, targetField: null, text: 'Ignore', funct: Utils.parseIgnore },
-      { id: 1, targetField: 'd', text: 'DateTime', funct: Utils.parseText },
-      { id: 2, targetField: 't', text: 'Time (min)', funct: Utils.parseNum },
-      { id: 3, targetField: 't', text: 'Time (hours)', funct: Utils.parseNumMulti60 },
-      { id: 4, targetField: 'a', text: 'Session Amount', funct: Utils.parseNum },
-      { id: 5, targetField: 'a', text: 'Expense Amount', funct: Utils.parseNum },
-      { id: 6, targetField: 'c', text: 'Category', funct: Utils.parseText },
-      { id: 7, targetField: 'n', text: 'Notes', funct: Utils.parseText }
-    ]
+      { id: 1, targetField: 'd', text: 'Date (dd/MM/yyyy hh:mm)', funct: Utils.parseDateStr },
+      { id: 2, targetField: 'd', text: 'Date (yyyy-MM-ddThh:mm)', funct: Utils.parseISODateStr },
+      { id: 3, targetField: 't', text: 'Time (min)', funct: Utils.parseMinutes },
+      { id: 4, targetField: 't', text: 'Time (hours)', funct: Utils.parseHours },
+      { id: 5, targetField: 'a', text: 'Session Amount', funct: Utils.parseNum },
+      { id: 6, targetField: 'a', text: 'Expense Amount', funct: Utils.parseNum },
+      { id: 7, targetField: 'c', text: 'Category', funct: Utils.parseText },
+      { id: 8, targetField: 'n', text: 'Notes', funct: Utils.parseText }
+    ],
+    expenseIdentifier: 6 // used as identifier of expenses
   }),
   computed: {
     show: {
@@ -231,6 +248,14 @@ export default {
     },
     activeProject () {
       return this.$store.getters.getProject(this.activeProjectId)
+    }
+  },
+  watch: {
+    show: function () {
+      // this could also be done on mounted
+      // but then it would not get updated each time the report is opened
+      this.loadedItems = []
+      this.parsedItems = []
     }
   },
   methods: {
@@ -301,9 +326,9 @@ export default {
       // check for specified target fields
       let targetFields = this.loadedHeaders.map((obj) => { return parsersLookup[obj.parserId].targetField })
       targetFields = targetFields.filter((el) => { return el !== null })
-      console.log(targetFields)
-      // check if parser id === 4 ('Expense Amount') is included or not
-      const isExpense = this.loadedHeaders.find((obj) => { return obj.id === 4 })
+
+      // check if parser ('Expense Amount') is included or not
+      const isExpense = this.loadedHeaders.find((obj) => { return obj.id === this.expenseIdentifier })
 
       // target fields should not repeat
       // https://stackoverflow.com/questions/49215358/checking-for-duplicate-strings-in-javascript-array/54974076
@@ -390,10 +415,10 @@ export default {
 
           // if amount not given, calculate from category rate and time
           if (!targetFields.includes('a')) {
-            obj.a = Utils.round2(rate * obj.t / 60)
+            obj.a = Utils.round(rate * obj.t / 60, 2)
           // if amount given, try to calculate rate from amount and time
           } else if (obj.a !== 0 && obj.t !== 0) {
-            obj.r = Utils.round2(60 * obj.a / obj.t)
+            obj.r = Utils.round(60 * obj.a / obj.t, 2)
           }
           parsedItems.push(obj)
         }
@@ -432,6 +457,8 @@ export default {
             categoryIdLookup[item.c] = categoryId
           }
           importItem.c = categoryId
+          // replace date with ISO dateTime string without seconds
+          importItem.d = Utils.formatDateToLocalDateTimeIsoStr(importItem.d).slice(0, -3)
           importItems.push(importItem)
         }
         this.$store.dispatch('importSessions', importItems)

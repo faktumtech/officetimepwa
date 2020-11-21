@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 // import errorMessages from './errorMessages'
 import initialStates from './initialStates'
 import db from '@/db'
+import Utils from '../utils/Utils'
 
 Vue.use(Vuex)
 
@@ -15,7 +16,7 @@ export default new Vuex.Store({
       activeProjectId: null,
       dark: false, // dark theme
       sound: false,
-      lastBackup: 'never'
+      lastBackupDate: 'never'
     },
     projects: [],
     categories: [],
@@ -171,8 +172,8 @@ export default new Vuex.Store({
         context.commit('updateSetting', { key: 'dark', value: dark })
         const sound = await db.getSetting('sound') || false
         context.commit('updateSetting', { key: 'sound', value: sound })
-        const lastBackup = await db.getSetting('lastBackup') || 'never'
-        context.commit('updateSetting', { key: 'lastBackup', value: lastBackup })
+        const lastBackupDate = await db.getSetting('lastBackupDate') || 'never'
+        context.commit('updateSetting', { key: 'lastBackupDate', value: lastBackupDate })
         const projects = await db.getProjects()
         context.commit('setProjects', projects)
         const categories = await db.getCategories()
@@ -306,14 +307,10 @@ export default new Vuex.Store({
         console.log('createSession')
         const defaultCategory = context.getters.getProject(projectId).defaultCategory
         const defaultCategoryRate = context.getters.getCategory(defaultCategory).rate
-        // local time string in format "yyyy-MM-ddThh:mm:ss"
-        // https://stackoverflow.com/questions/10830357/javascript-toisostring-ignores-timezone-offset
-        const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
-        const localDateTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -8)
         const session = {
           p: projectId, // project
           e: false, // expense
-          d: localDateTime, // start
+          d: Utils.formatDateToLocalDateTimeIsoStr(new Date()).slice(0, -3), // start without seconds
           t: 0, // time
           a: 0, // amount
           c: defaultCategory,

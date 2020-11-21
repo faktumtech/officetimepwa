@@ -48,7 +48,7 @@ export default {
     backup.meta = {
       appVersion: appVersion,
       dbVersion: dbVersion,
-      date: dateTimeStr,
+      backupDate: dateTimeStr,
       projectsCount: backup.projects.length,
       categoriesCount: backup.categories.length,
       sessionsCount: backup.sessions.length

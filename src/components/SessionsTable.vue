@@ -16,7 +16,8 @@
       :headers="headers"
       :items="sessions"
       :items-per-page="100"
-      :sort-by="'id'"
+      :footer-props="footerProps"
+      :sort-by="'d'"
       :sort-desc="true"
       :loading="loading"
       class="sessionsTable"
@@ -135,13 +136,15 @@ export default {
       { text: 'Category', value: 'c' },
       { text: 'Notes', value: 'n' }
     ],
+    footerProps: {
+      'items-per-page-options': [10, 25, 100, -1]
+    },
     loading: false,
     contextMenuShow: false,
     contextMenuPosX: null,
     contextMenuPosY: null,
     contextMenuSessionId: null,
     contextMenuSessionIsExpense: false
-
   }),
   computed: {
     sessions () {

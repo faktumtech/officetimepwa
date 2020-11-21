@@ -285,7 +285,8 @@
             :mobile-breakpoint="0"
             :headers="headers"
             :items="groupedSessions"
-            :items-per-page="100"
+            :items-per-page="10"
+            :footer-props="footerProps"
             :sort-by="'id'"
             :sort-desc="true"
             :loading="loading"
@@ -341,29 +342,27 @@
                       <b>{{ item.p }}</b>
                   </td>
                   <td v-if="item.type === 'session' || item.type === 'expense'">
-                    {{ formatDate(item.d) }}
+                    {{ Utils.formatDate(item.d) }}
                   </td>
                   <td
+                    class="text-end"
                   >
-                    <div class="timeDisplay">
-                      <span v-if="item.type === 'session' || item.type === 'expense'">
-                        {{ formatTime(item.t) }}
-                      </span>
-                      <span v-else>
-                        <b>{{ formatTime(item.t) }}</b>
-                      </span>
-                    </div>
+                    <span v-if="item.type === 'session' || item.type === 'expense'">
+                      {{ Utils.formatTime(item.t) }}
+                    </span>
+                    <span v-else>
+                      <b>{{ Utils.formatTime(item.t) }}</b>
+                    </span>
                   </td>
                   <td
+                    class="text-end"
                   >
-                    <div class="amountDisplay">
-                      <span v-if="item.type === 'session' || item.type === 'expense'">
-                        {{ formatAmount(item.a) }}
-                      </span>
-                      <span v-else>
-                        <b>{{ formatAmount(item.a) }}</b>
-                      </span>
-                    </div>
+                    <span v-if="item.type === 'session' || item.type === 'expense'">
+                      {{ Utils.formatAmount(item.a, 2) }}
+                    </span>
+                    <span v-else>
+                      <b>{{ Utils.formatAmount(item.a, 2) }}</b>
+                    </span>
                   </td>
                   <td
                     class="tableCategoryRow"
@@ -388,12 +387,15 @@
 </template>
 
 <script>
-import Utils from '@/mixins/Utils'
+import Utils from '@/utils/Utils'
 import db from '@/db'
 import { mdiClose, mdiDatabaseOff, mdiCloseBox, mdiMinusBox, mdiCheckboxBlankOutline } from '@mdi/js'
 import { saveAs } from 'file-saver'
 
 export default {
+  beforeCreate () {
+    this.Utils = Utils
+  },
   data () {
     return {
       mdiClose: mdiClose,
@@ -401,11 +403,14 @@ export default {
       headers: [
         { text: 'Project', value: 'p' },
         { text: 'Date', value: 'd' },
-        { text: 'Time', value: 't' },
-        { text: 'Amount', value: 'a' },
+        { text: 'Time', value: 't', align: 'end' },
+        { text: 'Amount', value: 'a', align: 'end' },
         { text: 'Category', value: 'c' },
         { text: 'Notes', value: 'n' }
       ],
+      footerProps: {
+        'items-per-page-options': [10, 25, 100, -1]
+      },
       loading: false,
       rawSessions: [],
       groupedSessions: [],
@@ -513,38 +518,38 @@ export default {
       const weekStart = new Date(new Date().setDate(today.getDate() - today.getDay()))
       const yearStart = new Date(today.getFullYear(), 0, 1) // month jan = 0
       const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
-      // getLocalDateStr => from mixins
-      console.log(Utils.getLocalDateStr(today), Utils.getLocalDateStr(monthStart), Utils.getLocalDateStr(yearStart))
+      // formatDateToLocalDateIsoStr => from mixins
+      console.log(Utils.formatDateToLocalDateIsoStr(today), Utils.formatDateToLocalDateIsoStr(monthStart), Utils.formatDateToLocalDateIsoStr(yearStart))
       return [
         {
           id: 1,
           title: 'All times',
-          startDate: Utils.getLocalDateStr(longAgo),
-          endDate: Utils.getLocalDateStr(today)
+          startDate: Utils.formatDateToLocalDateIsoStr(longAgo),
+          endDate: Utils.formatDateToLocalDateIsoStr(today)
         },
         {
           id: 2,
           title: 'Today',
-          startDate: Utils.getLocalDateStr(today),
-          endDate: Utils.getLocalDateStr(today)
+          startDate: Utils.formatDateToLocalDateIsoStr(today),
+          endDate: Utils.formatDateToLocalDateIsoStr(today)
         },
         {
           id: 3,
           title: 'This week',
-          startDate: Utils.getLocalDateStr(weekStart),
-          endDate: Utils.getLocalDateStr(today)
+          startDate: Utils.formatDateToLocalDateIsoStr(weekStart),
+          endDate: Utils.formatDateToLocalDateIsoStr(today)
         },
         {
           id: 4,
           title: 'This month',
-          startDate: Utils.getLocalDateStr(monthStart),
-          endDate: Utils.getLocalDateStr(today)
+          startDate: Utils.formatDateToLocalDateIsoStr(monthStart),
+          endDate: Utils.formatDateToLocalDateIsoStr(today)
         },
         {
           id: 5,
           title: 'This year',
-          startDate: Utils.getLocalDateStr(yearStart),
-          endDate: Utils.getLocalDateStr(today)
+          startDate: Utils.formatDateToLocalDateIsoStr(yearStart),
+          endDate: Utils.formatDateToLocalDateIsoStr(today)
         }
       ]
     },
@@ -673,7 +678,7 @@ export default {
             (this.groupByProject && this.groupByCategory && actProject !== row.p)
           ) {
             output.push({
-              p: 'Sum category "' + actCategory + '"',
+              p: 'Sum category "' + this.categoryLookup[actCategory] + '"',
               d: '',
               t: actCategoryTime,
               a: actCategoryAmount,
@@ -745,7 +750,7 @@ export default {
         // final category subtotal
         if (this.groupByCategory) {
           output.push({
-            p: 'Sum category "' + actCategory + '"',
+            p: 'Sum category "' + this.categoryLookup[actCategory] + '"',
             d: '',
             t: actCategoryTime,
             a: actCategoryAmount,
@@ -787,19 +792,6 @@ export default {
       console.log('formatSessions', this.groupedSessions.length)
     },
 
-    formatTime: function (time, nospace) {
-      const hours = Math.floor(time / 60)
-      const minutes = time - hours * 60
-      const space = (nospace) ? '' : ' '
-      return '' + hours + space + ':' + space + ('0' + minutes).slice(-2)
-    },
-    formatDate: function (date) {
-      // (item.d).slice(0, -3)
-      return new Date(date).toLocaleString()
-    },
-    formatAmount: function (amount) {
-      return Math.round((amount + 0.00001) * 100) / 100
-    },
     toggleProjectSelect () {
       this.$nextTick(() => {
         if (this.allProjectsSelected) {
@@ -843,7 +835,7 @@ export default {
         output += 'Report OfficeTimePWA from ' + this.startDate + ' to ' + this.endDate + '.\n\n'
 
         for (const row of input) {
-          output += '\t' + row.p + '\t' + row.d + '\t' + row.t + '\t"' + this.formatTime(row.t, true) + '"\t' + row.c + '\t' + row.n + '\n'
+          output += '\t' + row.p + '\t' + row.d + '\t' + row.t + '\t"' + this.Utils.formatTime(row.t, true) + '"\t' + row.c + '\t' + row.n + '\n'
           if (row.type === 'subtotal') {
             output += '\n'
           }
@@ -861,8 +853,7 @@ export default {
     },
     saveReport: async function () {
       try {
-        // getLocalDateStr => from mixins
-        const dateTimeStr = Utils.getLocalDateTimeStr(new Date())
+        const dateTimeStr = Utils.formatDateToLocalDateTimeIsoStr(new Date())
         const filename = 'officetime_report_' + dateTimeStr + '.csv'
         const input = this.groupedSessions
         if (!input || input.length === 0) {
@@ -873,7 +864,7 @@ export default {
         output += 'Report OfficeTimePWA from ' + this.startDate + ' to ' + this.endDate + '.\n\n'
 
         for (const row of input) {
-          output += '\t' + row.p + '\t' + row.d + '\t' + row.t + '\t"' + this.formatTime(row.t, true) + '"\t' + row.c + '\t' + row.n + '\n'
+          output += '\t' + row.p + '\t' + row.d + '\t' + row.t + '\t"' + this.Utils.formatTime(row.t, true) + '"\t' + row.c + '\t' + row.n + '\n'
           if (row.type === 'subtotal') {
             output += '\n'
           }

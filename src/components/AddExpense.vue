@@ -86,7 +86,7 @@
 </template>
 
 <script>
-// import EventBus from '@/components/EventBus'
+import Utils from '@/utils/Utils'
 
 export default {
   data () {
@@ -128,14 +128,10 @@ export default {
       console.log('initExpense')
       const activeProjectId = this.$store.getters.getSetting('activeProjectId')
       const defaultCategory = this.$store.getters.getProject(activeProjectId).defaultCategory
-      // local time string in format "yyyy-MM-ddThh:mm:ss"
-      // https://stackoverflow.com/questions/10830357/javascript-toisostring-ignores-timezone-offset
-      const tzoffset = (new Date()).getTimezoneOffset() * 60000 // offset in milliseconds
-      const localDateTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -8)
       return {
         p: activeProjectId,
         e: true, // expense
-        d: localDateTime, // start
+        d: Utils.formatDateToLocalDateTimeIsoStr(new Date()).slice(0, -3), // start without seconds
         t: 0, // time
         a: 0, // amount
         c: defaultCategory,

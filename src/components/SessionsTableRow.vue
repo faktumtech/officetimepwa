@@ -34,11 +34,10 @@
         v-else
         class="dateDisplay"
       >
-        {{ formatDate(session.d) }}
+        {{ Utils.formatDate(session.d) }}
       </span>
     </td>
     <td
-      align='right'
       class="tableTimeRow text-end"
     >
       <TimerTimeInput
@@ -50,7 +49,7 @@
         v-else
         class="timeDisplay text-end"
       >
-        {{ formatTime(session.t) }}
+        {{ Utils.formatTime(session.t) }}
       </span>
     </td>
     <td
@@ -65,7 +64,7 @@
         v-else
         class="amountDisplay"
       >
-        {{ formatAmount(session.a) }}
+        {{ Utils.formatAmount(session.a, 2) }}
       </span>
     </td>
     <td
@@ -108,11 +107,15 @@
 </template>
 
 <script>
+import Utils from '@/utils/Utils'
 import TimerBtn from '@/components/TimerBtn'
 import TimerTimeInput from '@/components/TimerTimeInput'
 import TimerAmountInput from '@/components/TimerAmountInput'
 
 export default {
+  beforeCreate () {
+    this.Utils = Utils
+  },
   name: 'TimerLog',
   components: {
     TimerBtn,
@@ -154,18 +157,6 @@ export default {
     }
   },
   methods: {
-    formatTime: function (time) {
-      const hours = Math.floor(time / 60)
-      const minutes = time - hours * 60
-      return '' + hours + ' : ' + ('0' + minutes).slice(-2)
-    },
-    formatDate: function (date) {
-      // (item.d).slice(0, -3)
-      return new Date(date).toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-    },
-    formatAmount: function (amount) {
-      return Math.round((amount + 0.00001) * 100) / 100
-    },
     updateDate: async function (timerId, value) {
       const payload = { id: timerId, changes: { d: value } }
       await this.$store.dispatch('updateSession', payload)

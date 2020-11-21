@@ -1,14 +1,20 @@
 ## Known issues / bugs
-- TimerTimeInput input in minutes should not alter hours input (see behaviour original Officetime)
+- TimerTimeInput input in minutes should not alter hours input (see behaviour of original Officetime)
 - On IOs the pwa will mantained in memory for a uncertain time and only update the serviceworker if a manual reload is triggered or the app cache is emptied
+- On IOS v12 new sessions shows right time in input, but time + 1 hour when shown in table
 
 ## Roadmap / Ideas
 - Reminder for backups
+- Fixed table high like in SessionsTable for all Tables
 
 ## Changelog
 
+v0.6.1
+- bug: Import does not parse correctly "dd/MM/yyyy hh:mm" formated date strings
+- improved formating for table columns
+
 v0.6.0
-- let user imports data from csv
+- let user import data from csv
 
 v0.5.4
 - Allow Keyboard shortcuts for stop / start / pause

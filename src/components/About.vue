@@ -115,7 +115,7 @@
                     <tr
                     >
                       <td>Last backup:</td>
-                      <td><b>{{ $store.getters.getSetting('lastBackup') }}</b></td>
+                      <td><b>{{ $store.getters.getSetting('lastBackupDate') }}</b></td>
                     </tr>
                     <tr
                     >

@@ -42,7 +42,7 @@
                   <b>Please make backups regularly and move them from the download folder to save location!</b>
                 </p>
                 <p>
-                  Your last backup is from <b>{{ $store.getters.getSetting('lastBackup') }}</b>
+                  Your last backup is from <b>{{ $store.getters.getSetting('lastBackupDate') }}</b>
                 </p>
               </v-alert>
             </v-col>
@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import Utils from '@/mixins/Utils'
+import Utils from '@/utils/Utils'
 import { saveAs } from 'file-saver'
 import EventBus from '@/components/EventBus'
 import db from '@/db'
@@ -111,11 +111,11 @@ export default {
     },
     saveBackup: async function () {
       try {
-        // getLocalDateStr => from mixins
-        const dateTimeStr = Utils.getLocalDateTimeStr(new Date())
+        // formatDateToLocalDateIsoStr => from mixins
+        const dateTimeStr = Utils.formatDateToLocalDateTimeIsoStr(new Date())
         const filename = 'officetime_backup_' + dateTimeStr + '.bak'
         const backupStr = await db.dbBackup(dateTimeStr)
-        await this.$store.dispatch('updateSetting', { key: 'lastBackup', value: dateTimeStr })
+        await this.$store.dispatch('updateSetting', { key: 'lastBackupDate', value: dateTimeStr })
 
         const blob = new Blob([backupStr], { type: '"text/plain;charset=utf-8' })
         saveAs(blob, filename)

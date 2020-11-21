@@ -8,7 +8,7 @@
       <span
         class="amountDisplay"
       >
-        {{ formatAmount(session.a) }}
+        {{ Utils.formatAmount(session.a, 2) }}
       </span>
       <v-icon
         small
@@ -49,7 +49,7 @@
                 cols="12"
               >
                 <v-text-field
-                  :value="formatTime(session.t)"
+                  :value="Utils.formatTime(session.t)"
                   label="Time"
                   type="text"
                   disabled
@@ -62,7 +62,7 @@
                   min="0"
                 ></v-text-field>
                 <v-text-field
-                  :value="formatAmount(amount)"
+                  :value="Utils.formatAmount(amount, 2)"
                   label="Amount"
                   type="text"
                   disabled
@@ -94,9 +94,13 @@
 </template>
 
 <script>
+import Utils from '@/utils/Utils'
 import { mdiPencil } from '@mdi/js'
 
 export default {
+  beforeCreate () {
+    this.Utils = Utils
+  },
   name: 'TimerTimeInput',
   data: () => ({
     show: false,
@@ -159,15 +163,6 @@ export default {
     }
   },
   methods: {
-    formatTime: function (time) {
-      const hours = Math.floor(time / 60)
-      const minutes = time - hours * 60
-      return '' + hours + ' : ' + ('0' + minutes).slice(-2)
-    },
-    formatAmount: function (amount) {
-      // https://stackoverflow.com/questions/11832914/round-to-at-most-2-decimal-places-only-if-necessary
-      return Math.round((amount + 0.00001) * 100) / 100
-    },
     save: async function () {
       if (this.session.e) {
         // cast to number
