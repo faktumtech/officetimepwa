@@ -22,7 +22,7 @@
       </v-toolbar>
 
       <v-card-text
-        class="dlgScroll"
+        class="dlgScroll pa-0"
       >
         <v-container
           fluid

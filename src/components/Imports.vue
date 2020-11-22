@@ -18,19 +18,55 @@
         >
           <v-icon>{{ mdiClose }}</v-icon>
         </v-btn>
-        <v-toolbar-title>Import</v-toolbar-title>
+        <v-toolbar-title>Imports</v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-toolbar-items>
+          <input
+            ref="uploader"
+            class="d-none"
+            type="file"
+            accept="*.csv"
+            @change="loadData"
+          >
+          <v-btn
+            v-if="loadedItems.length === 0 && parsedItems.length === 0"
+            color="primary"
+            text
+            @click="$refs.uploader.click()"
+          >
+            Open csv
+          </v-btn>
+          <v-btn
+            v-if="loadedItems.length > 0"
+            color="primary"
+            text
+            @click="parseData()"
+          >
+            Parse data
+          </v-btn>
+          <v-btn
+            v-if="parsedItems.length > 0"
+            color="primary"
+            text
+            @click="importData()"
+          >
+            Import data
+          </v-btn>
+
+        </v-toolbar-items>
       </v-toolbar>
       <v-card-text
-        class="dlgScroll"
+        class="dlgScroll pa-0"
       >
         <v-container
           fluid
         >
           <v-row
-            v-if="loadedItems.length === 0 && parsedItems.length === 0"
+            no-gutters
           >
-            <v-col>
+            <v-col
+              v-if="loadedItems.length === 0 && parsedItems.length === 0"
+            >
               <v-alert
                 :icon="mdiDatabaseImport"
                 prominent
@@ -41,37 +77,16 @@
                   OfficeTimePwa allows you to import sessions and expenses to your projects from a csv file.
                 </p>
                 <p>
-                  The files you import should have csv format with UTF8 encoding, tab or comma as field separator and no headers or footers. You will be asked for confirmation before adding the imported data to your data. Any unkown category will be created automatically.
+                  The files you import should have csv format with UTF8 encoding, tab or comma as field separator and no headers or footers. Each file should contain either sessions or expenses, but not both at the same time. If your file contains categories, any unknown category will be created automatically. You will be asked for confirmation before adding the imported data to your data.
+                </p>
+                <p>
+                  <b>Please make a backup of your data before importing external data to OfficeTimePwa.</b>
                 </p>
               </v-alert>
             </v-col>
-          </v-row>
-          <v-row
-            v-if="loadedItems.length === 0 && parsedItems.length === 0"
-          >
+
             <v-col
-              class="text-right"
-            >
-              <v-btn
-                color="primary"
-                text
-                @click="$refs.uploader.click()"
-              >
-                Open csv
-              </v-btn>
-              <input
-                ref="uploader"
-                class="d-none"
-                type="file"
-                accept="*.csv"
-                @change="loadData"
-              >
-            </v-col>
-          </v-row>
-          <v-row
-            v-if="loadedItems.length > 0"
-          >
-            <v-col
+              v-if="loadedItems.length > 0"
             >
               <v-data-table
                 :mobile-breakpoint="0"
@@ -80,7 +95,8 @@
                 :items-per-page="10"
                 :footer-props="footerProps"
                 hide-default-header
-                class="elevation-0"
+                fixed-header
+                height="calc(100vh - 195px)"
               >
                 <template
                   v-slot:top
@@ -114,32 +130,9 @@
                 </template>
               </v-data-table>
             </v-col>
-          </v-row>
-          <v-row
-            v-if="loadedItems.length > 0"
-          >
+
             <v-col
-              class="text-right"
-            >
-              <v-btn
-                text
-                @click="cancel()"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                color="primary"
-                text
-                @click="parseData()"
-              >
-                Parse data
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row
-            v-if="parsedItems.length > 0"
-          >
-            <v-col
+              v-if="parsedItems.length > 0"
             >
               <v-data-table
                 :mobile-breakpoint="0"
@@ -147,6 +140,8 @@
                 :items="parsedItems"
                 :items-per-page="10"
                 :footer-props="footerProps"
+                fixed-header
+                height="calc(100vh - 195px)"
               >
                 <template
                   v-slot:top
@@ -162,29 +157,7 @@
                 >
                   {{ Utils.formatDate(item.d) }}
                 </template>
-
               </v-data-table>
-            </v-col>
-          </v-row>
-          <v-row
-            v-if="parsedItems.length > 0"
-          >
-            <v-col
-              class="text-right"
-            >
-              <v-btn
-                text
-                @click="cancel()"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                color="primary"
-                text
-                @click="importData()"
-              >
-                Import data
-              </v-btn>
             </v-col>
           </v-row>
         </v-container>
@@ -254,8 +227,7 @@ export default {
     show: function () {
       // this could also be done on mounted
       // but then it would not get updated each time the report is opened
-      this.loadedItems = []
-      this.parsedItems = []
+      this.reset()
     }
   },
   methods: {
@@ -461,8 +433,7 @@ export default {
           importItem.d = Utils.formatDateToLocalDateTimeIsoStr(importItem.d).slice(0, -3)
           importItems.push(importItem)
         }
-        this.$store.dispatch('importSessions', importItems)
-
+        await this.$store.dispatch('importSessions', importItems)
         this.$store.commit('alert',
           {
             show: true,
@@ -470,6 +441,7 @@ export default {
             type: 'info'
           }
         )
+        this.reset()
       } catch (err) {
         this.backup = null
         console.error(err)
@@ -483,7 +455,7 @@ export default {
         )
       }
     },
-    cancel: function () {
+    reset: function () {
       this.loadedHeaders = []
       this.loadedItems = []
       this.parsedItems = []

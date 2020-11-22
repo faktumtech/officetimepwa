@@ -41,7 +41,7 @@
       </v-toolbar>
 
       <v-card-text
-        class="dlgScroll"
+        class="dlgScroll pa-0"
       >
         <v-container
           fluid
@@ -280,7 +280,6 @@
               </v-row>
             </v-col>
           </v-row>
-
           <v-data-table
             :mobile-breakpoint="0"
             :headers="headers"
@@ -291,10 +290,8 @@
             :sort-desc="true"
             :loading="loading"
             disable-sort
-            class="sessionsTable mt-4"
+            class="sessionsTable mt-6"
             dense
-            fixed-header
-            height="calc(100vh - 140px)"
           >
             <template
               v-slot:body="{ items }"

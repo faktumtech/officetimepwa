@@ -107,11 +107,11 @@
             link
             @click="showModalComponent('import')"
           >
-            <v-list-item-title>Import</v-list-item-title>
+            <v-list-item-title>Imports</v-list-item-title>
           </v-list-item>
           <v-list-item
             link
-            @click="showModalComponent('backup')"
+            @click="showModalComponent('backups')"
           >
             <v-list-item-title>Backups</v-list-item-title>
           </v-list-item>
@@ -191,21 +191,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
-  /* main menu with underline like in vuetify.com */
-  .theme--dark .v-bar--underline.theme--dark {
-      border-bottom-color: rgba(255,255,255,.12)!important;
-  }
-  .theme--light .v-bar--underline.theme--light {
-      border-bottom-color: rgba(0,0,0,.12)!important;
-  }
-  /* different box shadow for v-dialog-fullscreen with dark theme */
-  .v-dialog--fullscreen .v-sheet.theme--dark.v-toolbar:not(.v-sheet--outlined) {
-      box-shadow: 0px 2px 4px -1px rgba(255, 255, 255, 0.2), 0px 4px 5px 0px rgba(255, 255, 255, 0.14), 0px 1px 10px 0px rgba(255, 255, 255, 0.12);
-      /* default for dark and light theme
-        box-shadow: 0px 2px 4px -1px rgba(255, 255, 255, 0.2), 0px 4px 5px 0px rgba(255, 255, 255, 0.14), 0px 1px 10px 0px rgba(255, 255, 255, 0.12);
-      */
-  }
-
   .projectWrap {
     margin-top: 28px;
     width: 250px;

@@ -57,6 +57,8 @@ export default {
     store.commit('timerStatus', 'paused')
   },
   sound: function () {
+    // use of web audio api
+    // https://stackoverflow.com/questions/29567580/play-a-beep-sound-on-button-click
     const shortBeep = () => {
       var frequency = 500 // hz
       var duration = 100 // ms

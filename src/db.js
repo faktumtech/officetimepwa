@@ -100,8 +100,8 @@ export default {
   },
 
   /**
-   * update project
-   * @param {String} key Primary key of record in db
+   * update setting
+   * @param {String} key key of setting in settings table
    * @param {any} value
    * @return {Promise} 1 if updated, 0 if not updated (not found / no changes)
   */

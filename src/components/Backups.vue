@@ -20,14 +20,37 @@
         </v-btn>
         <v-toolbar-title>Backups</v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-btn
+          text
+          @click="$refs.uploader.click()"
+        >
+          Restore backup
+        </v-btn>
+        <input
+          ref="uploader"
+          class="d-none"
+          type="file"
+          accept="*.bak"
+          @change="loadBackup"
+        >
+        <v-btn
+          text
+          color="primary"
+          @click="saveBackup"
+        >
+          Create backup
+        </v-btn>
+
       </v-toolbar>
       <v-card-text
-        class="dlgScroll"
+        class="dlgScroll pa-0"
       >
         <v-container
           fluid
         >
-          <v-row>
+          <v-row
+            no-gutters
+          >
             <v-col>
               <v-alert
                 :icon="mdiDeleteAlert"
@@ -39,41 +62,19 @@
                   Please remember that due to the nature of Progressive Web Apps (Pwa) the clearing the browsers site data, will delete all data stored by OfficeTimePwa!<br>
                 </p>
                 <p>
-                  <b>Please make backups regularly and move them from the download folder to save location!</b>
+                  <b>Please make backups regularly and move them from the download folder to a save location!</b>
                 </p>
-                <p>
-                  Your last backup is from <b>{{ $store.getters.getSetting('lastBackupDate') }}</b>
+                <p
+                  v-if="lastBackupDateStr"
+                >
+                  Your last backup is from <b>{{ lastBackupDateStr }}</b>.
+                </p>
+                <p
+                  v-else
+                >
+                  <b>You have not yet made a backup!</b>.
                 </p>
               </v-alert>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              cols="6"
-            >
-              <v-btn
-                text
-                @click="saveBackup"
-              >
-                Create backup
-              </v-btn>
-            </v-col>
-            <v-col
-              cols="6"
-            >
-          <v-btn
-            text
-            @click="$refs.uploader.click()"
-          >
-            Restore backup
-          </v-btn>
-          <input
-            ref="uploader"
-            class="d-none"
-            type="file"
-            accept="*.bak"
-            @change="loadBackup"
-          >
             </v-col>
           </v-row>
         </v-container>
@@ -98,11 +99,16 @@ export default {
   computed: {
     show: {
       get () {
-        return this.$store.state.showModalComponent === 'backup'
+        return this.$store.state.showModalComponent === 'backups'
       },
       set (value) {
-        this.$store.commit('showModalComponent', value ? 'backup' : false)
+        this.$store.commit('showModalComponent', value ? 'backups' : false)
       }
+    },
+    lastBackupDateStr () {
+      const lastBackupDate = this.$store.getters.getSetting('lastBackupDate')
+      console.log(lastBackupDate)
+      return lastBackupDate ? Utils.formatDateToLocalDateTimeIsoStr(new Date(lastBackupDate)) : false
     }
   },
   methods: {
@@ -111,11 +117,11 @@ export default {
     },
     saveBackup: async function () {
       try {
-        // formatDateToLocalDateIsoStr => from mixins
-        const dateTimeStr = Utils.formatDateToLocalDateTimeIsoStr(new Date())
+        const lastBackupDate = Date.now()
+        const dateTimeStr = Utils.formatDateToLocalDateTimeIsoStr(new Date(lastBackupDate))
         const filename = 'officetime_backup_' + dateTimeStr + '.bak'
         const backupStr = await db.dbBackup(dateTimeStr)
-        await this.$store.dispatch('updateSetting', { key: 'lastBackupDate', value: dateTimeStr })
+        await this.$store.dispatch('updateSetting', { key: 'lastBackupDate', value: lastBackupDate })
 
         const blob = new Blob([backupStr], { type: '"text/plain;charset=utf-8' })
         saveAs(blob, filename)
@@ -123,7 +129,7 @@ export default {
           {
             show: true,
             text: 'Backup saved successfully to download folder! Please move the backup to a save location!',
-            type: 'warning',
+            type: 'info',
             timeout: 15000
           }
         )

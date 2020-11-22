@@ -23,7 +23,7 @@
       class="sessionsTable"
       dense
       fixed-header
-      height="calc(100vh - 140px)"
+      height="calc(100vh - 150px)"
     >
     <template
         v-slot:body="{ items }"

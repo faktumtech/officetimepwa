@@ -63,7 +63,7 @@ export default {
       return this.$store.state.alert
     },
     modalComponent () {
-      return this.$store.state.showModalComponent === 'backup'
+      return this.$store.state.showModalComponent
     },
     modalDlg () {
       return this.$store.state.modalDlg.show

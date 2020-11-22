@@ -1,4 +1,4 @@
-# officetimepwa
+# OfficeTimePwa
 
 https://officetimepwa.com
 
@@ -26,9 +26,6 @@ npm run build
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## LICENSE
 GPL v3

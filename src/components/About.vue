@@ -22,7 +22,7 @@
         <v-spacer></v-spacer>
       </v-toolbar>
       <v-card-text
-        class="dlgScroll"
+        class="dlgScroll pa-0"
       >
         <v-container
           fluid
@@ -61,17 +61,13 @@
               <p
                 class="body-1"
               >
-                Copyright <b>cfbutt</b>. Licensed under GPL v3. Source code at <a target="_blank" rel="noopener noreferrer" href="https://github.com/cfbutt/officetimepwa">https://github.com/cfbutt/officetimepwa</a>.
+                Copyright <b>cfbutt</b>. Licensed under GPL v3.
               </p>
-
-              <v-alert
-                :icon="mdiDeleteAlert"
-                prominent
-                text
-                type="info"
+              <p
+                class="body-1"
               >
-                Remember that clearing the browsers site data, will delete all data stored by OfficeTimePwa! Please make backups regularly.
-              </v-alert>
+                Source code at <a target="_blank" rel="noopener noreferrer" href="https://github.com/cfbutt/officetimepwa">https://github.com/cfbutt/officetimepwa</a>.
+              </p>
             </v-col>
             <v-col
               cols="12"
@@ -115,7 +111,7 @@
                     <tr
                     >
                       <td>Last backup:</td>
-                      <td><b>{{ $store.getters.getSetting('lastBackupDate') }}</b></td>
+                      <td><b>{{ lastBackupDateStr }}</b></td>
                     </tr>
                     <tr
                     >
@@ -133,23 +129,6 @@
                         </v-btn>
                       </td>
                     </tr>
-                    <tr
-                    >
-                      <td
-                        v-if="activeProjectId"
-                        colspan="2"
-                        class="text-center"
-                        style="border-bottom: none"
-                      >
-                        <v-btn
-                          color="error"
-                          text
-                          @click="mockSessions"
-                        >
-                          Add 10000 sessions with random<br>data to actual project
-                        </v-btn>
-                      </td>
-                    </tr>
                   </tbody>
                 </template>
               </v-simple-table>
@@ -162,6 +141,7 @@
 </template>
 
 <script>
+import Utils from '@/utils/Utils'
 import db from '@/db'
 import { mdiClose, mdiDeleteAlert } from '@mdi/js'
 
@@ -181,6 +161,10 @@ export default {
     },
     activeProjectId () {
       return this.$store.getters.getSetting('activeProjectId')
+    },
+    lastBackupDateStr () {
+      const lastBackupDate = this.$store.getters.getSetting('lastBackupDate')
+      return lastBackupDate ? Utils.formatDateToLocalDateTimeIsoStr(new Date(lastBackupDate)) : 'never'
     }
   },
   methods: {

@@ -32,40 +32,44 @@
       </v-toolbar>
 
       <v-card-text
-        class="dlgScroll"
+        class="dlgScroll pa-0"
       >
         <v-container
           fluid
         >
-          <v-row>
+          <v-row
+            no-gutters
+          >
             <v-col
               cols="12"
             >
               <v-data-table
-                  :mobile-breakpoint="0"
-                  :headers="headers"
-                  :items="categories"
-                  :items-per-page="10"
-                  :footer-props="footerProps"
-                  :sort-by="'id'"
-                  :sort-desc="true"
-                >
-                  <template v-slot:[`item.actions`]="{ item }">
-                    <v-icon
-                      small
-                      class="mr-4"
-                      @click="editItem(item.id)"
-                    >
-                      {{ mdiPencil }}
-                    </v-icon>
-                    <v-icon
-                      small
-                      @click="deleteItem(item.id)"
-                    >
-                      {{ mdiDelete}}
-                    </v-icon>
-                  </template>
-                </v-data-table>
+                :mobile-breakpoint="0"
+                :headers="headers"
+                :items="categories"
+                :items-per-page="10"
+                :footer-props="footerProps"
+                :sort-by="'id'"
+                :sort-desc="true"
+                fixed-header
+                height="calc(100vh - 150px)"
+              >
+                <template v-slot:[`item.actions`]="{ item }">
+                  <v-icon
+                    small
+                    class="mr-4"
+                    @click="editItem(item.id)"
+                  >
+                    {{ mdiPencil }}
+                  </v-icon>
+                  <v-icon
+                    small
+                    @click="deleteItem(item.id)"
+                  >
+                    {{ mdiDelete}}
+                  </v-icon>
+                </template>
+              </v-data-table>
             </v-col>
           </v-row>
         </v-container>

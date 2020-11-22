@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-// import errorMessages from './errorMessages'
 import initialStates from './initialStates'
 import db from '@/db'
 import Utils from '../utils/Utils'
@@ -16,7 +15,8 @@ export default new Vuex.Store({
       activeProjectId: null,
       dark: false, // dark theme
       sound: false,
-      lastBackupDate: 'never'
+      lastBackupDate: null,
+      dbCreationDate: null
     },
     projects: [],
     categories: [],
@@ -172,7 +172,14 @@ export default new Vuex.Store({
         context.commit('updateSetting', { key: 'dark', value: dark })
         const sound = await db.getSetting('sound') || false
         context.commit('updateSetting', { key: 'sound', value: sound })
-        const lastBackupDate = await db.getSetting('lastBackupDate') || 'never'
+        let dbCreationDate = await db.getSetting('dbCreationDate')
+        if (dbCreationDate === null) {
+          dbCreationDate = Date.now()
+          await db.updateSetting('dbCreationDate', dbCreationDate)
+        }
+        context.commit('updateSetting', { key: 'dbCreationDate', value: dbCreationDate })
+
+        const lastBackupDate = await db.getSetting('lastBackupDate')
         context.commit('updateSetting', { key: 'lastBackupDate', value: lastBackupDate })
         const projects = await db.getProjects()
         context.commit('setProjects', projects)
