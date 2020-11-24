@@ -18,7 +18,7 @@
         >
           <v-icon>{{ mdiClose }}</v-icon>
         </v-btn>
-        <v-toolbar-title>Imports</v-toolbar-title>
+        <v-toolbar-title>Import external data</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
           <input
@@ -102,7 +102,7 @@
                   v-slot:top
                 >
                   <div
-                    class="py-2 text-subtitle-1 warning--text"
+                    class="pa-2 text-subtitle-1 warning--text"
                   >
                     Please select the columns to be imported and their target data field!
                   </div>
@@ -147,7 +147,7 @@
                   v-slot:top
                 >
                   <div
-                    class="pa-4 text-subtitle-1 warning--text"
+                    class="pa-2 text-subtitle-1 warning--text"
                   >
                     This is the data that will be imported to project <b>{{ activeProject.title }}</b>!
                   </div>
@@ -216,11 +216,11 @@ export default {
         this.$store.commit('showModalComponent', value ? 'import' : false)
       }
     },
-    activeProjectId () {
-      return this.$store.getters.getSetting('activeProjectId')
+    selectedProjectId () {
+      return this.$store.getters.getSetting('selectedProjectId')
     },
     activeProject () {
-      return this.$store.getters.getProject(this.activeProjectId)
+      return this.$store.getters.getProject(this.selectedProjectId)
     }
   },
   watch: {
@@ -300,7 +300,7 @@ export default {
       targetFields = targetFields.filter((el) => { return el !== null })
 
       // check if parser ('Expense Amount') is included or not
-      const isExpense = this.loadedHeaders.find((obj) => { return obj.id === this.expenseIdentifier })
+      const isExpense = this.loadedHeaders.find((obj) => { return obj.parserId === this.expenseIdentifier })
 
       // target fields should not repeat
       // https://stackoverflow.com/questions/49215358/checking-for-duplicate-strings-in-javascript-array/54974076
@@ -316,12 +316,12 @@ export default {
         return
       }
       // minimum information for expenses
-      const minExpenseFields = ['d', 'e']
-      const maxExpenseFields = ['d', 't', 'e', 'c', 'n']
+      const minExpenseFields = ['d', 'a']
+      const maxExpenseFields = ['d', 't', 'a', 'c', 'n']
       const hasMinExpenseFields = minExpenseFields.every(v => targetFields.includes(v))
       // minimum information for sessions
       const minSessionFields = ['d', 't']
-      const maxSessionFields = ['d', 't', 'e', 'c', 'n']
+      const maxSessionFields = ['d', 't', 'a', 'c', 'n']
       const hasMinSessionFields = minSessionFields.every(v => targetFields.includes(v))
       const parsedItems = []
 
@@ -331,7 +331,7 @@ export default {
       const activeProjectCategory = this.$store.getters.getCategory(activeProject.defaultCategory)
 
       if (isExpense && hasMinExpenseFields) {
-        for (let i = 0; i < 1; i++) {
+        for (let i = 0; i < rows; i++) {
           const obj = {
             p: activeProject.id,
             e: true, // expense

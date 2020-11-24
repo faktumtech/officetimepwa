@@ -30,7 +30,7 @@ export default {
       this.registration = event.detail
       const modalDlg = {
         title: 'Update available',
-        text: 'An update of this app is available. Please refresh',
+        text: 'An update of this app is available. Please refresh.',
         cancelText: 'Not now',
         confirmText: 'Refresh'
       }

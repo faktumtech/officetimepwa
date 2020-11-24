@@ -37,6 +37,15 @@
                 item-value="id"
                 label="Default category *"
               ></v-select>
+              <v-textarea
+                v-model="project.notes"
+                label="Notes"
+                rows="3"
+              ></v-textarea>
+              <v-checkbox
+                v-model="project.active"
+                label="Active project (shown in Projects selector)"
+              ></v-checkbox>
               <small>*required</small>
               </v-col>
             </v-row>
@@ -114,7 +123,9 @@ export default {
         if (this.itemId === null) {
           this.project = {
             title: '',
-            defaultCategory: this.categories[0].id
+            defaultCategory: this.categories[0].id,
+            notes: '',
+            active: true
           }
         } else {
           this.project = this.$store.getters.getProject(this.itemId)

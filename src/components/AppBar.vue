@@ -6,11 +6,11 @@
     flat
   >
     <TimerBtn
-      v-if="activeProjectId"
+      v-if="selectedProjectId"
     ></TimerBtn>
 
     <div
-      v-if="activeProjectId"
+      v-if="selectedProjectId"
       class="maintimer"
     >
       <TimerTimeInput
@@ -20,14 +20,14 @@
 
     <v-spacer></v-spacer>
     <div
-      v-if="activeProjectId"
+      v-if="selectedProjectId"
       class="projectWrap"
     >
       <v-select
-        :items="projects"
+        :items="activeProjects"
         item-text="title"
         item-value="id"
-        v-model="activeProjectId"
+        v-model="selectedProjectId"
         dense
         outlined
         filled
@@ -36,7 +36,7 @@
     </div>
 
     <v-menu
-      v-if="activeProjectId"
+      v-if="selectedProjectId"
       bottom
       left
       offset-y
@@ -107,7 +107,7 @@
             link
             @click="showModalComponent('import')"
           >
-            <v-list-item-title>Imports</v-list-item-title>
+            <v-list-item-title>Import</v-list-item-title>
           </v-list-item>
           <v-list-item
             link
@@ -149,17 +149,17 @@ export default {
     backup: {}
   }),
   computed: {
-    projects () {
-      return this.$store.state.projects
+    activeProjects () {
+      return this.$store.state.projects.filter((el) => { return el.active === true })
     },
-    activeProjectId: {
+    selectedProjectId: {
       async set (id) {
-        if (id !== this.activeProjectId) {
-          await this.$store.dispatch('updateSetting', { key: 'activeProjectId', value: id })
+        if (id !== this.selectedProjectId) {
+          await this.$store.dispatch('updateSetting', { key: 'selectedProjectId', value: id })
         }
       },
       get () {
-        return this.$store.getters.getSetting('activeProjectId')
+        return this.$store.getters.getSetting('selectedProjectId')
       }
     },
     timerSessionId () {
@@ -169,18 +169,12 @@ export default {
       return this.$store.getters.getSession(this.timerSessionId)
     }
   },
-  watch: {
-    activeProjectId: function (activeProjectId) {
-      const activeProjectTitle = this.$store.getters.getProject(activeProjectId).title
-      this.$store.commit('activeProjectTitle', activeProjectTitle)
-    }
-  },
   methods: {
     showModalComponent: function (component) {
       this.$store.commit('showModalComponent', component)
     },
     addSession: async function (component) {
-      await this.$store.dispatch('createSession', this.activeProjectId)
+      await this.$store.dispatch('createSession', this.selectedProjectId)
     },
     addExpense: function (component) {
       this.$store.commit('showModalComponent', component)

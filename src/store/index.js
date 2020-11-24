@@ -12,7 +12,7 @@ export default new Vuex.Store({
     dbVersion: process.env.DEXIEDB_VERSION || 1,
     // persistent properties synced with db
     settings: {
-      activeProjectId: null,
+      selectedProjectId: null,
       dark: false, // dark theme
       sound: false,
       lastBackupDate: null,
@@ -20,7 +20,7 @@ export default new Vuex.Store({
     },
     projects: [],
     categories: [],
-    // only contains sessions of activeProjectId
+    // only contains sessions of selectedProjectId
     sessions: [],
     // non-persistent properties
     clipboardApi: false,
@@ -49,7 +49,14 @@ export default new Vuex.Store({
     getSession: (state) => (id) => {
       return state.sessions.find(session => session.id === id)
     },
-    categoryLookup: (state) => () => {
+    projectTitleLookup: (state) => () => {
+      const lookup = []
+      for (const item of state.projects) {
+        lookup[item.id] = item.title
+      }
+      return lookup
+    },
+    categoryTitleLookup: (state) => () => {
       const lookup = []
       for (const item of state.categories) {
         lookup[item.id] = item.title
@@ -166,8 +173,8 @@ export default new Vuex.Store({
     async initApp (context) {
       try {
         console.log('initApp')
-        const activeProjectId = await db.getSetting('activeProjectId') || null
-        context.commit('updateSetting', { key: 'activeProjectId', value: activeProjectId })
+        const selectedProjectId = await db.getSetting('selectedProjectId') || null
+        context.commit('updateSetting', { key: 'selectedProjectId', value: selectedProjectId })
         const dark = await db.getSetting('dark') || false
         context.commit('updateSetting', { key: 'dark', value: dark })
         const sound = await db.getSetting('sound') || false
@@ -205,7 +212,7 @@ export default new Vuex.Store({
     },
 
     /**
-     * create project and set as activeProjectId
+     * create project and set as selectedProjectId
      * @param {Object} project
      * @return {Promise} id of created project
     */
@@ -213,8 +220,8 @@ export default new Vuex.Store({
       const id = await db.createProject(project)
       project.id = id
       context.commit('createProject', project)
-      // set activeProjectId to new project
-      await context.dispatch('updateSetting', { key: 'activeProjectId', value: id })
+      // set selectedProjectId to new project
+      await context.dispatch('updateSetting', { key: 'selectedProjectId', value: id })
       return id
     },
 
@@ -389,7 +396,7 @@ export default new Vuex.Store({
       try {
         await db.bulkAddSessions(newSessions)
         // get all sessions of project
-        const sessions = await db.getSessionsByProjectId(context.state.settings.activeProjectId)
+        const sessions = await db.getSessionsByProjectId(context.state.settings.selectedProjectId)
         console.log(sessions.length)
         context.commit('setSessions', sessions)
       } catch (err) {

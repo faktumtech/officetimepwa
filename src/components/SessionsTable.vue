@@ -150,12 +150,11 @@ export default {
     sessions () {
       return this.$store.state.sessions
     },
-    activeProjectId () {
-      return this.$store.getters.getSetting('activeProjectId')
+    selectedProjectId () {
+      return this.$store.getters.getSetting('selectedProjectId')
     },
     otherProjects () {
-      // return this.$store.state.projects
-      return this.$store.state.projects.filter((el) => { return el.id !== this.activeProjectId })
+      return this.$store.state.projects.filter((el) => { return el.id !== this.selectedProjectId })
     },
     timerSessionId () {
       return this.$store.state.timerSessionId
@@ -170,7 +169,7 @@ export default {
     }
   },
   watch: {
-    activeProjectId: {
+    selectedProjectId: {
       immediate: true,
       handler: async function (id) {
         console.log('new projectId', id)
@@ -192,15 +191,21 @@ export default {
       this.contextMenuShow = true
     },
     deleteSession: async function () {
+      if (this.timerSessionId === this.contextMenuSessionId) {
+        Timer.stop()
+      }
       this.contextMenuShow = false
       await this.$store.dispatch('deleteSession', this.contextMenuSessionId)
     },
     moveSession: async function (projectId) {
+      if (this.timerSessionId === this.contextMenuSessionId) {
+        Timer.stop()
+      }
       this.contextMenuShow = false
       console.log('moveSession', this.contextMenuSessionId, projectId)
       const payload = { id: this.contextMenuSessionId, changes: { p: projectId } }
       await this.$store.dispatch('updateSession', payload)
-      await this.$store.dispatch('updateSetting', { key: 'activeProjectId', value: projectId })
+      await this.$store.dispatch('updateSetting', { key: 'selectedProjectId', value: projectId })
     }
   }
 }

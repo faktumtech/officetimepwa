@@ -3,7 +3,7 @@
     <AppBar></AppBar>
     <v-main>
       <SessionsTable
-        v-if="activeProjectId"
+        v-if="selectedProjectId"
       ></SessionsTable>
       <Greeting
         v-else
@@ -17,7 +17,7 @@
       <Reports></Reports>
       <Settings></Settings>
       <Backups></Backups>
-      <Imports></Imports>
+      <Import></Import>
       <About></About>
       <AddExpense></AddExpense>
     </v-main>
@@ -39,7 +39,7 @@ import Backups from '@/components/Backups'
 import About from '@/components/About'
 import Greeting from '@/components/Greeting'
 import Reports from '@/components/Reports'
-import Imports from '@/components/Imports'
+import Import from '@/components/Import'
 import AddExpense from '@/components/AddExpense'
 import EventBus from '@/components/EventBus'
 
@@ -58,7 +58,7 @@ export default {
     Backups,
     About,
     Greeting,
-    Imports,
+    Import,
     AddExpense
   },
   data () {
@@ -69,8 +69,8 @@ export default {
     dark () {
       return this.$store.getters.getSetting('dark')
     },
-    activeProjectId () {
-      return this.$store.getters.getSetting('activeProjectId')
+    selectedProjectId () {
+      return this.$store.getters.getSetting('selectedProjectId')
     }
   },
 

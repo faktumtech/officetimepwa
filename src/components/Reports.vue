@@ -23,6 +23,7 @@
         <v-toolbar-items>
           <v-btn
             text
+            color="primary"
             @click="copyReport(true)"
             :disabled="!rawSessions || rawSessions.length === 0"
           >
@@ -32,6 +33,7 @@
         <v-toolbar-items>
           <v-btn
             text
+            color="primary"
             @click="saveReport(false)"
             :disabled="!rawSessions || rawSessions.length === 0"
           >
@@ -333,7 +335,7 @@
                   :key="item.id"
                 >
                   <td v-if="item.type === 'session' || item.type === 'expense'">
-                    {{ item.p }}
+                    {{ projectTitleLookup[item.p] }}
                   </td>
                   <td v-else colspan="2">
                       <b>{{ item.p }}</b>
@@ -342,7 +344,7 @@
                     {{ Utils.formatDate(item.d) }}
                   </td>
                   <td
-                    class="text-end"
+                    class="text-end timeField"
                   >
                     <span v-if="item.type === 'session' || item.type === 'expense'">
                       {{ Utils.formatTime(item.t) }}
@@ -364,7 +366,7 @@
                   <td
                     class="tableCategoryRow"
                   >
-                    {{ categoryLookup[item.c] }}
+                    {{ categoryTitleLookup[item.c] }}
                   </td>
                   <td
                     class="tableNotesRow"
@@ -460,11 +462,14 @@ export default {
     projects () {
       return this.$store.state.projects
     },
+    projectTitleLookup () {
+      return this.$store.getters.projectTitleLookup()
+    },
     categories () {
       return this.$store.state.categories
     },
-    categoryLookup () {
-      return this.$store.getters.categoryLookup()
+    categoryTitleLookup () {
+      return this.$store.getters.categoryTitleLookup()
     },
     sessionsQueryParams () {
       return {
@@ -569,20 +574,16 @@ export default {
       const output = []
 
       if (input && input.length > 0) {
-        // make projects lookup
-        var projects = []
-        for (const project of this.projects) {
-          projects[project.id] = project.title
-        }
-        console.log('projects', projects)
-
         // sort
         input.sort((a, b) => {
           // order by p (project), c (category), d (date)
           if (this.groupByProject && this.groupByCategory) {
             // sort by project title rather than project
-            const ap = projects[a.p] || ''
-            const bp = projects[b.p] || ''
+            const ap = this.projectTitleLookup[a.p] || ''
+            const bp = this.projectTitleLookup[b.p] || ''
+            // sort by category title rather than category
+            const ac = this.categoryTitleLookup[a.c] || ''
+            const bc = this.categoryTitleLookup[b.c] || ''
 
             // check first level
             if (ap < bp) {
@@ -591,9 +592,9 @@ export default {
               return 1
             } else {
               // check second level
-              if (a.c < b.c) {
+              if (ac < bc) {
                 return -1
-              } else if (a.c > b.c) {
+              } else if (ac > bc) {
                 return 1
               } else {
                 // check third level
@@ -610,8 +611,8 @@ export default {
           // order by p (project), d (date)
           } else if (this.groupByProject) {
             // sort by project title rather than project
-            const ap = projects[a.p] || ''
-            const bp = projects[b.p] || ''
+            const ap = this.projectTitleLookup[a.p] || ''
+            const bp = this.projectTitleLookup[b.p] || ''
 
             // check first level
             if (ap < bp) {
@@ -631,10 +632,14 @@ export default {
 
           // order by c (category), d (date)
           } else if (this.groupByCategory) {
+            // sort by category title rather than category
+            const ac = this.categoryTitleLookup[a.c] || ''
+            const bc = this.categoryTitleLookup[b.c] || ''
+
             // check first level
-            if (a.c < b.c) {
+            if (ac < bc) {
               return -1
-            } else if (a.c > b.c) {
+            } else if (ac > bc) {
               return 1
             } else {
               // check second level
@@ -675,11 +680,14 @@ export default {
             (this.groupByProject && this.groupByCategory && actProject !== row.p)
           ) {
             output.push({
-              p: 'Sum category "' + this.categoryLookup[actCategory] + '"',
+              p: 'Sum category "' + this.categoryTitleLookup[actCategory] + '"',
+              pTitle: '',
               d: '',
               t: actCategoryTime,
               a: actCategoryAmount,
+              e: '',
               c: '',
+              cTitle: '',
               r: null,
               n: '',
               type: 'subtotal'
@@ -691,11 +699,14 @@ export default {
           // make project subtotal if change of project
           if (this.groupByProject && actProject !== row.p) {
             output.push({
-              p: 'Sum project "' + projects[actProject] + '"',
+              p: 'Sum project "' + this.projectTitleLookup[actProject] + '"',
+              pTitle: '',
               d: '',
               t: actProjectTime,
               a: actProjectAmount,
+              e: '',
               c: '',
+              cTitle: '',
               r: null,
               n: '',
               type: 'subtotal'
@@ -706,11 +717,14 @@ export default {
           }
           if (this.showSessions && !row.e) {
             output.push({
-              p: projects[row.p] || '',
+              p: row.p,
+              pTitle: this.projectTitleLookup[row.p] || '',
               d: row.d,
               t: row.t,
               a: row.a,
+              e: row.e,
               c: row.c,
+              cTitle: this.categoryTitleLookup[row.c] || '',
               r: row.r,
               n: row.n,
               type: 'session'
@@ -718,11 +732,14 @@ export default {
           }
           if (this.showExpenses && row.e) {
             output.push({
-              p: projects[row.p] || '',
+              p: row.p,
+              pTitle: this.projectTitleLookup[row.p] || '',
               d: row.d,
               t: row.t,
               a: row.a,
+              e: row.e,
               c: row.c,
+              cTitle: this.categoryTitleLookup[row.c] || '',
               r: 0,
               n: row.n,
               type: 'expense'
@@ -747,11 +764,14 @@ export default {
         // final category subtotal
         if (this.groupByCategory) {
           output.push({
-            p: 'Sum category "' + this.categoryLookup[actCategory] + '"',
+            p: 'Sum category "' + this.categoryTitleLookup[actCategory] + '"',
+            pTitle: '',
             d: '',
             t: actCategoryTime,
             a: actCategoryAmount,
+            e: '',
             c: '',
+            cTitle: '',
             r: null,
             n: '',
             type: 'subtotal'
@@ -760,11 +780,14 @@ export default {
         // final project subtotal
         if (this.groupByProject) {
           output.push({
-            p: 'Sum project "' + projects[actProject] + '"',
+            p: 'Sum project "' + this.projectTitleLookup[actProject] + '"',
+            pTitle: '',
             d: '',
             t: actProjectTime,
             a: actProjectAmount,
+            e: '',
             c: '',
+            cTitle: '',
             r: null,
             n: '',
             type: 'subtotal'
@@ -774,10 +797,13 @@ export default {
         // final total
         output.push({
           p: 'TOTAL SUM',
+          pTitle: '',
           d: '',
           t: actTotalTime,
           a: actTotalAmount,
+          e: '',
           c: '',
+          cTitle: '',
           r: null,
           n: '',
           type: 'total'
@@ -809,6 +835,24 @@ export default {
         }
       })
     },
+    // prepare report for export in tab separated format
+    prepareExport: function () {
+      const input = this.groupedSessions
+      if (!input || input.length === 0) {
+        return false
+      }
+
+      let output = '\tProjectId\tProjectTitle\tDate\tTime (min)\tTime (hh:mm)\tRate\tAmount\tIsExpense\tCategoryId\tCategoryTitle\tNotes\n\n'
+      output += 'Report OfficeTimePWA from ' + this.startDate + ' to ' + this.endDate + '.\n\n'
+
+      for (const row of input) {
+        output += '\t' + row.p + '\t' + row.pTitle + '\t' + row.d + '\t' + row.t + '\t"' + Utils.formatTime(row.t, true) + '"\t' + row.r + '\t' + row.a + '\t' + row.e + '\t' + row.c + '\t' + row.cTitle + '\t' + row.n + '\n'
+        if (row.type === 'subtotal') {
+          output += '\n'
+        }
+      }
+      return output
+    },
     copyReport: async function () {
       try {
         if (!this.$store.state.clipboardApi) {
@@ -822,21 +866,7 @@ export default {
           )
           return
         }
-
-        const input = this.groupedSessions
-        if (!input || input.length === 0) {
-          return
-        }
-
-        let output = '\tProject\tDate\tTime (min)\tTime (hh:mm)\tCategory\tNotes\n\n'
-        output += 'Report OfficeTimePWA from ' + this.startDate + ' to ' + this.endDate + '.\n\n'
-
-        for (const row of input) {
-          output += '\t' + row.p + '\t' + row.d + '\t' + row.t + '\t"' + this.Utils.formatTime(row.t, true) + '"\t' + row.c + '\t' + row.n + '\n'
-          if (row.type === 'subtotal') {
-            output += '\n'
-          }
-        }
+        const output = this.prepareExport()
         await navigator.clipboard.writeText(output)
       } catch (err) {
         this.$store.commit('alert',
@@ -852,21 +882,7 @@ export default {
       try {
         const dateTimeStr = Utils.formatDateToLocalDateTimeIsoStr(new Date())
         const filename = 'officetime_report_' + dateTimeStr + '.csv'
-        const input = this.groupedSessions
-        if (!input || input.length === 0) {
-          return
-        }
-
-        let output = '\tProject\tDate\tTime (min)\tTime (hh:mm)\tCategory\tNotes\n\n'
-        output += 'Report OfficeTimePWA from ' + this.startDate + ' to ' + this.endDate + '.\n\n'
-
-        for (const row of input) {
-          output += '\t' + row.p + '\t' + row.d + '\t' + row.t + '\t"' + this.Utils.formatTime(row.t, true) + '"\t' + row.c + '\t' + row.n + '\n'
-          if (row.type === 'subtotal') {
-            output += '\n'
-          }
-        }
-
+        const output = this.prepareExport()
         const blob = new Blob([output], { type: '"text/plain;charset=utf-8' })
         saveAs(blob, filename)
         this.$store.commit('alert',
@@ -898,5 +914,8 @@ export default {
   }
   .dateField {
     margin-top: 1px !important;
+  }
+  .timeField {
+    white-space: nowrap;
   }
 </style>

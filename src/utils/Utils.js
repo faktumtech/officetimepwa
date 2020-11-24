@@ -41,7 +41,7 @@ export default {
   formatTime: function (time) {
     const hours = Math.floor(time / 60)
     const minutes = time - hours * 60
-    return '' + hours + ' : ' + ('0' + minutes).slice(-2)
+    return '' + hours + ':' + ('0' + minutes).slice(-2)
   },
 
   /**

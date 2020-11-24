@@ -54,21 +54,31 @@
                 fixed-header
                 height="calc(100vh - 150px)"
               >
+                <template v-slot:[`item.active`]="{ item }">
+                  <v-icon
+                    v-if="item.active"
+                    small
+                  >
+                    {{ mdiCheckBold }}
+                  </v-icon>
+                </template>
                 <template v-slot:[`item.defaultCategory`]="{ item }">
                   <span>
-                    {{ categoryLookup[item.defaultCategory] }}
+                    {{ categoryTitleLookup[item.defaultCategory] }}
                   </span>
                 </template>
                 <template v-slot:[`item.actions`]="{ item }">
                   <v-icon
                     small
                     class="mr-4"
+                    color="primary"
                     @click="editItem(item.id)"
                   >
                     {{ mdiPencil }}
                   </v-icon>
                   <v-icon
                     small
+                    color="primary"
                     @click="deleteItem(item.id)"
                   >
                     {{ mdiDelete}}
@@ -91,7 +101,7 @@
 <script>
 import ProjectEdit from '@/components/ProjectEdit'
 import EventBus from '@/components/EventBus'
-import { mdiClose, mdiPencil, mdiDelete } from '@mdi/js'
+import { mdiClose, mdiPencil, mdiDelete, mdiCheckBold } from '@mdi/js'
 
 export default {
   components: {
@@ -102,9 +112,12 @@ export default {
       mdiClose: mdiClose,
       mdiPencil: mdiPencil,
       mdiDelete: mdiDelete,
+      mdiCheckBold: mdiCheckBold,
       headers: [
+        { text: 'Active ', value: 'active' },
         { text: 'Name ', value: 'title' },
         { text: 'Default category ', value: 'defaultCategory' },
+        { text: 'Notes ', value: 'notes' },
         { text: 'Actions', value: 'actions', sortable: false }
       ],
       footerProps: {
@@ -127,8 +140,8 @@ export default {
     projects () {
       return this.$store.state.projects
     },
-    categoryLookup () {
-      return this.$store.getters.categoryLookup()
+    categoryTitleLookup () {
+      return this.$store.getters.categoryTitleLookup()
     }
   },
   watch: {
@@ -136,7 +149,6 @@ export default {
       immediate: true,
       handler: function (show) {
         if (show && (!this.projects || this.projects.length === 0)) {
-          console.log('test')
           setTimeout(() => {
             this.editItem(null)
           }, 500)
@@ -171,8 +183,8 @@ export default {
     deleteItemConfirm: async function (itemId) {
       await this.$store.dispatch('deleteProject', itemId)
       const firstProject = this.projects[0]
-      const activeProjectId = firstProject ? firstProject.id : null
-      await this.$store.dispatch('updateSetting', { key: 'activeProjectId', value: activeProjectId })
+      const selectedProjectId = firstProject ? firstProject.id : null
+      await this.$store.dispatch('updateSetting', { key: 'selectedProjectId', value: selectedProjectId })
     }
   }
 

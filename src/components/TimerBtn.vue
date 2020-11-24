@@ -102,8 +102,8 @@ export default {
     }
   },
   computed: {
-    activeProjectId () {
-      return this.$store.getters.getSetting('activeProjectId')
+    selectedProjectId () {
+      return this.$store.getters.getSetting('selectedProjectId')
     },
     timerSessionId () {
       return this.$store.state.timerSessionId
@@ -175,7 +175,7 @@ export default {
       if (timerId === null) {
         // mainbtn
         if (this.btnStatus === 'stopped') {
-          timerId = await this.$store.dispatch('createSession', this.activeProjectId)
+          timerId = await this.$store.dispatch('createSession', this.selectedProjectId)
         } else if (this.btnStatus === 'paused') {
           // timerSessionId should still be set
           timerId = this.$store.state.timerSessionId

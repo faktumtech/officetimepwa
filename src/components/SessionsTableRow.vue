@@ -57,12 +57,10 @@
     >
       <TimerAmountInput
          v-if="session.id === selectedSessionId"
-        class="amountField"
         :session="session"
       ></TimerAmountInput>
       <span
         v-else
-        class="amountDisplay"
       >
         {{ Utils.formatAmount(session.a, 2) }}
       </span>
@@ -83,7 +81,7 @@
       <span
         v-else
       >
-        {{ categoryLookup[session.c] }}
+        {{ categoryTitleLookup[session.c] }}
       </span>
     </td>
     <td
@@ -152,8 +150,8 @@ export default {
     categories () {
       return this.$store.state.categories
     },
-    categoryLookup () {
-      return this.$store.getters.categoryLookup()
+    categoryTitleLookup () {
+      return this.$store.getters.categoryTitleLookup()
     }
   },
   methods: {
@@ -204,7 +202,6 @@ export default {
   }
 
   .tableDateRow {
-    width: max(200px, 20vw);
     white-space: nowrap;
   }
 
@@ -235,14 +232,16 @@ export default {
   }
 
   .sessionsTable .dateField,  .sessionsTable .dateField input{
-    width: max(200px, 30vw);
-    max-width: 300px;
+    max-width: max(200px, 20vw);
+  }
+
+  .sessionsTable .timerField{
+    min-width: 80px;
   }
 
   /* hide hint */
   .sessionsTable .dateField .v-text-field__details,
   .sessionsTable .timerField .v-text-field__details,
-  .sessionsTable .amountField .v-text-field__details,
   .sessionsTable .categoryField .v-text-field__details,
   .sessionsTable .noteField .v-text-field__details {
     display: none;
@@ -250,7 +249,6 @@ export default {
 
   .sessionsTable .dateField,
   .sessionsTable .timerField,
-  .sessionsTable .amountField,
   .sessionsTable .categoryField,
   .sessionsTable .noteField {
     margin-bottom: 4px;

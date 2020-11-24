@@ -159,8 +159,8 @@ export default {
         this.$store.commit('showModalComponent', value ? 'about' : false)
       }
     },
-    activeProjectId () {
-      return this.$store.getters.getSetting('activeProjectId')
+    selectedProjectId () {
+      return this.$store.getters.getSetting('selectedProjectId')
     },
     lastBackupDateStr () {
       const lastBackupDate = this.$store.getters.getSetting('lastBackupDate')
@@ -169,7 +169,7 @@ export default {
   },
   methods: {
     mockSessions: async function (params) {
-      await db.mockSessions(this.$store.getters.getSetting('activeProjectId'), 10000)
+      await db.mockSessions(this.$store.getters.getSetting('selectedProjectId'), 10000)
       this.reload()
     },
     reload: function () {

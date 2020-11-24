@@ -3,8 +3,18 @@
 
 ## Roadmap / Ideas
 - Improve TimerTimeInput and make more similar to original Officetime
+- Changing category rate should give possibility to update all or future session rates.
+
+
 
 ## Changelog
+
+v0.6.4
+- Added notes and active indicator to projects. Show only active projects in projects select
+- bug: deleting or moving a running session, does not stop the timer
+- bug: Imports expenses are added as sessions instead of expenses
+- bug: Report should export complete data including ProjectId, CategoryId and expense (true/false)
+- bug: Reports Time should not break in lines on small screens
 
 v0.6.3
 - improved styling for dark theme

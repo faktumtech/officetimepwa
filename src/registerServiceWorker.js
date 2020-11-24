@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === 'production') {
       console.log('New content is downloading.')
     },
     updated (registration) {
-      // console.log('New content is available; please refresh.')
+      // allow app to inform about update and to force reload
       document.dispatchEvent(
         new CustomEvent('swUpdated', { detail: registration })
       )

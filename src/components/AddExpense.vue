@@ -126,10 +126,10 @@ export default {
   methods: {
     initExpense () {
       console.log('initExpense')
-      const activeProjectId = this.$store.getters.getSetting('activeProjectId')
-      const defaultCategory = this.$store.getters.getProject(activeProjectId).defaultCategory
+      const selectedProjectId = this.$store.getters.getSetting('selectedProjectId')
+      const defaultCategory = this.$store.getters.getProject(selectedProjectId).defaultCategory
       return {
-        p: activeProjectId,
+        p: selectedProjectId,
         e: true, // expense
         d: Utils.formatDateToLocalDateTimeIsoStr(new Date()).slice(0, -3), // start without seconds
         t: 0, // time
@@ -150,8 +150,8 @@ export default {
 
       await this.$store.dispatch('createExpense', this.expense)
       // switch project if changed
-      if (this.expense.p !== this.activeProjectId) {
-        await this.$store.dispatch('updateSetting', { key: 'activeProjectId', value: this.expense.p })
+      if (this.expense.p !== this.selectedProjectId) {
+        await this.$store.dispatch('updateSetting', { key: 'selectedProjectId', value: this.expense.p })
       }
       if (next) {
         this.expense = this.initExpense()
