@@ -43,6 +43,31 @@ export default new Vuex.Store({
     getProject: (state) => (id) => {
       return state.projects.find(project => project.id === id)
     },
+    getProjects: (state) => (active) => {
+      // exclude archived projects
+      if (active) {
+        const activeProjects = state.projects.filter((item) => {
+          return !item.archived
+        })
+        return activeProjects.sort((a, b) => {
+          return a.title.localeCompare(b.title)
+        })
+      } else {
+        // don't change original array
+        // https://stackoverflow.com/questions/9592740/how-can-you-sort-an-array-without-mutating-the-original-array
+        return [...state.projects].sort((a, b) => {
+          // check first level
+          if (a.archived && !b.archived) {
+            return 1
+          } else if (!a.archived && b.archived) {
+            return -1
+          } else {
+            // check second level
+            return a.title.localeCompare(b.title)
+          }
+        })
+      }
+    },
     getCategory: (state) => (id) => {
       return state.categories.find(category => category.id === id)
     },
@@ -175,7 +200,11 @@ export default new Vuex.Store({
         console.log('initApp')
         const selectedProjectId = await db.getSetting('selectedProjectId') || null
         context.commit('updateSetting', { key: 'selectedProjectId', value: selectedProjectId })
-        const dark = await db.getSetting('dark') || false
+        let dark = await db.getSetting('dark')
+        if (dark === null) {
+          // detect color-scheme preference if not hard set in settings
+          dark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || false
+        }
         context.commit('updateSetting', { key: 'dark', value: dark })
         const sound = await db.getSetting('sound') || false
         context.commit('updateSetting', { key: 'sound', value: sound })
@@ -193,7 +222,7 @@ export default new Vuex.Store({
         const categories = await db.getCategories()
         context.commit('setCategories', categories)
       } catch (err) {
-        console.log(err)
+        console.error(err)
       }
     },
 

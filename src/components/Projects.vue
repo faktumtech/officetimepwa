@@ -49,23 +49,21 @@
                 :items="projects"
                 :items-per-page="10"
                 :footer-props="footerProps"
-                :sort-by="'id'"
-                :sort-desc="true"
                 fixed-header
                 height="calc(100vh - 150px)"
               >
-                <template v-slot:[`item.active`]="{ item }">
-                  <v-icon
-                    v-if="item.active"
-                    small
-                  >
-                    {{ mdiCheckBold }}
-                  </v-icon>
-                </template>
                 <template v-slot:[`item.defaultCategory`]="{ item }">
                   <span>
                     {{ categoryTitleLookup[item.defaultCategory] }}
                   </span>
+                </template>
+                <template v-slot:[`item.archived`]="{ item }">
+                  <v-icon
+                    v-if="item.archived"
+                    small
+                  >
+                    {{ mdiCheckBold }}
+                  </v-icon>
                 </template>
                 <template v-slot:[`item.actions`]="{ item }">
                   <v-icon
@@ -114,9 +112,9 @@ export default {
       mdiDelete: mdiDelete,
       mdiCheckBold: mdiCheckBold,
       headers: [
-        { text: 'Active ', value: 'active' },
         { text: 'Name ', value: 'title' },
         { text: 'Default category ', value: 'defaultCategory' },
+        { text: 'Archived ', value: 'archived' },
         { text: 'Notes ', value: 'notes' },
         { text: 'Actions', value: 'actions', sortable: false }
       ],
@@ -138,7 +136,7 @@ export default {
       }
     },
     projects () {
-      return this.$store.state.projects
+      return this.$store.getters.getProjects()
     },
     categoryTitleLookup () {
       return this.$store.getters.categoryTitleLookup()
@@ -182,8 +180,8 @@ export default {
     },
     deleteItemConfirm: async function (itemId) {
       await this.$store.dispatch('deleteProject', itemId)
-      const firstProject = this.projects[0]
-      const selectedProjectId = firstProject ? firstProject.id : null
+      const projects = this.$store.getters.getProjects(true)
+      const selectedProjectId = projects[0] ? projects[0].id : null
       await this.$store.dispatch('updateSetting', { key: 'selectedProjectId', value: selectedProjectId })
     }
   }

@@ -107,7 +107,6 @@ export default {
     },
     lastBackupDateStr () {
       const lastBackupDate = this.$store.getters.getSetting('lastBackupDate')
-      console.log(lastBackupDate)
       return lastBackupDate ? Utils.formatDateToLocalDateTimeIsoStr(new Date(lastBackupDate)) : false
     }
   },

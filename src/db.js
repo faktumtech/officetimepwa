@@ -157,7 +157,7 @@ export default {
     const categories = await db.categories.toArray()
     // make sure at least one category exists
     if (!categories || categories.length === 0) {
-      await db.categories.add({ title: 'No category', rate: 0 })
+      await db.categories.add({ title: 'No Category', rate: 0 })
       return db.categories.toArray()
     }
     return categories

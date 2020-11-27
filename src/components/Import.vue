@@ -30,6 +30,7 @@
           >
           <v-btn
             v-if="loadedItems.length === 0 && parsedItems.length === 0"
+            :disabled="!selectedProjectId"
             color="primary"
             text
             @click="$refs.uploader.click()"
@@ -68,16 +69,24 @@
               v-if="loadedItems.length === 0 && parsedItems.length === 0"
             >
               <v-alert
+                v-if="!selectedProjectId"
+                :icon="mdiAlert"
+                text
+                type="error"
+              >
+                  You need to create a project before you can import data!
+              </v-alert>
+              <v-alert
                 :icon="mdiDatabaseImport"
                 prominent
                 text
                 type="info"
               >
                 <p>
-                  OfficeTimePwa allows you to import sessions and expenses to your projects from a csv file.
+                  OfficeTimePwa allows you to import sessions and expenses from a csv file.
                 </p>
                 <p>
-                  The files you import should have csv format with UTF8 encoding, tab or comma as field separator and no headers or footers. Each file should contain either sessions or expenses, but not both at the same time. If your file contains categories, any unknown category will be created automatically. You will be asked for confirmation before adding the imported data to your data.
+                  The files you import should have csv format with UTF8 encoding, tab or comma as field separator and no headers or footers. Each file should contain either sessions or expenses, but not both at the same time. If your file contains categories, any unknown category will be created automatically. You will be asked for confirmation before adding the imported data to your actual project.
                 </p>
                 <p>
                   <b>Please make a backup of your data before importing external data to OfficeTimePwa.</b>
@@ -149,13 +158,28 @@
                   <div
                     class="pa-2 text-subtitle-1 warning--text"
                   >
-                    This is the data that will be imported to project <b>{{ activeProject.title }}</b>!
+                    This is the data that will be imported to project <b>{{ selectedProject.title }}</b>!
                   </div>
                 </template>
                 <template
                   v-slot:[`item.d`]="{ item }"
                 >
                   {{ Utils.formatDate(item.d) }}
+                </template>
+                <template
+                  v-slot:[`item.t`]="{ item }"
+                >
+                  {{ Utils.formatTime(item.t) }}
+                </template>
+                <template
+                  v-slot:[`item.r`]="{ item }"
+                >
+                  {{ Utils.formatAmount(item.r, 2) }}
+                </template>
+                <template
+                  v-slot:[`item.a`]="{ item }"
+                >
+                  {{ Utils.formatAmount(item.a, 2) }}
                 </template>
               </v-data-table>
             </v-col>
@@ -170,7 +194,7 @@
 import Papa from 'papaparse'
 import Utils from '@/utils/Utils'
 // import db from '@/db'
-import { mdiClose, mdiDatabaseImport } from '@mdi/js'
+import { mdiClose, mdiDatabaseImport, mdiAlert } from '@mdi/js'
 
 export default {
   beforeCreate () {
@@ -179,6 +203,7 @@ export default {
   data: () => ({
     mdiClose: mdiClose,
     mdiDatabaseImport: mdiDatabaseImport,
+    mdiAlert: mdiAlert,
     loadedHeaders: [],
     loadedItems: [],
     parsedItems: [],
@@ -219,7 +244,7 @@ export default {
     selectedProjectId () {
       return this.$store.getters.getSetting('selectedProjectId')
     },
-    activeProject () {
+    selectedProject () {
       return this.$store.getters.getProject(this.selectedProjectId)
     }
   },
@@ -239,7 +264,8 @@ export default {
 
       reader.onload = async () => {
         try {
-          const result = await Papa.parse(reader.result)
+          // remove empty lines
+          const result = await Papa.parse(reader.result.trim())
           const loadedItems = result.data
           console.log(loadedItems)
           if (!Array.isArray(loadedItems) || !Array.isArray(loadedItems[0])) {
@@ -251,9 +277,33 @@ export default {
               }
             )
           }
-          // show table
+          // check if all rows have same number of cols
           const rowsCount = loadedItems.length
-          const headersCount = loadedItems[0].length
+          let colsCountMax = loadedItems[0].length
+          let colsCountMin = colsCountMax
+          for (let i = 0; i < rowsCount; i++) {
+            const cols = loadedItems[i].length
+            if (cols < colsCountMin) {
+              colsCountMin = cols
+            }
+            if (cols > colsCountMax) {
+              colsCountMax = cols
+            }
+          }
+          console.log(colsCountMin, colsCountMax)
+          if (colsCountMin !== colsCountMax) {
+            this.$store.commit('alert',
+              {
+                show: true,
+                text: 'Not all rows have the same number of items! Import will probably fail.',
+                type: 'error',
+                timeout: 15000
+              }
+            )
+          }
+
+          // show a table adjusted to colsCountMax
+          const headersCount = colsCountMax
           const headers = []
           const data = []
           for (let i = 0; i < headersCount; i++) {
@@ -276,138 +326,151 @@ export default {
             {
               show: true,
               text: 'This file does not seems to be a valid csv file!',
-              type: 'error'
+              type: 'error',
+              timeout: 15000
             }
           )
         }
       }
     },
     parseData: function () {
-      // parsers lookup
-      const parsersLookup = []
-      for (const parser of this.parsers) {
-        parsersLookup[parser.id] = parser
-      }
+      try {
+        // parsers lookup
+        const parsersLookup = []
+        for (const parser of this.parsers) {
+          parsersLookup[parser.id] = parser
+        }
 
-      // lookup of category rates by title
-      const categoryRateLookup = []
-      for (const item of this.$store.state.categories) {
-        categoryRateLookup[item.title] = item.rate
-      }
+        // lookup of category rates by title
+        const categoryRateLookup = []
+        for (const item of this.$store.state.categories) {
+          categoryRateLookup[item.title] = item.rate
+        }
 
-      // check for specified target fields
-      let targetFields = this.loadedHeaders.map((obj) => { return parsersLookup[obj.parserId].targetField })
-      targetFields = targetFields.filter((el) => { return el !== null })
+        // check for specified target fields
+        let targetFields = this.loadedHeaders.map((obj) => { return parsersLookup[obj.parserId].targetField })
+        targetFields = targetFields.filter((el) => { return el !== null })
 
-      // check if parser ('Expense Amount') is included or not
-      const isExpense = this.loadedHeaders.find((obj) => { return obj.parserId === this.expenseIdentifier })
+        // check if parser ('Expense Amount') is included or not
+        const isExpense = this.loadedHeaders.find((obj) => { return obj.parserId === this.expenseIdentifier })
 
-      // target fields should not repeat
-      // https://stackoverflow.com/questions/49215358/checking-for-duplicate-strings-in-javascript-array/54974076
-      if (new Set(targetFields).size !== targetFields.length) {
+        // target fields should not repeat
+        // https://stackoverflow.com/questions/49215358/checking-for-duplicate-strings-in-javascript-array/54974076
+        if (new Set(targetFields).size !== targetFields.length) {
+          this.$store.commit('alert',
+            {
+              show: true,
+              text: 'Target fields should not repeat!',
+              type: 'error',
+              timeout: 15000
+            }
+          )
+          return
+        }
+        // minimum information for expenses
+        const minExpenseFields = ['d', 'a']
+        const maxExpenseFields = ['d', 't', 'a', 'c', 'n']
+        const hasMinExpenseFields = minExpenseFields.every(v => targetFields.includes(v))
+        // minimum information for sessions
+        const minSessionFields = ['d', 't']
+        const maxSessionFields = ['d', 't', 'a', 'c', 'n']
+        const hasMinSessionFields = minSessionFields.every(v => targetFields.includes(v))
+        const parsedItems = []
+
+        const rows = this.loadedItems.length
+        const cols = this.loadedHeaders.length
+        const selectedProject = this.selectedProject
+        const selectedProjectCategory = this.$store.getters.getCategory(selectedProject.defaultCategory)
+
+        if (isExpense && hasMinExpenseFields) {
+          for (let i = 0; i < rows; i++) {
+            const obj = {
+              p: selectedProject.id,
+              e: true, // expense
+              d: null,
+              t: 0, // time
+              a: 0, // amount
+              c: selectedProjectCategory.title,
+              r: 0,
+              n: ''
+            }
+            for (let j = 0; j < cols; j++) {
+              const parserId = this.loadedHeaders[j].parserId
+              const parser = parsersLookup[parserId]
+              // ignore parser without targetField or a not suitable targetField
+              if (parser.targetField !== null || maxExpenseFields.includes(parser.targetField)) {
+                obj[parser.targetField] = parser.funct(this.loadedItems[i]['col' + j])
+                console.log(i, j, this.loadedItems[i]['col' + j])
+              }
+            }
+            parsedItems.push(obj)
+          }
+        } else if (!isExpense && hasMinSessionFields) {
+          console.log(this.loadedItems)
+
+          for (let i = 0; i < rows; i++) {
+            const obj = {
+              p: selectedProject.id,
+              e: false, // session
+              d: null,
+              t: 0, // time
+              a: 0, // amount
+              c: selectedProjectCategory.title,
+              r: 0,
+              n: ''
+            }
+            for (let j = 0; j < cols; j++) {
+              const parserId = this.loadedHeaders[j].parserId
+              const parser = parsersLookup[parserId]
+              // ignore parser without targetField or a not suitable targetField
+              if (parser.targetField !== null || maxSessionFields.includes(parser.targetField)) {
+                obj[parser.targetField] = parser.funct(this.loadedItems[i]['col' + j])
+              }
+            }
+            // if category given, lookup real rate
+            let rate = selectedProjectCategory.rate
+            if (targetFields.includes('c')) {
+              const category = categoryRateLookup[obj.c]
+              if (category) {
+                rate = category.rate
+              }
+            }
+            obj.r = rate
+
+            // if amount not given, calculate from category rate and time
+            if (!targetFields.includes('a')) {
+              obj.a = Utils.round(rate * obj.t / 60, 2)
+            // if amount given, try to calculate rate from amount and time
+            } else if (obj.a !== 0 && obj.t !== 0) {
+              obj.r = Utils.round(60 * obj.a / obj.t, 2)
+            }
+            parsedItems.push(obj)
+          }
+        } else {
+          this.$store.commit('alert',
+            {
+              show: true,
+              text: 'Missing columns. Please make sure you selected columns to be imported. To import expenses you need at least \'Expense Amount\' and \'DateTime\'. To import sessions you need al least \'DateTime\' and \'Time\'!',
+              type: 'error',
+              timeout: 15000
+            }
+          )
+          return
+        }
+        console.log(parsedItems)
+        this.parsedItems = parsedItems
+        this.loadedItems = []
+      } catch (err) {
+        console.error(err)
         this.$store.commit('alert',
           {
             show: true,
-            text: 'Target fields should not repeat!',
+            text: 'Unkown error during parsing!',
             type: 'error',
             timeout: 15000
           }
         )
-        return
       }
-      // minimum information for expenses
-      const minExpenseFields = ['d', 'a']
-      const maxExpenseFields = ['d', 't', 'a', 'c', 'n']
-      const hasMinExpenseFields = minExpenseFields.every(v => targetFields.includes(v))
-      // minimum information for sessions
-      const minSessionFields = ['d', 't']
-      const maxSessionFields = ['d', 't', 'a', 'c', 'n']
-      const hasMinSessionFields = minSessionFields.every(v => targetFields.includes(v))
-      const parsedItems = []
-
-      const rows = this.loadedItems.length
-      const cols = this.loadedHeaders.length
-      const activeProject = this.activeProject
-      const activeProjectCategory = this.$store.getters.getCategory(activeProject.defaultCategory)
-
-      if (isExpense && hasMinExpenseFields) {
-        for (let i = 0; i < rows; i++) {
-          const obj = {
-            p: activeProject.id,
-            e: true, // expense
-            d: null,
-            t: 0, // time
-            a: 0, // amount
-            c: activeProjectCategory.title,
-            r: 0,
-            n: ''
-          }
-          for (let j = 0; j < cols; j++) {
-            const parserId = this.loadedHeaders[j].parserId
-            const parser = parsersLookup[parserId]
-            // ignore parser without targetField or a not suitable targetField
-            if (parser.targetField !== null || maxExpenseFields.includes(parser.targetField)) {
-              obj[parser.targetField] = parser.funct(this.loadedItems[i]['col' + j])
-              console.log(i, j, this.loadedItems[i]['col' + j])
-            }
-          }
-          parsedItems.push(obj)
-        }
-      } else if (!isExpense && hasMinSessionFields) {
-        console.log(this.loadedItems)
-
-        for (let i = 0; i < rows; i++) {
-          const obj = {
-            p: activeProject.id,
-            e: false, // session
-            d: null,
-            t: 0, // time
-            a: 0, // amount
-            c: activeProjectCategory.title,
-            r: 0,
-            n: ''
-          }
-          for (let j = 0; j < cols; j++) {
-            const parserId = this.loadedHeaders[j].parserId
-            const parser = parsersLookup[parserId]
-            // ignore parser without targetField or a not suitable targetField
-            if (parser.targetField !== null || maxSessionFields.includes(parser.targetField)) {
-              obj[parser.targetField] = parser.funct(this.loadedItems[i]['col' + j])
-            }
-          }
-          // if category given, lookup real rate
-          let rate = activeProjectCategory.rate
-          if (targetFields.includes('c')) {
-            const category = categoryRateLookup[obj.c]
-            if (category) {
-              rate = category.rate
-            }
-          }
-          obj.r = rate
-
-          // if amount not given, calculate from category rate and time
-          if (!targetFields.includes('a')) {
-            obj.a = Utils.round(rate * obj.t / 60, 2)
-          // if amount given, try to calculate rate from amount and time
-          } else if (obj.a !== 0 && obj.t !== 0) {
-            obj.r = Utils.round(60 * obj.a / obj.t, 2)
-          }
-          parsedItems.push(obj)
-        }
-      } else {
-        this.$store.commit('alert',
-          {
-            show: true,
-            text: 'Missing columns. Please make sure you selected columns to be imported. To import expenses you need at least \'Expense Amount\' and \'DateTime\'. To import sessions you need al least \'DateTime\' and \'Time\'!',
-            type: 'error',
-            timeout: 15000
-          }
-        )
-        return
-      }
-      console.log(parsedItems)
-      this.parsedItems = parsedItems
-      this.loadedItems = []
     },
     importData: async function () {
       try {
@@ -434,16 +497,20 @@ export default {
           importItems.push(importItem)
         }
         await this.$store.dispatch('importSessions', importItems)
-        this.$store.commit('alert',
-          {
-            show: true,
-            text: 'Data imported correctly to project ' + this.activeProject.title + '.',
-            type: 'info'
-          }
-        )
+        this.show = false
         this.reset()
+        // avoid that closing the modalComponent will close alert immediately
+        this.$nextTick(() => {
+          this.$store.commit('alert',
+            {
+              show: true,
+              text: 'Data imported correctly to project ' + this.selectedProject.title + '.',
+              type: 'info',
+              timeout: 15000
+            }
+          )
+        })
       } catch (err) {
-        this.backup = null
         console.error(err)
         this.$store.commit('alert',
           {

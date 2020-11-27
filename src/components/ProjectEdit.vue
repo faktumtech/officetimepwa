@@ -43,8 +43,8 @@
                 rows="3"
               ></v-textarea>
               <v-checkbox
-                v-model="project.active"
-                label="Active project (shown in Projects selector)"
+                v-model="project.archived"
+                label="Archived project (not shown in Projects selector)"
               ></v-checkbox>
               <small>*required</small>
               </v-col>
@@ -104,6 +104,16 @@ export default {
         this.$emit('input', value)
       }
     },
+    selectedProjectId: {
+      async set (id) {
+        if (id !== this.selectedProjectId) {
+          await this.$store.dispatch('updateSetting', { key: 'selectedProjectId', value: id })
+        }
+      },
+      get () {
+        return this.$store.getters.getSetting('selectedProjectId')
+      }
+    },
     categories () {
       return this.$store.state.categories
     },
@@ -125,7 +135,7 @@ export default {
             title: '',
             defaultCategory: this.categories[0].id,
             notes: '',
-            active: true
+            archived: false
           }
         } else {
           this.project = this.$store.getters.getProject(this.itemId)
@@ -146,6 +156,11 @@ export default {
       if (this.itemId === null) {
         await this.$store.dispatch('createProject', this.project)
       } else {
+        // unselect project if marked as archived
+        if (this.project.id === this.selectedProjectId && this.project.archived) {
+          const projects = this.$store.getters.getProjects(true)
+          this.selectedProjectId = projects[0] ? projects[0].id : null
+        }
         const payload = { id: this.itemId, changes: this.project }
         await this.$store.dispatch('updateProject', payload)
       }

@@ -40,7 +40,7 @@
                 ></v-text-field>
                 <v-select
                   v-model="expense.p"
-                  :items="projects"
+                  :items="activeProjects"
                   label="Project"
                   item-text="title"
                   item-value="id"
@@ -108,8 +108,9 @@ export default {
         this.$store.commit('showModalComponent', value ? 'addExpense' : false)
       }
     },
-    projects () {
-      return this.$store.state.projects
+    activeProjects () {
+      // active projects
+      return this.$store.getters.getProjects(true)
     },
     categories () {
       return this.$store.state.categories

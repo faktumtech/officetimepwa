@@ -150,7 +150,8 @@ export default {
   }),
   computed: {
     activeProjects () {
-      return this.$store.state.projects.filter((el) => { return el.active === true })
+      // exclude archived projects
+      return this.$store.getters.getProjects(true)
     },
     selectedProjectId: {
       async set (id) {

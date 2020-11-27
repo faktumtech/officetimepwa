@@ -154,7 +154,9 @@ export default {
       return this.$store.getters.getSetting('selectedProjectId')
     },
     otherProjects () {
-      return this.$store.state.projects.filter((el) => { return el.id !== this.selectedProjectId })
+      // return this.$store.state.projects.filter((el) => { return el.id !== this.selectedProjectId })
+      // exclude archived projects
+      return this.$store.getters.getProjects(true).filter((el) => { return el.id !== this.selectedProjectId })
     },
     timerSessionId () {
       return this.$store.state.timerSessionId

@@ -12,7 +12,8 @@
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css">
     -->
     <link href="/css/roboto.css" rel="preload" as="style">
-    <link rel="stylesheet" href="/css/roboto.css">
+    <!-- avoid render blocking -->
+    <link rel="stylesheet" href="/css/roboto.css" media="print" onload="this.media='all'">
   </head>
   <body>
     <noscript>

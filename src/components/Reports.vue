@@ -460,7 +460,9 @@ export default {
       return true
     },
     projects () {
-      return this.$store.state.projects
+      // return this.$store.state.projects
+      // do not exclude archived projects
+      return this.$store.getters.getProjects()
     },
     projectTitleLookup () {
       return this.$store.getters.projectTitleLookup()

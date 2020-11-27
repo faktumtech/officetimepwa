@@ -1,13 +1,21 @@
 ## Known issues / bugs
 - On IOS v12 new sessions shows right time in input, but time + tzoffset when shown in table
+- Bug: After adding Project or Category, ESC does not close dialog
 
 ## Roadmap / Ideas
 - Improve TimerTimeInput and make more similar to original Officetime
 - Changing category rate should give possibility to update all or future session rates.
+- Allow cursor to move between sessions
+- Save settings of tables (items per page, sort preferences)
 
 
 
 ## Changelog
+
+v0.6.5
+- improved font loading and elimination of non woff2 fonts
+- improved Import display and error handling
+- Project Select: show in alphabetical order
 
 v0.6.4
 - Added notes and active indicator to projects. Show only active projects in projects select
