@@ -12,6 +12,9 @@
 
 ## Changelog
 
+v0.6.6
+- bug: changes in ProjectEdit or CategoryEdit are commited even when canceling
+
 v0.6.5
 - improved font loading and elimination of non woff2 fonts
 - improved Import display and error handling

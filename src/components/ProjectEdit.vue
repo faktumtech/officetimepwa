@@ -138,7 +138,8 @@ export default {
             archived: false
           }
         } else {
-          this.project = this.$store.getters.getProject(this.itemId)
+          // use copy
+          this.project = { ...this.$store.getters.getProject(this.itemId) }
         }
       }
     }

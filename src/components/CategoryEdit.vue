@@ -118,7 +118,8 @@ export default {
             rate: 0
           }
         } else {
-          this.category = this.$store.getters.getCategory(this.itemId)
+          // use copy
+          this.category = { ...this.$store.getters.getCategory(this.itemId) }
         }
       }
     }
