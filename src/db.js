@@ -1,5 +1,6 @@
 // src/db.js
 import Dexie from 'dexie'
+import Utils from '@/utils/Utils'
 
 const db = new Dexie('officetimedb')
 db.version(1).stores({
@@ -26,8 +27,7 @@ db.version(2).stores({
     const rate = lookup[session.c] || 0
     // Modify each session
     session.e = false
-    // https://stackoverflow.com/questions/11832914/round-to-at-most-2-decimal-places-only-if-necessary
-    session.a = Math.round(((rate * session.t / 60) + 0.00001) * 100) / 100
+    session.a = Utils.round(rate * session.t / 60, 2)
     session.r = rate
   })
 })
@@ -179,7 +179,7 @@ export default {
    * @return {Promise} 1 if updated, 0 if not updated (not found / no changes)
   */
   updateCategory: (categoryId, changes) => {
-    return db.projects.update(categoryId, changes)
+    return db.categories.update(categoryId, changes)
   },
 
   /**
@@ -326,5 +326,23 @@ export default {
   */
   bulkAddSessions: async (newSessions) => {
     return db.sessions.bulkPut(newSessions)
+  },
+
+  /**
+   * bulk update rate and calculate new amount for all
+   * sessions using a certain category
+   * @param {Number} categoryId
+   * @param {Number} rate
+   * @return {Promise} undefined
+  */
+  bulkUpdateSessionsRate: async (categoryId, rate) => {
+    console.log('bulkUpdateSessionsRate', categoryId, rate)
+    return db.sessions.where({ c: categoryId }).modify(session => {
+      if (!session.e) {
+        console.log(session.id)
+        session.r = rate
+        session.a = Utils.round(rate * session.t / 60, 2)
+      }
+    })
   }
 }

@@ -431,6 +431,22 @@ export default new Vuex.Store({
       } catch (err) {
         console.log(err)
       }
+    },
+
+    /**
+     * bulk update rate and calculate new amount for all
+     * sessions using a certain category
+     * @param {Object} payload { id, rate }
+     * @return {Promise} undefined
+    */
+    async bulkUpdateSessionsRate (context, { id, rate }) {
+      try {
+        await db.bulkUpdateSessionsRate(id, rate)
+        const selectedProjectId = context.getters.getSetting('selectedProjectId')
+        await context.dispatch('getSessionsByProjectId', selectedProjectId)
+      } catch (err) {
+        console.log(err)
+      }
     }
   }
 })

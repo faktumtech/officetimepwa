@@ -1,6 +1,7 @@
 // timer.js
 
 import store from '@/store'
+import Utils from '@/utils/Utils'
 
 // timer shared between instances of module
 var timer
@@ -34,7 +35,7 @@ export default {
       // the timerOffset can be manipulated by other components during a timer run
       const timerOffset = store.state.timerOffset
       const timerCount = Math.floor((now - start + timerOffset * 60000 + initialTimerCount * 60000) / 60000)
-      const amount = Math.round(((timerCount * timerRate / 60) + 0.00001) * 100) / 100
+      const amount = Utils.round(timerRate * timerCount / 60, 2)
       // console.log('timer', timerOffset, timerCount)
       store.commit('timerCount', timerCount)
       const payload = { id: timerId, changes: { t: timerCount, a: amount } }

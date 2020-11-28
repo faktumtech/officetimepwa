@@ -65,6 +65,7 @@
 </template>
 
 <script>
+import EventBus from '@/components/EventBus'
 
 export default {
   data () {
@@ -137,10 +138,38 @@ export default {
       if (this.itemId === null) {
         await this.$store.dispatch('createCategory', this.category)
       } else {
+        // check if rate has changed
+        const oldRate = this.$store.getters.getCategory(this.itemId).rate
         const payload = { id: this.itemId, changes: this.category }
         await this.$store.dispatch('updateCategory', payload)
+        if (oldRate !== this.category.rate) {
+          this.updateRateDlg()
+        }
       }
       this.close()
+    },
+    updateRateDlg () {
+      const modalDlg = {
+        title: 'Update rates in sessions',
+        text: 'Update old sessions with the new rate or only apply to new sessions?',
+        confirmText: 'Update old',
+        cancelText: 'Apply to new'
+      }
+      this.$store.commit('showModalDlg', modalDlg)
+
+      EventBus.$on('modalEvent', async (e) => {
+        EventBus.$off('modalEvent')
+        // mantain dlg open during execution
+        if (e === 'confirm') {
+          await this.updateRate()
+        }
+        this.$store.commit('hideModalDlg')
+      })
+    },
+    async updateRate () {
+      console.log(this.itemId)
+      const payload = { id: this.itemId, rate: this.category.rate }
+      await this.$store.dispatch('bulkUpdateSessionsRate', payload)
     }
   }
 }

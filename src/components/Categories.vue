@@ -137,7 +137,7 @@ export default {
           'alert',
           {
             show: true,
-            text: 'At least on category is required.',
+            text: 'This category can not be deleted! At least one category is required.',
             type: 'error'
           }
         )
@@ -150,18 +150,18 @@ export default {
           'alert',
           {
             show: true,
-            text: 'Category is used in sessions or as default category of a project',
+            text: 'This category can not be deleted! It is used in sessions or as default category of a project.',
             type: 'error'
           }
         )
         return
       }
 
-      const project = this.$store.getters.getProject(itemId)
+      const category = this.$store.getters.getCategory(itemId)
       const modalDlg = {
-        title: 'Delete project',
-        text: 'The project ' + project.title + ' and all saved timers will be deleted. This action can not be undone.',
-        confirmText: 'Delete project'
+        title: 'Delete category',
+        text: 'The category ' + category.title + ' will be deleted. This action can not be undone.',
+        confirmText: 'Delete category'
       }
       this.$store.commit('showModalDlg', modalDlg)
 

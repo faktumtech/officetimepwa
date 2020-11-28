@@ -4,13 +4,16 @@
 
 ## Roadmap / Ideas
 - Improve TimerTimeInput and make more similar to original Officetime
-- Changing category rate should give possibility to update all or future session rates.
 - Allow cursor to move between sessions
 - Save settings of tables (items per page, sort preferences)
 
 
 
 ## Changelog
+
+v0.6.7
+- Changing category rate gives possibility to update all or future session rates
+- bug: categories not updating correctly
 
 v0.6.6
 - bug: changes in ProjectEdit or CategoryEdit are commited even when canceling

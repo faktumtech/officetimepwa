@@ -158,7 +158,7 @@ export default {
     },
     rate: function (rate) {
       if (!this.session.e) {
-        this.amount = Math.round((+rate * this.session.t / 60 + 0.00001) * 100) / 100
+        this.amount = Utils.round(+rate * this.session.t / 60, 2)
       }
     }
   },
