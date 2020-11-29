@@ -96,9 +96,11 @@ export default {
       this.$store.commit('clipboardApi', (typeof (navigator.clipboard) !== 'undefined'))
       // check if backup should be made
       const now = Date.now()
-      const lastBackupDate = this.$store.getters.getSetting('lastBackupDate') || this.$store.getters.getSetting('dbCreationDate')
       const day = 86400000
-      if (now > lastBackupDate + 1 * day) {
+      const dbCreationDate = this.$store.getters.getSetting('dbCreationDate')
+      const lastBackupDate = this.$store.getters.getSetting('lastBackupDate') || dbCreationDate
+      const lastBackupReminderDate = this.$store.getters.getSetting('lastBackupReminderDate') || dbCreationDate
+      if ((now > lastBackupDate + 1 * day) && (now > lastBackupReminderDate + 1 * day)) {
         const modalDlg = {
           title: 'Backups',
           text: 'Your last backup is older than 1 day. Please make a backup now.',
@@ -106,6 +108,9 @@ export default {
           confirmText: 'Take me to Backups'
         }
         this.$store.commit('showModalDlg', modalDlg)
+        // save lastBackupReminderDate
+        const lastBackupReminderDate = Date.now()
+        await this.$store.dispatch('updateSetting', { key: 'lastBackupReminderDate', value: lastBackupReminderDate })
 
         EventBus.$on('modalEvent', async (e) => {
           EventBus.$off('modalEvent')

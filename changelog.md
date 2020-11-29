@@ -1,15 +1,17 @@
 ## Known issues / bugs
 - On IOS v12 new sessions shows right time in input, but time + tzoffset when shown in table
-- Bug: After adding Project or Category, ESC does not close dialog
+- Bug: After adding, editing or deleting a Project or Category, ESC does not close dialog
 
 ## Roadmap / Ideas
 - Improve TimerTimeInput and make more similar to original Officetime
 - Allow cursor to move between sessions
-- Save settings of tables (items per page, sort preferences)
-
 
 
 ## Changelog
+
+v0.6.8
+- Save itemsPerPage setting of sessions tables
+- Remember backup rejection for 1 day
 
 v0.6.7
 - Changing category rate gives possibility to update all or future session rates

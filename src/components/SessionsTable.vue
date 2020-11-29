@@ -15,7 +15,8 @@
       :mobile-breakpoint="0"
       :headers="headers"
       :items="sessions"
-      :items-per-page="100"
+      :items-per-page="itemsPerPage"
+      @update:items-per-page="(val) => { itemsPerPage = val }"
       :footer-props="footerProps"
       :sort-by="'d'"
       :sort-desc="true"
@@ -160,6 +161,15 @@ export default {
     },
     timerSessionId () {
       return this.$store.state.timerSessionId
+    },
+    itemsPerPage: {
+      async set (value) {
+        console.log('test')
+        await this.$store.dispatch('updateSetting', { key: 'itemsPerPageSessionTable', value: value })
+      },
+      get () {
+        return this.$store.getters.getSetting('itemsPerPageSessionTable')
+      }
     },
     selectedSessionId: {
       set (value) {

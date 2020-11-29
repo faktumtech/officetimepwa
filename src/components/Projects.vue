@@ -5,6 +5,7 @@
     persistent
     no-click-animation
     eager
+    ref="focus"
     :value="show"
     @keydown.esc="show = false"
     class="dlgSticky"

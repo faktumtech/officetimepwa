@@ -1,6 +1,7 @@
 <template>
   <v-dialog
     v-model="show"
+    eager
     max-width="500px"
     :overlayColor="$vuetify.theme.dark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
   >

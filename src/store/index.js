@@ -13,9 +13,11 @@ export default new Vuex.Store({
     // persistent properties synced with db
     settings: {
       selectedProjectId: null,
-      dark: false, // dark theme
-      sound: false,
+      itemsPerPageSessionTable: null,
+      dark: null, // dark theme
+      sound: null,
       lastBackupDate: null,
+      lastBackupReminderDate: null,
       dbCreationDate: null
     },
     projects: [],
@@ -200,6 +202,9 @@ export default new Vuex.Store({
         console.log('initApp')
         const selectedProjectId = await db.getSetting('selectedProjectId') || null
         context.commit('updateSetting', { key: 'selectedProjectId', value: selectedProjectId })
+        const itemsPerPageSessionTable = await db.getSetting('itemsPerPageSessionTable') || 100
+        context.commit('updateSetting', { key: 'itemsPerPageSessionTable', value: itemsPerPageSessionTable })
+
         let dark = await db.getSetting('dark')
         if (dark === null) {
           // detect color-scheme preference if not hard set in settings
@@ -217,6 +222,8 @@ export default new Vuex.Store({
 
         const lastBackupDate = await db.getSetting('lastBackupDate')
         context.commit('updateSetting', { key: 'lastBackupDate', value: lastBackupDate })
+        const lastBackupReminderDate = await db.getSetting('lastBackupReminderDate')
+        context.commit('updateSetting', { key: 'lastBackupReminderDate', value: lastBackupReminderDate })
         const projects = await db.getProjects()
         context.commit('setProjects', projects)
         const categories = await db.getCategories()
