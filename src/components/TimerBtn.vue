@@ -15,30 +15,22 @@
       <v-icon
       >{{ btn[btnStatus].icon }}</v-icon>
     </v-btn>
-
-    <v-progress-circular
+    <v-btn
       v-else
-      :size="48"
-      :width="2"
-      indeterminate
-      :color="btn[btnStatus].color"
+      @click.left.stop="timerClick"
+      @click.right.prevent="timerClickRight"
+      v-on:keyup.space="timerClick"
+      @keyup.native.ctrl.67="timerClickRight"
+      :title="btn[btnStatus].title"
+      elevation="1"
+      fab
+      small
+      left
+      class="pulsingBtn"
     >
-      <v-btn
-        @click.left.stop="timerClick"
-        @click.right.prevent="timerClickRight"
-        v-on:keyup.space="timerClick"
-        @keyup.native.alt.67="timerClick"
-        :title="btn[btnStatus].title"
-        :color="btn[btnStatus].color"
-        elevation="1"
-        fab
-        small
-        left
-      >
-        <v-icon
-        >{{ btn[btnStatus].icon }}</v-icon>
-      </v-btn>
-    </v-progress-circular>
+      <v-icon
+      >{{ btn[btnStatus].icon }}</v-icon>
+    </v-btn>
   </v-fab-transition>
 </template>
 
@@ -200,5 +192,29 @@ export default {
       height: 17px !important;
       font-size: 17px !important;
       width: 17px !important;
+  }
+  .v-btn--fab.pulsingBtn {
+    color: white !important;
+    animation-name: pulseBtnColor !important;
+    animation-duration: 2s !important;
+    animation-iteration-count: infinite !important;
+  }
+  /* animation is playing only part of the time (reduces cpu load by 70%) */
+  @keyframes pulseBtnColor {
+    0% {
+      background-color: #45a249;
+    }
+    10% {
+      background-color: #53bd57;
+    }
+    50% {
+      background-color: #53bd57;
+    }
+    60% {
+      background-color: #45a249;
+    }
+    100% {
+      background-color: #45a249;
+    }
   }
 </style>

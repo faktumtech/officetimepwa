@@ -9,6 +9,9 @@
 
 ## Changelog
 
+v0.6.9
+- replace TimerBtn v-progress-circular with less cpu consuming animation
+
 v0.6.8
 - Save itemsPerPage setting of sessions tables
 - Remember backup rejection for 1 day
