@@ -116,12 +116,10 @@ export default {
     },
     saveBackup: async function () {
       try {
-        const lastBackupDate = Date.now()
-        const dateTimeStr = Utils.formatDateToLocalDateTimeIsoStr(new Date(lastBackupDate))
+        const backupDate = Date.now()
+        const dateTimeStr = Utils.formatDateToLocalDateTimeIsoStr(new Date(backupDate))
         const filename = 'officetime_backup_' + dateTimeStr + '.bak'
         const backupStr = await db.dbBackup(dateTimeStr)
-        await this.$store.dispatch('updateSetting', { key: 'lastBackupDate', value: lastBackupDate })
-
         const blob = new Blob([backupStr], { type: '"text/plain;charset=utf-8' })
         saveAs(blob, filename)
         this.$store.commit('alert',
@@ -132,6 +130,7 @@ export default {
             timeout: 15000
           }
         )
+        await this.$store.dispatch('updateSetting', { key: 'lastBackupDate', value: backupDate })
       } catch (err) {
         this.$store.commit('alert',
           {
@@ -163,13 +162,13 @@ export default {
     },
     restoreBackup: function () {
       const meta = this.backup.meta
-      if (!meta || !meta.date) {
+      if (!meta || !meta.backupDate) {
         this.loadErrorMsg()
         return
       }
       const modalDlg = {
         title: 'Restore backup',
-        text: 'Restore backup from ' + meta.date + ' with ' + +meta.projectsCount + ' projects and ' + +meta.sessionsCount + ' sessions? Restoring this backup will overwrite all actual data.',
+        text: 'Restore backup from ' + meta.backupDate + ' with ' + +meta.projectsCount + ' projects and ' + +meta.sessionsCount + ' sessions? Restoring this backup will overwrite all actual data.',
         confirmText: 'Restore backup'
       }
       this.$store.commit('showModalDlg', modalDlg)

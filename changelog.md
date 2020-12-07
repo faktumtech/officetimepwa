@@ -9,6 +9,9 @@
 
 ## Changelog
 
+v0.6.10
+- bug: backup restore shows invalid file error
+
 v0.6.9
 - replace TimerBtn v-progress-circular with less cpu consuming animation
 
