@@ -1,5 +1,6 @@
 <template>
   <v-dialog
+    persistent
     :value="show"
     @keydown.esc="show = false"
     max-width="500px"
@@ -29,12 +30,12 @@
                   :rules="amountRules"
                 ></v-text-field>
                 <v-textarea
-                  :value="expense.n"
+                  v-model="expense.n"
                   label="Comments"
                   rows="3"
                 ></v-textarea>
                 <v-text-field
-                  :value="expense.d"
+                  v-model="expense.d"
                   type="datetime-local"
                   required
                 ></v-text-field>
@@ -47,7 +48,7 @@
                 >
                 </v-select>
                   <v-select
-                  :value="expense.c"
+                  v-model="expense.c"
                   :items="categories"
                   label="Category"
                   item-text="title"
@@ -68,7 +69,7 @@
           </v-btn>
           <v-btn
             text
-            @click="save"
+            @click="save(false)"
           >
             Save
           </v-btn>
@@ -156,6 +157,11 @@ export default {
       }
       if (next) {
         this.expense = this.initExpense()
+        this.show = false
+        setTimeout(() => {
+          this.show = true
+          // set focus to amount
+        }, 300)
       } else {
         this.show = false
       }

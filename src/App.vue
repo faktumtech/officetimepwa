@@ -151,12 +151,12 @@ export default {
 
   /* modifications for dark theme */
   .v-application.theme--dark .v-bar--underline.theme--dark {
-    border-bottom-color: rgba(255,255,255,.2)!important;
+    border-bottom-color: rgba(255,255,255,.25)!important;
   }
 
   /* different box shadow for v-dialog-fullscreen with dark theme */
   .v-dialog--fullscreen .v-sheet.theme--dark.v-toolbar:not(.v-sheet--outlined) {
-    box-shadow: 0px 2px 4px -1px rgba(255, 255, 255, 0.2), 0px 4px 5px 0px rgba(255, 255, 255, 0.14), 0px 1px 10px 0px rgba(255, 255, 255, 0.12);
+    box-shadow: 0px 2px 4px -1px rgba(255, 255, 255,.25), 0px 4px 5px 0px rgba(255, 255, 255, 0.14), 0px 1px 10px 0px rgba(255, 255, 255, 0.12);
     /* default for dark and light theme
       box-shadow: 0px 2px 4px -1px rgba(255, 255, 255, 0.2), 0px 4px 5px 0px rgba(255, 255, 255, 0.14), 0px 1px 10px 0px rgba(255, 255, 255, 0.12);
     */
@@ -164,27 +164,27 @@ export default {
 
   /* create elevation box-shadow for dark theme */
   .v-application.theme--dark .elevation-1 {
-    box-shadow: 0 2px 1px -1px rgba(255,255,255,.2),0 1px 1px 0 rgba(255,255,255,.14),0 1px 3px 0 rgba(255,255,255,.12)!important;
+    box-shadow: 0 2px 1px -1px rgba(255,255,255,.25),0 1px 1px 0 rgba(255,255,255,.14),0 1px 3px 0 rgba(255,255,255,.12)!important;
   }
   .v-application.theme--dark .elevation-2 {
-    box-shadow: 0 3px 1px -2px rgba(255,255,255,.2),0 2px 2px 0 rgba(255,255,255,.14),0 1px 5px 0 rgba(255,255,255,.12)!important;
+    box-shadow: 0 3px 1px -2px rgba(255,255,255,.25),0 2px 2px 0 rgba(255,255,255,.14),0 1px 5px 0 rgba(255,255,255,.12)!important;
   }
   .v-application.theme--dark .elevation-3 {
-    box-shadow: 0 3px 3px -2px rgba(255,255,255,.2),0 3px 4px 0 rgba(255,255,255,.14),0 1px 8px 0 rgba(255,255,255,.12)!important;
+    box-shadow: 0 3px 3px -2px rgba(255,255,255,.25),0 3px 4px 0 rgba(255,255,255,.14),0 1px 8px 0 rgba(255,255,255,.12)!important;
   }
   .v-application.theme--dark .elevation-4 {
-    box-shadow: 0 2px 4px -1px rgba(255,255,255,.2),0 4px 5px 0 rgba(255,255,255,.14),0 1px 10px 0 rgba(255,255,255,.12)!important;
+    box-shadow: 0 2px 4px -1px rgba(255,255,255,.25),0 4px 5px 0 rgba(255,255,255,.14),0 1px 10px 0 rgba(255,255,255,.12)!important;
   }
   .v-application.theme--dark .elevation-5 {
-    box-shadow: 0 3px 5px -1px rgba(255,255,255,.2),0 5px 8px 0 rgba(255,255,255,.14),0 1px 14px 0 rgba(255,255,255,.12)!important;
+    box-shadow: 0 3px 5px -1px rgba(255,255,255,.25),0 5px 8px 0 rgba(255,255,255,.14),0 1px 14px 0 rgba(255,255,255,.12)!important;
   }
   .v-application.theme--dark .elevation-6 {
-    box-shadow: 0 3px 5px -1px rgba(255,255,255,.2),0 6px 10px 0 rgba(255,255,255,.14),0 1px 18px 0 rgba(255,255,255,.12)!important;
+    box-shadow: 0 3px 5px -1px rgba(255,255,255,.25),0 6px 10px 0 rgba(255,255,255,.14),0 1px 18px 0 rgba(255,255,255,.12)!important;
   }
 
   /* create v-dialog box-shadow for dark theme */
   .v-application.theme--dark .v-dialog {
-    box-shadow: 0 11px 15px -7px rgba(255,255,255,.2), 0 24px 38px 3px rgba(255,255,255,.14), 0 9px 46px 8px rgba(255,255,255,.12);
+    box-shadow: 0 11px 15px -7px rgba(255,255,255,.25), 0 24px 38px 3px rgba(255,255,255,.14), 0 9px 46px 8px rgba(255,255,255,.12);
   }
 
   /* create alert background color for dark theme */
@@ -193,23 +193,28 @@ export default {
   }
 
   .v-application.theme--dark .v-menu__content {
-    box-shadow: 0px 5px 5px -3px rgba(255,255,255, 0.2), 0px 8px 10px 1px rgba(255,255,255, 0.14), 0px 3px 14px 2px rgba(255,255,255, 0.12);
+    box-shadow: 0px 5px 5px -3px rgba(255,255,255,.25), 0px 8px 10px 1px rgba(255,255,255, 0.14), 0px 3px 14px 2px rgba(255,255,255, 0.12);
   }
 
+  .v-application.theme--dark .v-divider {
+    border-color: rgba(255, 255, 255,.25)!important;
+  }
+
+  /* dark theme tweaks for table */
   .v-application.theme--dark .v-data-table .v-data-footer {
-    border-top-color: rgba(255,255,255,.2)!important;
+    border-top-color: rgba(255,255,255,.25)!important;
   }
 
   .v-application.theme--dark .v-data-table >  .v-data-table__wrapper > table > thead > tr:last-child > th {
-    border-bottom-color: rgba(255,255,255,.2)!important;
+    border-bottom-color: rgba(255,255,255,.25)!important;
   }
 
   .v-application.theme--dark .v-data-table.v-data-table--fixed-header thead th {
-    box-shadow: inset 0 -1px 0 rgba(255,255,255, 0.2);
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,.25);
   }
 
   .v-application.theme--dark .v-data-table > .v-data-table__wrapper > table > tbody > tr:not(:last-child) > td:not(.v-data-table__mobile-row) {
-    border-bottom-color: rgba(255,255,255,.2)!important;
+    border-bottom-color: rgba(255,255,255,.25)!important;
   }
 
 </style>

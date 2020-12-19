@@ -502,10 +502,14 @@ export default {
       // this could also be done on mounted
       // but then it would not get updated each time the report is opened
       this.datePresets = this.getDatePresets()
-      this.dateRange = 1
+      // today
+      this.dateRange = 2
       // preselect all categories
       this.selectedCategories = this.categories.map((obj) => { return obj.id })
-      this.selectedProjects = []
+      // preselect all projects
+      this.selectedProjects = this.projects.map((obj) => { return obj.id })
+      // group by projects
+      this.groupByProject = true
     },
     dateRange: function (id) {
       const datePreset = this.datePresets.find(item => item.id === id)
@@ -668,6 +672,8 @@ export default {
 
         let actProject = input[0].p
         let actCategory = input[0].c
+        let actProjectRows = 0
+        let actCategoryRows = 0
         let actTotalTime = 0
         let actProjectTime = 0
         let actCategoryTime = 0
@@ -681,38 +687,46 @@ export default {
             (this.groupByCategory && actCategory !== row.c) ||
             (this.groupByProject && this.groupByCategory && actProject !== row.p)
           ) {
-            output.push({
-              p: 'Sum category "' + this.categoryTitleLookup[actCategory] + '"',
-              pTitle: '',
-              d: '',
-              t: actCategoryTime,
-              a: actCategoryAmount,
-              e: '',
-              c: '',
-              cTitle: '',
-              r: null,
-              n: '',
-              type: 'subtotal'
-            })
+            // only push subtotal if containing rows
+            if (actCategoryRows) {
+              output.push({
+                p: 'Sum category "' + this.categoryTitleLookup[actCategory] + '"',
+                pTitle: '',
+                d: '',
+                t: actCategoryTime,
+                a: actCategoryAmount,
+                e: '',
+                c: '',
+                cTitle: '',
+                r: null,
+                n: '',
+                type: 'subtotal'
+              })
+            }
+            actCategoryRows = 0
             actCategoryTime = 0
             actCategoryAmount = 0
             actCategory = row.c
           }
           // make project subtotal if change of project
           if (this.groupByProject && actProject !== row.p) {
-            output.push({
-              p: 'Sum project "' + this.projectTitleLookup[actProject] + '"',
-              pTitle: '',
-              d: '',
-              t: actProjectTime,
-              a: actProjectAmount,
-              e: '',
-              c: '',
-              cTitle: '',
-              r: null,
-              n: '',
-              type: 'subtotal'
-            })
+            // only push subtotal if containing rows
+            if (actProjectRows) {
+              output.push({
+                p: 'Sum project "' + this.projectTitleLookup[actProject] + '"',
+                pTitle: '',
+                d: '',
+                t: actProjectTime,
+                a: actProjectAmount,
+                e: '',
+                c: '',
+                cTitle: '',
+                r: null,
+                n: '',
+                type: 'subtotal'
+              })
+            }
+            actProjectRows = 0
             actProjectTime = 0
             actProjectAmount = 0
             actProject = row.p
@@ -755,6 +769,8 @@ export default {
             (!this.showSessions && !this.showExpenses) ||
             (this.showSessions && this.showExpenses)
           ) {
+            actCategoryRows++
+            actProjectRows++
             actTotalTime += row.t
             actProjectTime += row.t
             actCategoryTime += row.t
@@ -764,7 +780,7 @@ export default {
           }
         }
         // final category subtotal
-        if (this.groupByCategory) {
+        if (this.groupByCategory && actCategoryRows) {
           output.push({
             p: 'Sum category "' + this.categoryTitleLookup[actCategory] + '"',
             pTitle: '',
@@ -780,7 +796,7 @@ export default {
           })
         }
         // final project subtotal
-        if (this.groupByProject) {
+        if (this.groupByProject && actProjectRows) {
           output.push({
             p: 'Sum project "' + this.projectTitleLookup[actProject] + '"',
             pTitle: '',
@@ -796,7 +812,7 @@ export default {
           })
         }
 
-        // final total
+        // final total (always)
         output.push({
           p: 'TOTAL SUM',
           pTitle: '',
@@ -848,7 +864,11 @@ export default {
       output += 'Report OfficeTimePWA from ' + this.startDate + ' to ' + this.endDate + '.\n\n'
 
       for (const row of input) {
-        output += '\t' + row.p + '\t' + row.pTitle + '\t' + row.d + '\t' + row.t + '\t"' + Utils.formatTime(row.t, true) + '"\t' + row.r + '\t' + row.a + '\t' + row.e + '\t' + row.c + '\t' + row.cTitle + '\t' + row.n + '\n'
+        if (row.type === 'subtotal' || row.type === 'total') {
+          output += row.p + '\t' + '\t' + '\t' + '\t' + row.t + '\t"' + Utils.formatTime(row.t, true) + '"\t' + '\t' + row.a + '\t' + '\t' + '\t' + '\t' + '\n'
+        } else {
+          output += '\t' + row.p + '\t"' + row.pTitle + '"\t' + row.d + '\t' + row.t + '\t"' + Utils.formatTime(row.t, true) + '"\t' + row.r + '\t' + row.a + '\t' + row.e + '\t' + row.c + '\t"' + row.cTitle + '"\t"' + row.n + '"\n'
+        }
         if (row.type === 'subtotal') {
           output += '\n'
         }

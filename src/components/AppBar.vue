@@ -56,12 +56,14 @@
           <v-list-item
             link
             @click="addSession()"
+            aria-label="Add session"
           >
             <v-list-item-title>Add session</v-list-item-title>
           </v-list-item>
           <v-list-item
             link
             @click="showModalComponent('addExpense')"
+            aria-label="Add expense"
           >
             <v-list-item-title>Add expense</v-list-item-title>
           </v-list-item>
@@ -78,7 +80,7 @@
           icon
           v-bind="attrs"
           v-on="on"
-          aria-label="Settings"
+          aria-label="Menu"
         >
           <v-icon>{{ mdiDotsVertical }}</v-icon>
         </v-btn>
@@ -86,44 +88,52 @@
         <v-list>
           <v-list-item
             link
+            @click="showModalComponent('reports')"
+            aria-label="Reports"
+          >
+            <v-list-item-title>Reports</v-list-item-title>
+          </v-list-item>
+          <v-divider></v-divider>
+          <v-list-item
+            link
             @click="showModalComponent('projects')"
+            aria-label="Projects"
           >
             <v-list-item-title>Projects</v-list-item-title>
           </v-list-item>
           <v-list-item
             link
             @click="showModalComponent('categories')"
+            aria-label="Categories"
           >
             <v-list-item-title>Categories</v-list-item-title>
           </v-list-item>
           <v-divider></v-divider>
           <v-list-item
             link
-            @click="showModalComponent('reports')"
-          >
-            <v-list-item-title>Reports</v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            link
             @click="showModalComponent('import')"
+            aria-label="Import"
           >
             <v-list-item-title>Import</v-list-item-title>
           </v-list-item>
           <v-list-item
             link
             @click="showModalComponent('backups')"
+            aria-label="Backups"
           >
             <v-list-item-title>Backups</v-list-item-title>
           </v-list-item>
           <v-list-item
             link
             @click="showModalComponent('settings')"
+            aria-label="Settings"
           >
             <v-list-item-title>Settings</v-list-item-title>
           </v-list-item>
           <v-list-item
             link
             @click="showModalComponent('about')"
+            aria-label="About"
           >
             <v-list-item-title>About</v-list-item-title>
           </v-list-item>

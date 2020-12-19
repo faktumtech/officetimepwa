@@ -4,8 +4,8 @@ import store from '@/store'
 import Utils from '@/utils/Utils'
 
 // timer shared between instances of module
-var timer
-var audioContext
+let timer
+let audioContext
 
 export default {
   /**
@@ -61,12 +61,12 @@ export default {
     // use of web audio api
     // https://stackoverflow.com/questions/29567580/play-a-beep-sound-on-button-click
     const shortBeep = () => {
-      var frequency = 500 // hz
-      var duration = 100 // ms
-      var vol = 100 // %
+      const frequency = 500 // hz
+      const duration = 100 // ms
+      const vol = 100 // %
 
-      var myOscillator = audioContext.createOscillator()
-      var myGain = audioContext.createGain()
+      const myOscillator = audioContext.createOscillator()
+      const myGain = audioContext.createGain()
       myOscillator.connect(myGain)
       myOscillator.frequency.value = frequency
       myOscillator.type = 'square'

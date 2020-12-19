@@ -9,6 +9,13 @@
 
 ## Changelog
 
+v0.6.11
+- bug: add another expenses does not start with empty form
+- bug: add expense dlg does not save category
+- bug: add expense dlg does not close on save
+- reports: don't show category subtotals with 0
+- improved contrast for dark theme
+
 v0.6.10
 - bug: backup restore shows invalid file error
 
