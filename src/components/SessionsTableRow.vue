@@ -11,7 +11,7 @@
       class="tableTimerRow"
     >
       <timer-btn
-        v-if="session.id === selectedSessionId || session.id === timerSessionId"
+        v-if="!session.e && (session.id === selectedSessionId || session.id === timerSessionId)"
         :tableTimer="true"
         :timerId="session.id"
       >

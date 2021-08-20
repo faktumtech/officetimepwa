@@ -85,10 +85,16 @@ export default {
         console.log('updateTime on running timer', this.timerValue, this.session.t)
         this.timerOffset = this.timerOffset + this.timerValue - this.session.t
       } else {
-        // cast to number
-        const amount = Math.round((this.timerValue * this.session.r / 60 + 0.00001) * 100) / 100
-        const payload = { id: this.session.id, changes: { t: this.timerValue, a: amount } }
-        await this.$store.dispatch('updateSession', payload)
+        // expense > amount is set manually and has nothing to do with rate
+        if (this.session.e) {
+          const payload = { id: this.session.id, changes: { t: this.timerValue } }
+          await this.$store.dispatch('updateSession', payload)
+        } else {
+          // cast to number
+          const amount = Math.round((this.timerValue * this.session.r / 60 + 0.00001) * 100) / 100
+          const payload = { id: this.session.id, changes: { t: this.timerValue, a: amount } }
+          await this.$store.dispatch('updateSession', payload)
+        }
       }
     },
     emitChange: function (val) {

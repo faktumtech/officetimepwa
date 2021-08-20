@@ -9,6 +9,9 @@
 
 ## Changelog
 
+v0.6.12 (2021-08-20)
+- bug: amount in expense sessions is overwritten when changing time
+
 v0.6.11
 - bug: add another expenses does not start with empty form
 - bug: add expense dlg does not save category

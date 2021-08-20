@@ -249,6 +249,7 @@ export default {
     }
   },
   watch: {
+
     show: function () {
       // this could also be done on mounted
       // but then it would not get updated each time the report is opened

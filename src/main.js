@@ -1,10 +1,10 @@
 import Vue from 'vue'
-import App from './App.vue'
 import vuetify from './plugins/vuetify'
-import './registerServiceWorker'
 import store from './store'
+import App from './App.vue'
 import ErrorMsg from './components/ErrorMsg'
 import LongPress from './directives/longpress'
+import './registerServiceWorker'
 
 Vue.directive('longpress', LongPress)
 
