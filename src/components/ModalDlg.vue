@@ -1,13 +1,11 @@
 <template>
-  <v-row
-    row
-  >
+  <v-row>
     <v-dialog
-      :value="modalDlg.show"
+      :model-value="modalDlg.show"
       @keydown.esc="cancel"
       persistent
       max-width="400px"
-      :overlayColor="$vuetify.theme.dark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
+      :scrim="isDark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
     >
       <v-card>
         <v-card-title>
@@ -16,17 +14,17 @@
         <v-card-text>
           {{ this.modalDlg.text }}
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             @click="cancel"
-            text
+            variant="text"
           >{{ this.modalDlg.cancelText }}</v-btn>
           <v-btn
             color="primary"
             @click="confirm"
-            text
+            variant="text"
           >{{ this.modalDlg.confirmText }}</v-btn>
         </v-card-actions>
       </v-card>
@@ -41,6 +39,13 @@ export default {
   computed: {
     modalDlg () {
       return this.$store.state.modalDlg
+    },
+    isDark () {
+      const current = this.$vuetify?.theme?.global?.current?.value
+      if (current && typeof current.dark !== 'undefined') {
+        return current.dark
+      }
+      return this.$store.getters.getSetting('dark')
     }
   },
   methods: {
@@ -56,5 +61,5 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style >
+<style>
 </style>

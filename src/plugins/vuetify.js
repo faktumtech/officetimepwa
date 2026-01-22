@@ -1,6 +1,8 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
-import IconLogo from '@/components/IconLogo'
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import { aliases as mdiAliases, mdi } from 'vuetify/iconsets/mdi-svg'
 
 // basic icons used by vuetify
 // according vuetify/packages/vuetify/src/services/icons/presets/mdi.ts
@@ -37,18 +39,59 @@ import {
   mdiMinus
 } from '@mdi/js'
 
-Vue.use(Vuetify)
+const lightTheme = {
+  dark: false,
+  colors: {
+    primary: '#2196f3'
+  }
+}
 
-export default new Vuetify({
+const darkTheme = {
+  dark: true,
+  colors: {
+    primary: '#2196f3'
+  }
+}
+
+export default createVuetify({
+  defaults: {
+    VTextField: {
+      density: 'compact',
+      color: 'primary',
+      persistentPlaceholder: true
+    },
+    VSelect: {
+      density: 'compact',
+      color: 'primary'
+    },
+    VTextarea: {
+      density: 'compact',
+      color: 'primary',
+      persistentPlaceholder: true
+
+    },
+    VCheckbox: {
+      density: 'compact',
+      color: 'primary'
+    },
+    VRadio: {
+      density: 'compact',
+      color: 'primary'
+    },
+    VSwitch: {
+      density: 'compact',
+      color: 'primary'
+    },
+    VCard: {
+      // variant: 'elevated' // default
+    }
+  },
+  components,
+  directives,
   icons: {
-    iconfont: 'svgMdi',
-    // iconfont: 'mdi',
-    values: {
-      // own logo
-      logo: {
-        component: IconLogo
-      },
-      // basic icons used by vuetify
+    defaultSet: 'mdi',
+    aliases: {
+      ...mdiAliases,
       complete: mdiCheck,
       cancel: mdiCloseCircle,
       close: mdiClose,
@@ -82,23 +125,16 @@ export default new Vuetify({
       file: mdiPaperclip,
       plus: mdiPlus,
       minus: mdiMinus
+    },
+    sets: {
+      mdi
     }
   },
   theme: {
-    dark: true,
+    defaultTheme: 'dark',
     themes: {
-      light: {
-        // unofficial properties (has to be used through styles)
-        // eg: :style="{ background: $vuetify.theme.themes[dark?'dark':'light'].background }"
-        // background: '#333333,
-
-        // official properties
-        primary: '#2196f3' // default
-      },
-      dark: {
-        // official properties
-        primary: '#2196f3' // default
-      }
+      light: lightTheme,
+      dark: darkTheme
     }
   }
 })

@@ -2,29 +2,26 @@
   <v-dialog
     v-model="show"
     max-width="500px"
-    :overlayColor="$vuetify.theme.dark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
+    :scrim="isDark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
   >
-    <template v-slot:activator="{ on, attrs }">
+    <template v-slot:activator="{ props }">
       <span
         class="amountDisplay"
       >
         {{ Utils.formatAmount(session.a, 2) }}
       </span>
       <v-icon
-        small
+        size="small"
         class="ml-1"
-        v-bind="attrs"
-        v-on="on"
-      >
-        {{ mdiPencil }}
-      </v-icon>
+        v-bind="props"
+        :icon="mdiPencil"
+      />
     </template>
     <v-card>
       <v-form
         @submit.prevent="save()"
         ref="form"
         v-model="valid"
-        lazy-validation
       >
         <v-card-title>
           <span class="headline">{{ session.e ? 'Adjust expense' : 'Adjust rate' }}</span>
@@ -42,7 +39,7 @@
                   label="Amount *"
                   type="number"
                   :rules="amountRules"
-                ></v-text-field>
+                />
               </v-col>
               <v-col
                 v-else
@@ -53,36 +50,36 @@
                   label="Time"
                   type="text"
                   disabled
-                ></v-text-field>
+                />
                 <v-text-field
                   v-model="rate"
                   label="Rate/Hour*"
                   type="number"
                   :rules="rateRules"
                   min="0"
-                ></v-text-field>
+                />
                 <v-text-field
                   :value="Utils.formatAmount(amount, 2)"
                   label="Amount"
                   type="text"
                   disabled
-                ></v-text-field>
+                />
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
-            text
+            variant="text"
             @click="show = false"
           >
             Cancel
           </v-btn>
           <v-btn
             color="primary"
-            text
+            variant="text"
             type="submit"
           >
             Save
@@ -98,11 +95,9 @@ import Utils from '@/utils/Utils'
 import { mdiPencil } from '@mdi/js'
 
 export default {
-  beforeCreate () {
-    this.Utils = Utils
-  },
   name: 'TimerTimeInput',
   data: () => ({
+    Utils,
     show: false,
     valid: false,
     mdiPencil: mdiPencil,
@@ -130,6 +125,13 @@ export default {
     }
   },
   computed: {
+    isDark () {
+      const current = this.$vuetify?.theme?.global?.current?.value
+      if (current && typeof current.dark !== 'undefined') {
+        return current.dark
+      }
+      return this.$store.getters.getSetting('dark')
+    },
     hours: {
       get () {
         return Math.floor(this.session.t / 60)
@@ -164,6 +166,10 @@ export default {
   },
   methods: {
     save: async function () {
+      const { valid } = await this.$refs.form.validate()
+      if (!valid) {
+        return
+      }
       if (this.session.e) {
         // cast to number
         const amount = +this.amount

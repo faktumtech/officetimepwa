@@ -3,7 +3,7 @@
     :key="session.id"
     :class="session.id === selectedSessionId ? 'selected' : ''"
     @click="selectedSessionId = session.id"
-    @click.right.prevent="(selectedSessionId = session.id) && $emit('row-right-click', session.id, $event)"
+    @contextmenu.prevent="(selectedSessionId = session.id) && $emit('row-right-click', session.id, $event)"
     @keydown.esc="selectedSessionId = null"
     tabindex="0"
   >
@@ -14,8 +14,13 @@
         v-if="!session.e && (session.id === selectedSessionId || session.id === timerSessionId)"
         :tableTimer="true"
         :timerId="session.id"
-      >
-      </timer-btn>
+      />
+      <v-icon
+        v-if="session.e"
+        size="small"
+        :icon="mdiCurrencyUsd"
+        title="Expense"
+      />
     </td>
 
     <td
@@ -24,12 +29,13 @@
       <v-text-field
         v-if="session.id === selectedSessionId"
         class="dateField"
-        :value="session.d"
-        @change="updateDate(session.id, $event)"
+        :model-value="session.d"
+        @update:model-value="updateDate(session.id, $event)"
         type="datetime-local"
         required
-        dense
-      ></v-text-field>
+        density="compact"
+        bg-color="transparent"
+      />
       <span
         v-else
         class="dateDisplay"
@@ -41,10 +47,10 @@
       class="tableTimeRow text-end"
     >
       <TimerTimeInput
-         v-if="session.id === selectedSessionId"
+        v-if="session.id === selectedSessionId"
         class="timerField"
         :session="session"
-      ></TimerTimeInput>
+      />
       <span
         v-else
         class="timeDisplay text-end"
@@ -56,9 +62,9 @@
       class="tableAmountRow text-end"
     >
       <TimerAmountInput
-         v-if="session.id === selectedSessionId"
+        v-if="session.id === selectedSessionId"
         :session="session"
-      ></TimerAmountInput>
+      />
       <span
         v-else
       >
@@ -69,15 +75,15 @@
       class="tableCategoryRow"
     >
       <v-select
-         v-if="session.id === selectedSessionId"
+        v-if="session.id === selectedSessionId"
         class="categoryField"
-        :value="session.c"
-        @change="updateCategory(session.id, $event)"
+        :model-value="session.c"
+        @update:model-value="updateCategory(session.id, $event)"
         :items="categories"
-        item-text="title"
+        item-title="title"
         item-value="id"
-        dense
-      ></v-select>
+        density="compact"
+      />
       <span
         v-else
       >
@@ -90,11 +96,11 @@
       <v-text-field
         v-if="session.id === selectedSessionId"
         class="noteField"
-        :value="session.n"
-        @change="updateNote(session.id, $event)"
+        :model-value="session.n"
+        @update:model-value="updateNote(session.id, $event)"
         type="text"
-        dense
-      ></v-text-field>
+        density="compact"
+      />
       <span
         v-else
       >
@@ -109,16 +115,20 @@ import Utils from '@/utils/Utils'
 import TimerBtn from '@/components/TimerBtn'
 import TimerTimeInput from '@/components/TimerTimeInput'
 import TimerAmountInput from '@/components/TimerAmountInput'
+import { mdiCurrencyUsd } from '@mdi/js'
 
 export default {
-  beforeCreate () {
-    this.Utils = Utils
-  },
   name: 'TimerLog',
   components: {
     TimerBtn,
     TimerTimeInput,
     TimerAmountInput
+  },
+  data () {
+    return {
+      Utils,
+      mdiCurrencyUsd: mdiCurrencyUsd
+    }
   },
   props: {
     // row timerId when used in timerLog table
@@ -202,37 +212,40 @@ export default {
   }
 
   .tableDateRow {
+    min-width: max(200px, 15vw);
     white-space: nowrap;
   }
 
   .tableTimeRow {
-    width: max(150px, 15vw);
+    min-width: max(80px, 8vw);
     white-space: nowrap;
   }
 
   table .timeDisplay {
+    max-width: 80px;
     white-space: nowrap;
-    max-width: 100px;
   }
   .tableAmountRow {
-    width: max(150px, 15vw);
+    min-width: max(80px, 8vw);
     white-space: nowrap;
   }
   .amountField input {
     text-align: right;
   }
   .tableCategoryRow {
-    width: max(150px, 15vw);
+    min-width: max(150px, 15vw);
     white-space: nowrap;
   }
 
   .tableNotesRow {
+    min-width: max(150px, 15vw);
     white-space: nowrap;
     overflow: hidden;
   }
 
   .sessionsTable .dateField,  .sessionsTable .dateField input{
     max-width: max(200px, 20vw);
+    min-width: max(200px, 20vw);
   }
 
   .sessionsTable .timerField{
@@ -240,10 +253,11 @@ export default {
   }
 
   /* hide hint */
-  .sessionsTable .dateField .v-text-field__details,
-  .sessionsTable .timerField .v-text-field__details,
-  .sessionsTable .categoryField .v-text-field__details,
-  .sessionsTable .noteField .v-text-field__details {
+
+  .sessionsTable .dateField .v-input__details,
+  .sessionsTable .timerField .v-input__details,
+  .sessionsTable .categoryField .v-input__details,
+  .sessionsTable .noteField .v-input__details {
     display: none;
   }
 
@@ -264,6 +278,32 @@ export default {
 
   .sessionsTable .timerField {
     display: inline-flex;
+  }
+
+  .sessionsTable input{
+    padding: 0 !important;
+  }
+
+  .sessionsTable .v-field, .sessionsTable .v-field__field input {
+    height: 35px !important;
+    background-color: transparent !important;
+  }
+  .sessionsTable .v-field:hover,
+  .sessionsTable .v-field:focus,
+  .sessionsTable .v-field:focus-within,
+  .sessionsTable .v-field--active,
+  .sessionsTable .v-field--focused,
+  .sessionsTable .v-field--hovered {
+    background-color: transparent !important;
+  }
+  .sessionsTable .v-field__overlay,
+  .sessionsTable .v-field__outline {
+    opacity: 0 !important;
+  }
+
+  .sessionsTable .dateField input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    margin-left: -16px;
+    padding: 0;
   }
 
 </style>

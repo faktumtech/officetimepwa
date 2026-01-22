@@ -1,22 +1,24 @@
 <template>
   <v-dialog
     fullscreen
-    hide-overlay
+    :scrim="false"
     persistent
     no-click-animation
     eager
-    :value="show"
+    v-model="show"
     @keydown.esc="show = false"
-    class="dlgSticky"
   >
     <v-card>
       <v-toolbar
+        class="dlgSticky"
+        color="transparent"
+        :elevation="1"
       >
         <v-btn
           icon
           @click="show = false"
         >
-          <v-icon>{{ mdiClose }}</v-icon>
+          <v-icon :icon="mdiClose" />
         </v-btn>
         <v-toolbar-title>Settings</v-toolbar-title>
       </v-toolbar>
@@ -32,7 +34,7 @@
               <v-switch
                 label="Dark theme"
                 v-model="dark"
-              ></v-switch>
+              />
               <p>Switch between light and dark theme on this device.</p>
             </v-col>
           </v-row>
@@ -41,7 +43,7 @@
               <v-switch
                 label="Sound"
                 v-model="sound"
-              ></v-switch>
+              />
               <p>Reproduce a sound when starting or stopping a timer.</p>
             </v-col>
           </v-row>
@@ -75,7 +77,7 @@ export default {
     }
   },
   watch: {
-    dark: async function (value) {
+    dark: async function (_value) {
       if (this.dark !== this.$store.getters.getSetting('dark')) {
         await this.$store.dispatch('updateSetting', { key: 'dark', value: this.dark })
       }

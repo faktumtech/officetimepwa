@@ -1,53 +1,51 @@
 <template>
   <v-dialog
     fullscreen
-    hide-overlay
+    :scrim="false"
     persistent
     no-click-animation
     eager
-    :value="show"
+    v-model="show"
     @keydown.esc="show = false"
-    class="dlgSticky"
   >
     <v-card>
       <v-toolbar
+        class="dlgSticky"
+        color="transparent"
+        :elevation="1"
       >
         <v-btn
           icon
           @click="show = false"
         >
-          <v-icon>{{ mdiClose }}</v-icon>
+          <v-icon :icon="mdiClose" />
         </v-btn>
         <v-toolbar-title>Reports</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-toolbar-items>
-          <v-btn
-            text
-            color="primary"
-            @click="copyReport(true)"
-            :disabled="!rawSessions || rawSessions.length === 0"
-          >
-            Copy to clipboard
-          </v-btn>
-        </v-toolbar-items>
-        <v-toolbar-items>
-          <v-btn
-            text
-            color="primary"
-            @click="saveReport(false)"
-            :disabled="!rawSessions || rawSessions.length === 0"
-          >
-            Save
-          </v-btn>
-        </v-toolbar-items>
+        <v-spacer />
+        <v-btn
+          variant="text"
+          color="primary"
+          @click="copyReport(true)"
+          :disabled="!rawSessions || rawSessions.length === 0"
+        >
+          Copy to clipboard
+        </v-btn>
+        <v-btn
+          variant="text"
+          color="primary"
+          @click="saveReport(false)"
+          :disabled="!rawSessions || rawSessions.length === 0"
+        >
+          Save
+        </v-btn>
       </v-toolbar>
 
       <v-card-text
         class="dlgScroll pa-0"
       >
         <v-container
+          class="mt-2 reportForm"
           fluid
-          mt-2
         >
           <v-row
             dense
@@ -67,12 +65,11 @@
                   <v-select
                     v-model="dateRange"
                     :items="datePresets"
-                    item-text="title"
+                    item-title="title"
                     item-value="id"
                     label="Dates"
-                    dense
-                  >
-                  </v-select>
+                    density="compact"
+                  />
                 </v-col>
                 <v-col
                   cols="6"
@@ -83,8 +80,8 @@
                     v-model="startDate"
                     type="date"
                     required
-                    dense
-                  ></v-text-field>
+                    density="compact"
+                  />
                 </v-col>
                 <v-col
                   cols="6"
@@ -95,8 +92,8 @@
                     v-model="endDate"
                     type="date"
                     required
-                    dense
-                  ></v-text-field>
+                    density="compact"
+                  />
                 </v-col>
               </v-row>
             </v-col>
@@ -116,11 +113,11 @@
                   <v-select
                     v-model="selectedProjects"
                     :items="projects"
-                    item-text="title"
+                    item-title="title"
                     item-value="id"
                     label="Projects"
                     multiple
-                    dense
+                    density="compact"
                   >
                     <template v-slot:selection="{ item, index }">
                       <span v-if="selectedProjects.length !== projects.length">
@@ -133,21 +130,11 @@
                     </template>
                     <template v-slot:prepend-item>
                       <v-list-item
-                        ripple
                         @click="toggleProjectSelect"
-                      >
-                        <v-list-item-action>
-                          <v-icon>
-                            {{ iconProjectSelect }}
-                          </v-icon>
-                        </v-list-item-action>
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            Select All
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-divider class="mt-2"></v-divider>
+                        :prepend-icon="iconProjectSelect"
+                        title="Select All"
+                      />
+                      <v-divider class="mt-2" />
                     </template>
                   </v-select>
                 </v-col>
@@ -158,15 +145,15 @@
                   <v-select
                     v-model="selectedCategories"
                     :items="categories"
-                    item-text="title"
+                    item-title="title"
                     item-value="id"
                     label="Categories"
                     multiple
-                    dense
+                    density="compact"
                   >
                     <template v-slot:selection="{ item, index }">
                       <span v-if="selectedCategories.length !== categories.length">
-                        <span v-if="index < selectedCategories.length-1">{{ item }}, </span>
+                        <span v-if="index < selectedCategories.length-1">{{ item.title }}, </span>
                         <span v-else>{{ item.title }}</span>
                       </span>
                       <span v-else-if="index === 0">
@@ -175,21 +162,11 @@
                     </template>
                     <template v-slot:prepend-item>
                       <v-list-item
-                        ripple
                         @click="toggleCategorySelect"
-                      >
-                        <v-list-item-action>
-                          <v-icon>
-                            {{ iconCategorySelect }}
-                          </v-icon>
-                        </v-list-item-action>
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            Select All
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-divider class="mt-2"></v-divider>
+                        :prepend-icon="iconCategorySelect"
+                        title="Select All"
+                      />
+                      <v-divider class="mt-2" />
                     </template>
                   </v-select>
                 </v-col>
@@ -224,8 +201,8 @@
                     v-model="showExpenses"
                     label="Expenses"
                     hide-details
-                    dense
-                  ></v-checkbox>
+                    density="compact"
+                  />
                 </v-col>
                 <v-col
                   cols="12"
@@ -235,8 +212,8 @@
                     v-model="showSessions"
                     label="Sessions"
                     hide-details
-                    dense
-                  ></v-checkbox>
+                    density="compact"
+                  />
                 </v-col>
               </v-row>
             </v-col>
@@ -265,8 +242,8 @@
                     v-model="groupByProject"
                     label="Project"
                     hide-details
-                    dense
-                  ></v-checkbox>
+                    density="compact"
+                  />
                 </v-col>
                 <v-col
                   cols="12"
@@ -276,8 +253,8 @@
                     v-model="groupByCategory"
                     label="Category"
                     hide-details
-                    dense
-                  ></v-checkbox>
+                    density="compact"
+                  />
                 </v-col>
               </v-row>
             </v-col>
@@ -287,94 +264,74 @@
             :headers="headers"
             :items="groupedSessions"
             :items-per-page="10"
-            :footer-props="footerProps"
-            :sort-by="'id'"
-            :sort-desc="true"
+            :items-per-page-options="itemsPerPageOptions"
+            :sort-by="[{ key: 'id', order: 'desc' }]"
             :loading="loading"
             disable-sort
             class="sessionsTable mt-6"
-            dense
+            density="compact"
           >
-            <template
-              v-slot:body="{ items }"
-            >
-              <tbody
-                v-if="!items || items.length === 0"
-              >
-                <tr
-                  class="noData"
+            <template v-slot:item="{ item }">
+              <tr :key="(item.raw || item).id">
+                <td v-if="(item.raw || item).type === 'session' || (item.raw || item).type === 'expense'">
+                  {{ projectTitleLookup[(item.raw || item).p] }}
+                </td>
+                <td v-else colspan="2">
+                  <b>{{ (item.raw || item).p }}</b>
+                </td>
+                <td v-if="(item.raw || item).type === 'session' || (item.raw || item).type === 'expense'">
+                  {{ Utils.formatDate((item.raw || item).d) }}
+                </td>
+                <td
+                  class="text-end timeField"
                 >
-                  <td
-                    colspan="6"
-                    class="ps-0"
-                  >
-                    <p
-                      v-if=loading
-                      class="text-center pa-4"
-                    >
-                      Loading...
-                    </p>
-                    <v-alert
-                      v-else
-                      :icon="mdiDatabaseOff"
-                      prominent
-                      text
-                      type="info"
-                    >
-                      No data with this selection. Please try other selection.
-                    </v-alert>
-                  </td>
-                </tr>
-              </tbody>
-
-              <tbody
-                v-else
-              >
-                <tr
-                  v-for="item in items"
-                  :key="item.id"
+                  <span v-if="(item.raw || item).type === 'session' || (item.raw || item).type === 'expense'">
+                    {{ Utils.formatTime((item.raw || item).t) }}
+                  </span>
+                  <span v-else>
+                    <b>{{ Utils.formatTime((item.raw || item).t) }}</b>
+                  </span>
+                </td>
+                <td
+                  class="text-end"
                 >
-                  <td v-if="item.type === 'session' || item.type === 'expense'">
-                    {{ projectTitleLookup[item.p] }}
-                  </td>
-                  <td v-else colspan="2">
-                      <b>{{ item.p }}</b>
-                  </td>
-                  <td v-if="item.type === 'session' || item.type === 'expense'">
-                    {{ Utils.formatDate(item.d) }}
-                  </td>
-                  <td
-                    class="text-end timeField"
-                  >
-                    <span v-if="item.type === 'session' || item.type === 'expense'">
-                      {{ Utils.formatTime(item.t) }}
-                    </span>
-                    <span v-else>
-                      <b>{{ Utils.formatTime(item.t) }}</b>
-                    </span>
-                  </td>
-                  <td
-                    class="text-end"
-                  >
-                    <span v-if="item.type === 'session' || item.type === 'expense'">
-                      {{ Utils.formatAmount(item.a, 2) }}
-                    </span>
-                    <span v-else>
-                      <b>{{ Utils.formatAmount(item.a, 2) }}</b>
-                    </span>
-                  </td>
-                  <td
-                    class="tableCategoryRow"
-                  >
-                    {{ categoryTitleLookup[item.c] }}
-                  </td>
-                  <td
-                    class="tableNotesRow"
-                  >
-                    {{ item.n }}
-                  </td>
-                </tr>
-              </tbody>
+                  <span v-if="(item.raw || item).type === 'session' || (item.raw || item).type === 'expense'">
+                    {{ Utils.formatAmount((item.raw || item).a, 2) }}
+                  </span>
+                  <span v-else>
+                    <b>{{ Utils.formatAmount((item.raw || item).a, 2) }}</b>
+                  </span>
+                </td>
+                <td
+                  class="tableCategoryRow"
+                >
+                  {{ categoryTitleLookup[(item.raw || item).c] }}
+                </td>
+                <td
+                  class="tableNotesRow"
+                >
+                  {{ (item.raw || item).n }}
+                </td>
+              </tr>
+            </template>
+            <template v-slot:no-data>
+              <div class="noData">
+                <p
+                  v-if="loading"
+                  class="text-center pa-4"
+                >
+                  Loading...
+                </p>
+                <v-alert
+                  v-else
+                  :icon="mdiDatabaseOff"
+                  prominent
+                  variant="text"
+                  type="info"
+                >
+                  No data with this selection. Please try other selection.
+                </v-alert>
+              </div>
             </template>
 
           </v-data-table>
@@ -392,24 +349,20 @@ import { mdiClose, mdiDatabaseOff, mdiCloseBox, mdiMinusBox, mdiCheckboxBlankOut
 import { saveAs } from 'file-saver'
 
 export default {
-  beforeCreate () {
-    this.Utils = Utils
-  },
   data () {
     return {
+      Utils,
       mdiClose: mdiClose,
       mdiDatabaseOff: mdiDatabaseOff,
       headers: [
-        { text: 'Project', value: 'p' },
-        { text: 'Date', value: 'd' },
-        { text: 'Time', value: 't', align: 'end' },
-        { text: 'Amount', value: 'a', align: 'end' },
-        { text: 'Category', value: 'c' },
-        { text: 'Notes', value: 'n' }
+        { title: 'Project', key: 'p' },
+        { title: 'Date', key: 'd' },
+        { title: 'Time', key: 't', align: 'end' },
+        { title: 'Amount', key: 'a', align: 'end' },
+        { title: 'Category', key: 'c' },
+        { title: 'Notes', key: 'n' }
       ],
-      footerProps: {
-        'items-per-page-options': [10, 25, 100, -1]
-      },
+      itemsPerPageOptions: [10, 25, 100, -1],
       loading: false,
       rawSessions: [],
       groupedSessions: [],
@@ -522,10 +475,17 @@ export default {
   methods: {
     getDatePresets: function () {
       const today = new Date()
+      const yesterday = new Date(new Date().setDate(today.getDate() - 1))
       const longAgo = new Date(2000, 0, 1) // month jan = 0
       const weekStart = new Date(new Date().setDate(today.getDate() - today.getDay()))
+      const lastWeekStart = new Date(new Date(weekStart).setDate(weekStart.getDate() - 7))
+      const lastWeekEnd = new Date(new Date(weekStart).setDate(weekStart.getDate() - 1))
       const yearStart = new Date(today.getFullYear(), 0, 1) // month jan = 0
+      const lastYearStart = new Date(today.getFullYear() - 1, 0, 1)
+      const lastYearEnd = new Date(today.getFullYear(), 0, 0)
       const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+      const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+      const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0)
       // formatDateToLocalDateIsoStr => from mixins
       console.log(Utils.formatDateToLocalDateIsoStr(today), Utils.formatDateToLocalDateIsoStr(monthStart), Utils.formatDateToLocalDateIsoStr(yearStart))
       return [
@@ -543,21 +503,45 @@ export default {
         },
         {
           id: 3,
+          title: 'Yesterday',
+          startDate: Utils.formatDateToLocalDateIsoStr(yesterday),
+          endDate: Utils.formatDateToLocalDateIsoStr(yesterday)
+        },
+        {
+          id: 4,
           title: 'This week',
           startDate: Utils.formatDateToLocalDateIsoStr(weekStart),
           endDate: Utils.formatDateToLocalDateIsoStr(today)
         },
         {
-          id: 4,
+          id: 5,
+          title: 'Last week',
+          startDate: Utils.formatDateToLocalDateIsoStr(lastWeekStart),
+          endDate: Utils.formatDateToLocalDateIsoStr(lastWeekEnd)
+        },
+        {
+          id: 6,
           title: 'This month',
           startDate: Utils.formatDateToLocalDateIsoStr(monthStart),
           endDate: Utils.formatDateToLocalDateIsoStr(today)
         },
         {
-          id: 5,
+          id: 7,
+          title: 'Last month',
+          startDate: Utils.formatDateToLocalDateIsoStr(lastMonthStart),
+          endDate: Utils.formatDateToLocalDateIsoStr(lastMonthEnd)
+        },
+        {
+          id: 8,
           title: 'This year',
           startDate: Utils.formatDateToLocalDateIsoStr(yearStart),
           endDate: Utils.formatDateToLocalDateIsoStr(today)
+        },
+        {
+          id: 9,
+          title: 'Last year',
+          startDate: Utils.formatDateToLocalDateIsoStr(lastYearStart),
+          endDate: Utils.formatDateToLocalDateIsoStr(lastYearEnd)
         }
       ]
     },
@@ -890,7 +874,7 @@ export default {
         }
         const output = this.prepareExport()
         await navigator.clipboard.writeText(output)
-      } catch (err) {
+      } catch {
         this.$store.commit('alert',
           {
             show: true,
@@ -939,5 +923,22 @@ export default {
   }
   .timeField {
     white-space: nowrap;
+  }
+  .reportForm .v-field__outline,
+  .reportForm .v-field__overlay {
+    color: rgb(var(--v-theme-primary));
+    border-color: rgb(var(--v-theme-primary));
+  }
+  .reportForm .v-label,
+  .reportForm .v-field__input,
+  .reportForm .v-field__append-inner .v-icon,
+  .reportForm .v-field__prepend-inner .v-icon {
+    color: rgb(var(--v-theme-primary)) !important;
+  }
+  .reportForm .v-field {
+    --v-field-border-color: rgb(var(--v-theme-primary));
+    --v-field-outline-color: rgb(var(--v-theme-primary));
+    --v-field-hover-border-color: rgb(var(--v-theme-primary));
+    --v-field-focus-border-color: rgb(var(--v-theme-primary));
   }
 </style>

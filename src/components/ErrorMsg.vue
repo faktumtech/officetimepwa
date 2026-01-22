@@ -1,10 +1,9 @@
 <template>
-  <v-app
-  >
+  <v-app>
     <v-main>
       <v-container>
         <v-row>
-          <v-col ma-2>
+          <v-col class="ma-2">
             <v-alert
               color="error"
               :icon="mdiAlert"

@@ -1,7 +1,7 @@
 <template>
   <v-container
+    class="mt-2"
     fluid
-    mt-2
   >
     <!--
       :items-per-page="100"
@@ -17,68 +17,49 @@
       :items="sessions"
       :items-per-page="itemsPerPage"
       @update:items-per-page="(val) => { itemsPerPage = val }"
-      :footer-props="footerProps"
-      :sort-by="'d'"
-      :sort-desc="true"
+      :items-per-page-options="itemsPerPageOptions"
+      :sort-by="[{ key: 'd', order: 'desc' }]"
       :loading="loading"
       class="sessionsTable"
-      dense
+      density="compact"
       fixed-header
       height="calc(100vh - 150px)"
     >
-    <template
-        v-slot:body="{ items }"
-      >
-        <tbody
-          v-if="!items || items.length === 0"
-        >
-          <tr
-            class="noData"
+      <template v-slot:item="{ item }">
+        <SessionsTableRow
+          :session="item.raw || item"
+          :key="item.raw ? item.raw.id : item.id"
+          @row-right-click="rightClick"
+        />
+      </template>
+      <template v-slot:no-data>
+        <div class="noData">
+          <p
+            v-if="loading"
+            class="text-center pa-4"
           >
-            <td
-              colspan="6"
-              class="pl-0 pr-0"
-            >
-              <p
-                v-if=loading
-                class="text-center pa-4"
-              >
-                Loading...
-              </p>
-              <v-alert
-                v-else
-                :icon="mdiDatabaseOff"
-                prominent
-                text
-                type="info"
-              >
-                No data yet in this project. Please record your first session.
-              </v-alert>
-            </td>
-          </tr>
-        </tbody>
-        <tbody
-          v-else
-        >
-          <SessionsTableRow
-            v-for="item in items"
-            :session="item"
-            :key="item.id"
-            @row-right-click="rightClick"
+            Loading...
+          </p>
+          <v-alert
+            v-else
+            :icon="mdiDatabaseOff"
+            prominent
+            variant="text"
+            type="info"
           >
-          </SessionsTableRow>
-        </tbody>
+            No data yet in this project. Please record your first session.
+          </v-alert>
+        </div>
       </template>
     </v-data-table>
     <v-menu
       v-model="contextMenuShow"
-      :position-x="contextMenuPosX"
-      :position-y="contextMenuPosY"
+      :target="contextMenuTarget"
       :close-on-content-click="false"
     >
       <v-list
         nav
-        dense
+        density="compact"
       >
         <v-list-item
           link
@@ -86,32 +67,21 @@
         >
           <v-list-item-title>{{ contextMenuSessionIsExpense ? 'Delete expense' : 'Delete session' }}</v-list-item-title>
         </v-list-item>
-        <v-hover
-          v-if="otherProjects && otherProjects.length > 0"
-
-          v-slot="{ hover }"
-        >
         <v-list-group
-          :value="hover"
+          v-if="otherProjects && otherProjects.length > 0"
+          v-model="moveGroupOpen"
         >
-          <template v-slot:activator>
-            <v-list-item-title
-            >
-              Move to project
-            </v-list-item-title>
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" title="Move to project" />
           </template>
-
           <v-list-item
             v-for="project in otherProjects"
             :key="project.id"
             link
             @click="moveSession(project.id)"
-          >
-            <v-list-item-icon></v-list-item-icon>
-            <v-list-item-title>{{ project.title }}</v-list-item-title>
-          </v-list-item>
+            :title="project.title"
+          />
         </v-list-group>
-        </v-hover>
       </v-list>
     </v-menu>
   </v-container>
@@ -130,22 +100,20 @@ export default {
   data: () => ({
     mdiDatabaseOff: mdiDatabaseOff,
     headers: [
-      { text: '', value: false, sortable: false },
-      { text: 'Date', value: 'd' },
-      { text: 'Time', value: 't', align: 'end' },
-      { text: 'Amount', value: 'a', align: 'end' },
-      { text: 'Category', value: 'c' },
-      { text: 'Notes', value: 'n' }
+      { title: '', key: 'timer', sortable: false },
+      { title: 'Date', key: 'd' },
+      { title: 'Time', key: 't', align: 'end' },
+      { title: 'Amount', key: 'a', align: 'end' },
+      { title: 'Category', key: 'c' },
+      { title: 'Notes', key: 'n' }
     ],
-    footerProps: {
-      'items-per-page-options': [10, 25, 100, -1]
-    },
+    itemsPerPageOptions: [10, 25, 100, -1],
     loading: false,
     contextMenuShow: false,
-    contextMenuPosX: null,
-    contextMenuPosY: null,
+    contextMenuTarget: null,
     contextMenuSessionId: null,
-    contextMenuSessionIsExpense: false
+    contextMenuSessionIsExpense: false,
+    moveGroupOpen: false
   }),
   computed: {
     sessions () {
@@ -197,8 +165,7 @@ export default {
     rightClick: function (id, event) {
       this.contextMenuSessionId = id
       this.contextMenuSessionIsExpense = this.$store.getters.getSession(id).e
-      this.contextMenuPosX = event.clientX
-      this.contextMenuPosY = event.clientY
+      this.contextMenuTarget = event.target
       // console.log('right click', id, this.contextMenuPosX, this.contextMenuPosY)
       this.contextMenuShow = true
     },
@@ -239,6 +206,33 @@ export default {
   .sessionsTable tr {
     outline-style: none;
   }
+  .sessionsTable .v-data-table__wrapper {
+    overflow-x: auto;
+  }
+  .sessionsTable tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+  .sessionsTable.v-theme--dark tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.28);
+  }
+  .sessionsTable.v-theme--dark tbody tr > td {
+    border-bottom-color: rgba(255, 255, 255, 0.28) !important;
+  }
+  .sessionsTable.v-theme--dark thead th {
+    border-bottom-color: rgba(255, 255, 255, 0.28) !important;
+  }
+  .sessionsTable.v-theme--light tbody tr > td {
+    border-bottom-color: rgba(0, 0, 0, 0.12) !important;
+  }
+  .sessionsTable.v-theme--light thead th {
+    border-bottom-color: rgba(0, 0, 0, 0.12) !important;
+  }
+  .sessionsTable tbody tr:hover .v-field,
+  .sessionsTable tbody tr:hover .v-field__overlay,
+  .sessionsTable tbody tr:hover .v-field__outline,
+  .sessionsTable tbody tr:hover .v-field__field input {
+    background-color: transparent !important;
+  }
   /* background: #e4f3fe; */
   /*
   .sessionsTable .selected {
@@ -249,17 +243,9 @@ export default {
   */
   /* background: #03a9f4 !important; */
 
-  .sessionsTable.theme--light .selected {
-    background-color: #eeeeee !important;;
-  }
-  .sessionsTable.theme--light .selected:hover {
-    background-color: #e1e1e1 !important;;
-  }
-  .sessionsTable.theme--dark .selected {
-    background-color: #616161 !important;;
-  }
-  .sessionsTable.theme--dark .selected:hover {
-    background-color: #6e6e6e !important;;
+  .sessionsTable .selected,
+  .sessionsTable .selected:hover {
+    background-color: transparent !important;
   }
   .noData:hover {
     background-color: inherit !important;

@@ -1,28 +1,28 @@
 <template>
   <v-app>
-    <AppBar></AppBar>
+    <AppBar />
     <v-main>
       <SessionsTable
         v-if="selectedProjectId"
-      ></SessionsTable>
+      />
       <Greeting
         v-else
-      ></Greeting>
+      />
       <!--
         use v-if or eager on v-dialog until focus bug is solved
         https://github.com/vuetifyjs/vuetify/issues/11257
-       -->
-      <Projects></Projects>
-      <Categories></Categories>
-      <Reports></Reports>
-      <Settings></Settings>
-      <Backups></Backups>
-      <Import></Import>
-      <About></About>
-      <AddExpense></AddExpense>
+      -->
+      <Projects />
+      <Categories />
+      <Reports />
+      <Settings />
+      <Backups />
+      <Import />
+      <About />
+      <AddExpense />
     </v-main>
-    <ModalDlg></ModalDlg>
-    <Alert></Alert>
+    <ModalDlg />
+    <Alert />
   </v-app>
 </template>
 
@@ -77,7 +77,23 @@ export default {
   watch: {
     dark: {
       handler: function (dark) {
-        this.$vuetify.theme.dark = dark
+        if (!this.$vuetify || !this.$vuetify.theme || !this.$vuetify.theme.global) {
+          return
+        }
+        const theme = this.$vuetify.theme
+        const nextName = dark ? 'dark' : 'light'
+        if (theme?.change) {
+          theme.change(nextName)
+          return
+        }
+        const themeName = theme?.global?.name
+        if (themeName && typeof themeName === 'object' && 'value' in themeName) {
+          themeName.value = nextName
+        } else {
+          if (theme?.global) {
+            theme.global.name = nextName
+          }
+        }
       },
       // the callback will be called immediately after the start of the observation
       immediate: true
@@ -138,6 +154,8 @@ export default {
   /* make toolbar of fullscreen dialog sticky and scroll element after toolbar */
   .dlgSticky {
     position: sticky !important;
+    top: 0;
+    z-index: 2;
   }
   .dlgScroll {
     overflow-y: auto !important;
@@ -145,17 +163,17 @@ export default {
   }
 
   /* main menu with underline like in vuetify.com */
-  .v-application.theme--light .v-bar--underline.theme--light {
+  .v-application.v-theme--light .v-bar--underline.v-theme--light {
     border-bottom-color: rgba(0,0,0,.12)!important;
   }
 
   /* modifications for dark theme */
-  .v-application.theme--dark .v-bar--underline.theme--dark {
+  .v-application.v-theme--dark .v-bar--underline.v-theme--dark {
     border-bottom-color: rgba(255,255,255,.25)!important;
   }
 
   /* different box shadow for v-dialog-fullscreen with dark theme */
-  .v-dialog--fullscreen .v-sheet.theme--dark.v-toolbar:not(.v-sheet--outlined) {
+  .v-dialog--fullscreen .v-sheet.v-theme--dark.v-toolbar:not(.v-sheet--outlined) {
     box-shadow: 0px 2px 4px -1px rgba(255, 255, 255,.25), 0px 4px 5px 0px rgba(255, 255, 255, 0.14), 0px 1px 10px 0px rgba(255, 255, 255, 0.12);
     /* default for dark and light theme
       box-shadow: 0px 2px 4px -1px rgba(255, 255, 255, 0.2), 0px 4px 5px 0px rgba(255, 255, 255, 0.14), 0px 1px 10px 0px rgba(255, 255, 255, 0.12);
@@ -163,58 +181,64 @@ export default {
   }
 
   /* create elevation box-shadow for dark theme */
-  .v-application.theme--dark .elevation-1 {
+  .v-application.v-theme--dark .elevation-1 {
     box-shadow: 0 2px 1px -1px rgba(255,255,255,.25),0 1px 1px 0 rgba(255,255,255,.14),0 1px 3px 0 rgba(255,255,255,.12)!important;
   }
-  .v-application.theme--dark .elevation-2 {
+  .v-application.v-theme--dark .elevation-2 {
     box-shadow: 0 3px 1px -2px rgba(255,255,255,.25),0 2px 2px 0 rgba(255,255,255,.14),0 1px 5px 0 rgba(255,255,255,.12)!important;
   }
-  .v-application.theme--dark .elevation-3 {
+  .v-application.v-theme--dark .elevation-3 {
     box-shadow: 0 3px 3px -2px rgba(255,255,255,.25),0 3px 4px 0 rgba(255,255,255,.14),0 1px 8px 0 rgba(255,255,255,.12)!important;
   }
-  .v-application.theme--dark .elevation-4 {
+  .v-application.v-theme--dark .elevation-4 {
     box-shadow: 0 2px 4px -1px rgba(255,255,255,.25),0 4px 5px 0 rgba(255,255,255,.14),0 1px 10px 0 rgba(255,255,255,.12)!important;
   }
-  .v-application.theme--dark .elevation-5 {
+  .v-application.v-theme--dark .elevation-5 {
     box-shadow: 0 3px 5px -1px rgba(255,255,255,.25),0 5px 8px 0 rgba(255,255,255,.14),0 1px 14px 0 rgba(255,255,255,.12)!important;
   }
-  .v-application.theme--dark .elevation-6 {
+  .v-application.v-theme--dark .elevation-6 {
     box-shadow: 0 3px 5px -1px rgba(255,255,255,.25),0 6px 10px 0 rgba(255,255,255,.14),0 1px 18px 0 rgba(255,255,255,.12)!important;
   }
 
   /* create v-dialog box-shadow for dark theme */
-  .v-application.theme--dark .v-dialog {
+  .v-application.v-theme--dark .v-dialog {
     box-shadow: 0 11px 15px -7px rgba(255,255,255,.25), 0 24px 38px 3px rgba(255,255,255,.14), 0 9px 46px 8px rgba(255,255,255,.12);
   }
 
   /* create alert background color for dark theme */
-  .v-application.theme--dark .v-alert--text:before {
+  .v-application.v-theme--dark .v-alert--text:before {
     opacity: 0.3;
   }
 
-  .v-application.theme--dark .v-menu__content {
+  .v-application.v-theme--dark .v-menu__content {
     box-shadow: 0px 5px 5px -3px rgba(255,255,255,.25), 0px 8px 10px 1px rgba(255,255,255, 0.14), 0px 3px 14px 2px rgba(255,255,255, 0.12);
   }
 
-  .v-application.theme--dark .v-divider {
+  .v-application.v-theme--dark .v-divider {
     border-color: rgba(255, 255, 255,.25)!important;
   }
 
   /* dark theme tweaks for table */
-  .v-application.theme--dark .v-data-table .v-data-footer {
+  .v-application.v-theme--dark .v-data-table .v-data-table-footer {
     border-top-color: rgba(255,255,255,.25)!important;
   }
 
-  .v-application.theme--dark .v-data-table >  .v-data-table__wrapper > table > thead > tr:last-child > th {
+  .v-application.v-theme--dark .v-data-table >  .v-data-table__wrapper > table > thead > tr:last-child > th {
     border-bottom-color: rgba(255,255,255,.25)!important;
   }
 
-  .v-application.theme--dark .v-data-table.v-data-table--fixed-header thead th {
+  .v-application.v-theme--dark .v-data-table.v-data-table--fixed-header thead th {
     box-shadow: inset 0 -1px 0 rgba(255,255,255,.25);
   }
 
-  .v-application.theme--dark .v-data-table > .v-data-table__wrapper > table > tbody > tr:not(:last-child) > td:not(.v-data-table__mobile-row) {
+  .v-application.v-theme--dark .v-data-table > .v-data-table__wrapper > table > tbody > tr:not(:last-child) > td:not(.v-data-table__mobile-row) {
     border-bottom-color: rgba(255,255,255,.25)!important;
+  }
+
+  /* for dialogs */
+  .v-overlay.v-theme--dark .v-toolbar {
+    border-bottom-color: rgba(255, 255, 255, 0.25) !important;
+    border-bottom-width: 2px !important;
   }
 
 </style>

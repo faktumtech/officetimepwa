@@ -10,7 +10,7 @@
 # docker run --rm -it --entrypoint /bin/bash -p 8080:8080 -v $PWD:/officetimepwa -v /officetimepwa/node_modules/ officetimepwa.dev
 
 
-FROM node:14
+FROM node:20-bookworm-slim
 
 # workdir in image
 WORKDIR /officetimepwa
@@ -28,7 +28,4 @@ RUN npm install
 EXPOSE 8080
 
 # start dev server
-CMD [ "npm", "run", "serve" ]
-
-# open bash shell
-# CMD [ "/bin/bash", "-e" ]
+CMD [ "npm", "run", "dev" ]

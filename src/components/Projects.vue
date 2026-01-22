@@ -1,35 +1,34 @@
 <template>
   <v-dialog
     fullscreen
-    hide-overlay
+    :scrim="false"
     persistent
     no-click-animation
     eager
-    ref="focus"
-    :value="show"
+    v-model="show"
     @keydown.esc="show = false"
-    class="dlgSticky"
   >
     <v-card>
       <v-toolbar
+        class="dlgSticky"
+        color="transparent"
+        :elevation="1"
       >
         <v-btn
           icon
           @click="show = false"
         >
-          <v-icon>{{ mdiClose }}</v-icon>
+          <v-icon :icon="mdiClose" />
         </v-btn>
         <v-toolbar-title>Projects</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-toolbar-items>
-          <v-btn
-            text
-            color="primary"
-            @click="editItem(null)"
-          >
-            Create project
-          </v-btn>
-        </v-toolbar-items>
+        <v-spacer />
+        <v-btn
+          variant="text"
+          color="primary"
+          @click="editItem(null)"
+        >
+          Create project
+        </v-btn>
       </v-toolbar>
 
       <v-card-text
@@ -49,39 +48,36 @@
                 :headers="headers"
                 :items="projects"
                 :items-per-page="10"
-                :footer-props="footerProps"
+                :items-per-page-options="itemsPerPageOptions"
                 fixed-header
                 height="calc(100vh - 150px)"
               >
-                <template v-slot:[`item.defaultCategory`]="{ item }">
+                <template v-slot:item.defaultCategory="{ item }">
                   <span>
-                    {{ categoryTitleLookup[item.defaultCategory] }}
+                    {{ categoryTitleLookup[(item.raw || item).defaultCategory] }}
                   </span>
                 </template>
-                <template v-slot:[`item.archived`]="{ item }">
+                <template v-slot:item.archived="{ item }">
                   <v-icon
-                    v-if="item.archived"
-                    small
-                  >
-                    {{ mdiCheckBold }}
-                  </v-icon>
+                    v-if="(item.raw || item).archived"
+                    size="small"
+                    :icon="mdiCheckBold"
+                  />
                 </template>
-                <template v-slot:[`item.actions`]="{ item }">
+                <template v-slot:item.actions="{ item }">
                   <v-icon
-                    small
+                    size="small"
                     class="mr-4"
                     color="primary"
-                    @click="editItem(item.id)"
-                  >
-                    {{ mdiPencil }}
-                  </v-icon>
+                    @click="editItem((item.raw || item).id)"
+                    :icon="mdiPencil"
+                  />
                   <v-icon
-                    small
+                    size="small"
                     color="primary"
-                    @click="deleteItem(item.id)"
-                  >
-                    {{ mdiDelete}}
-                  </v-icon>
+                    @click="deleteItem((item.raw || item).id)"
+                    :icon="mdiDelete"
+                  />
                 </template>
               </v-data-table>
             </v-col>
@@ -90,8 +86,7 @@
         <ProjectEdit
           v-model="showEditDlg"
           :itemId="editedItemId"
-        >
-        </ProjectEdit>
+        />
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -113,15 +108,13 @@ export default {
       mdiDelete: mdiDelete,
       mdiCheckBold: mdiCheckBold,
       headers: [
-        { text: 'Name ', value: 'title' },
-        { text: 'Default category ', value: 'defaultCategory' },
-        { text: 'Archived ', value: 'archived' },
-        { text: 'Notes ', value: 'notes' },
-        { text: 'Actions', value: 'actions', sortable: false }
+        { title: 'Name ', key: 'title' },
+        { title: 'Default category ', key: 'defaultCategory' },
+        { title: 'Archived ', key: 'archived' },
+        { title: 'Notes ', key: 'notes' },
+        { title: 'Actions', key: 'actions', sortable: false }
       ],
-      footerProps: {
-        'items-per-page-options': [10, 25, 100, -1]
-      },
+      itemsPerPageOptions: [10, 25, 100, -1],
       showEditDlg: false,
       showDeleteDlg: false,
       editedItemId: null

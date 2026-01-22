@@ -1,70 +1,56 @@
 {
   "name": "officetimepwa",
-  "version": "0.6.12",
+  "version": "1.0.0",
   "dbVersion": 2,
   "private": true,
+  "type": "module",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "dev": "npm run lint:watch & vite --host --port 8080",
+    "build": "vite build",
+    "lint": "eslint .",
+    "lint:watch": "chokidar \"src/**/*.{js,vue}\" \"*.config.js\" -c \"eslint --fix\"",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "core-js": "^3.16.2",
-    "dexie": "^3.0.3",
+    "dexie": "^4.2.1",
     "file-saver": "^2.0.5",
-    "papaparse": "^5.3.1",
-    "register-service-worker": "^1.7.2",
-    "vue": "^2.6.14",
-    "vuetify": "^2.5.8",
-    "vuex": "^3.6.2"
+    "papaparse": "^5.5.3",
+    "pinia": "^3.0.3",
+    "vue": "^3.2.0",
+    "vuetify": "^3.0.0",
+    "workbox-window": "^7.3.0"
   },
   "devDependencies": {
-    "@mdi/js": "^5.9.55",
-    "@vue/cli-plugin-babel": "^4.5.13",
-    "@vue/cli-plugin-eslint": "^4.5.13",
-    "@vue/cli-plugin-pwa": "^4.5.13",
-    "@vue/cli-service": "^4.5.13",
-    "@vue/eslint-config-standard": "^6.1.0",
-    "babel-eslint": "^10.1.0",
-    "babel-plugin-transform-remove-console": "^6.9.4",
-    "eslint": "^7.32.0",
-    "eslint-plugin-import": "^2.24.1",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.3.1",
-    "eslint-plugin-standard": "^5.0.0",
-    "eslint-plugin-vue": "^7.16.0",
-    "eslint-plugin-vuetify": "^1.0.0-beta.7",
-    "sass": "^1.38.0",
-    "sass-loader": "^10.2.0",
-    "vue-cli-plugin-vuetify": "^2.4.2",
-    "vue-template-compiler": "^2.6.14",
-    "vuetify-loader": "^1.7.2"
+    "@eslint/js": "^9.38.0",
+    "@mdi/js": "^7.4.47",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "chokidar-cli": "^3.0.0",
+    "eslint": "^9.38.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-vue": "^10.5.1",
+    "eslint-plugin-vuetify": "^2.1.0",
+    "globals": "^17.0.0",
+    "sass": "^1.97.3",
+    "vite": "^7.3.1",
+    "vite-plugin-pwa": "^1.2.0",
+    "vite-plugin-vuetify": "^2.1.0",
+    "vue-eslint-parser": "^10.2.0"
   },
   "eslintConfig": {
     "root": true,
     "env": {
+      "browser": true,
       "node": true
     },
     "extends": [
-      "plugin:vue/essential",
-      "@vue/standard"
+      "eslint:recommended",
+      "plugin:vue/vue3-recommended"
     ],
     "parserOptions": {
-      "parser": "babel-eslint"
+      "ecmaVersion": 2022,
+      "sourceType": "module"
     },
     "rules": {}
-  },
-  "babel": {
-    "presets": [
-      "@vue/cli-plugin-babel/preset"
-    ],
-    "env": {
-      "production": {
-        "plugins": [
-          "transform-remove-console"
-        ]
-      }
-    }
   },
   "browserslist": [
     "> 1%",

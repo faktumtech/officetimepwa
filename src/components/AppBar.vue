@@ -1,13 +1,12 @@
 <template>
   <v-app-bar
     class="v-bar--underline"
-    app
-    outlined
     flat
+    border
   >
     <TimerBtn
       v-if="selectedProjectId"
-    ></TimerBtn>
+    />
 
     <div
       v-if="selectedProjectId"
@@ -15,129 +14,123 @@
     >
       <TimerTimeInput
         :session="timerSession"
-      ></TimerTimeInput>
+      />
     </div>
 
-    <v-spacer></v-spacer>
+    <v-spacer />
     <div
       v-if="selectedProjectId"
       class="projectWrap"
     >
       <v-select
         :items="activeProjects"
-        item-text="title"
+        item-title="title"
         item-value="id"
         v-model="selectedProjectId"
-        dense
-        outlined
-        filled
-      >
-      </v-select>
+        density="compact"
+        variant="outlined"
+      />
     </div>
 
     <v-menu
       v-if="selectedProjectId"
-      bottom
-      left
-      offset-y
+      location="bottom"
+      offset="8"
     >
-      <template v-slot:activator="{ on, attrs }">
+      <template v-slot:activator="{ props }">
         <v-btn
           class="mr-2"
           icon
-          v-bind="attrs"
-          v-on="on"
+          v-bind="props"
           aria-label="Settings"
         >
-          <v-icon>{{ mdiPlus }}</v-icon>
+          <v-icon :icon="mdiPlus" />
         </v-btn>
       </template>
-        <v-list>
-          <v-list-item
-            link
-            @click="addSession()"
-            aria-label="Add session"
-          >
-            <v-list-item-title>Add session</v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            link
-            @click="showModalComponent('addExpense')"
-            aria-label="Add expense"
-          >
-            <v-list-item-title>Add expense</v-list-item-title>
-          </v-list-item>
-        </v-list>
+      <v-list>
+        <v-list-item
+          link
+          @click="addSession()"
+          aria-label="Add session"
+        >
+          <v-list-item-title>Add session</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          link
+          @click="showModalComponent('addExpense')"
+          aria-label="Add expense"
+        >
+          <v-list-item-title>Add expense</v-list-item-title>
+        </v-list-item>
+      </v-list>
     </v-menu>
 
     <v-menu
-      bottom
-      left
-      offset-y
+      location="bottom"
+      offset="8"
     >
-      <template v-slot:activator="{ on, attrs }">
+      <template v-slot:activator="{ props }">
         <v-btn
           icon
-          v-bind="attrs"
-          v-on="on"
+          v-bind="props"
           aria-label="Menu"
         >
-          <v-icon>{{ mdiDotsVertical }}</v-icon>
+          <v-icon :icon="mdiDotsVertical" />
         </v-btn>
       </template>
-        <v-list>
-          <v-list-item
-            link
-            @click="showModalComponent('reports')"
-            aria-label="Reports"
-          >
-            <v-list-item-title>Reports</v-list-item-title>
-          </v-list-item>
-          <v-divider></v-divider>
-          <v-list-item
-            link
-            @click="showModalComponent('projects')"
-            aria-label="Projects"
-          >
-            <v-list-item-title>Projects</v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            link
-            @click="showModalComponent('categories')"
-            aria-label="Categories"
-          >
-            <v-list-item-title>Categories</v-list-item-title>
-          </v-list-item>
-          <v-divider></v-divider>
-          <v-list-item
-            link
-            @click="showModalComponent('import')"
-            aria-label="Import"
-          >
-            <v-list-item-title>Import</v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            link
-            @click="showModalComponent('backups')"
-            aria-label="Backups"
-          >
-            <v-list-item-title>Backups</v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            link
-            @click="showModalComponent('settings')"
-            aria-label="Settings"
-          >
-            <v-list-item-title>Settings</v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            link
-            @click="showModalComponent('about')"
-            aria-label="About"
-          >
-            <v-list-item-title>About</v-list-item-title>
-          </v-list-item>
-        </v-list>
+      <v-list>
+        <v-list-item
+          link
+          @click="showModalComponent('reports')"
+          aria-label="Reports"
+        >
+          <v-list-item-title>Reports</v-list-item-title>
+        </v-list-item>
+        <v-divider />
+        <v-list-item
+          link
+          @click="showModalComponent('projects')"
+          aria-label="Projects"
+        >
+          <v-list-item-title>Projects</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          link
+          @click="showModalComponent('categories')"
+          aria-label="Categories"
+        >
+          <v-list-item-title>Categories</v-list-item-title>
+        </v-list-item>
+        <v-divider />
+        <v-list-item
+          link
+          @click="showModalComponent('import')"
+          aria-label="Import"
+        >
+          <v-list-item-title>Import</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          link
+          @click="showModalComponent('backups')"
+          aria-label="Backups"
+        >
+          <v-list-item-title>Backups</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          link
+          @click="showModalComponent('settings')"
+          aria-label="Settings"
+        >
+          <v-list-item-title>Settings</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          link
+          @click="showModalComponent('about')"
+          aria-label="About"
+        >
+          <v-list-item-title>About</v-list-item-title>
+        </v-list-item>
+      </v-list>
     </v-menu>
 
   </v-app-bar>
@@ -184,11 +177,11 @@ export default {
     showModalComponent: function (component) {
       this.$store.commit('showModalComponent', component)
     },
-    addSession: async function (component) {
+    addSession: async function () {
       await this.$store.dispatch('createSession', this.selectedProjectId)
     },
-    addExpense: function (component) {
-      this.$store.commit('showModalComponent', component)
+    addExpense: function () {
+      this.$store.commit('showModalComponent', 'addExpense')
     }
   }
 }
@@ -206,9 +199,42 @@ export default {
   .maintimer {
     margin-left: 30px;
     margin-top: 10px;
+    background-color: transparent;
   }
 
   .maintimer .timerTimeInput {
     font-weight: bold;
   }
+
+  .maintimer .timerTimeInput input {
+    padding: 0 !important;
+    height: 35px !important;
+    background-color: transparent !important;
+    font-weight: bold;
+  }
+  .maintimer .v-field,
+  .maintimer .v-field__field,
+  .maintimer .v-field__field input,
+  .maintimer .v-field__overlay,
+  .maintimer .v-field__outline {
+    background-color: transparent !important;
+  }
+
+  .maintimer .v-input__details {
+    display: none;
+  }
+
+  .v-app-bar {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .v-app-bar.v-theme--light {
+    background-color: #f2f2f2;
+  }
+
+  .v-application.v-theme--dark .v-bar--underline.v-theme--dark {
+    border-bottom-color: rgba(255, 255, 255, 0.3) !important;
+    border-bottom-width: 2px;
+}
+
 </style>

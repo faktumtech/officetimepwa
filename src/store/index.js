@@ -1,15 +1,20 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createPinia, defineStore } from 'pinia'
 import initialStates from './initialStates'
 import db from '@/db'
 import Utils from '../utils/Utils'
 
-Vue.use(Vuex)
+const pinia = createPinia()
 
-export default new Vuex.Store({
-  state: {
-    appVersion: process.env.PACKAGE_VERSION || '0',
-    dbVersion: process.env.DEXIEDB_VERSION || 1,
+const ensureSettingKey = (settings, key) => {
+  if (!Object.prototype.hasOwnProperty.call(settings, key)) {
+    throw new Error('unknown settings property')
+  }
+}
+
+const useAppStore = defineStore('app', {
+  state: () => ({
+    appVersion: typeof process.env.PACKAGE_VERSION !== 'undefined' ? process.env.PACKAGE_VERSION : '0', // string
+    dbVersion: Number(process.env.DB_VERSION || 1), // number
     // persistent properties synced with db
     settings: {
       selectedProjectId: null,
@@ -36,9 +41,9 @@ export default new Vuex.Store({
     timerStatus: 'stopped',
     timerOffset: 0,
     timerCount: 0
-  },
+  }),
   getters: {
-    // syncronous access to vuex
+    // syncronous access to store
     getSetting: (state) => (key) => {
       return state.settings[key]
     },
@@ -90,144 +95,48 @@ export default new Vuex.Store({
       }
       return lookup
     }
-
-  },
-  mutations: {
-    updateSetting (state, { key, value }) {
-      if (!Object.prototype.hasOwnProperty.call(state.settings, key)) {
-        throw new Error('unknown settings property')
-      }
-      state.settings[key] = value
-    },
-    clipboardApi (state, value) {
-      state.clipboardApi = (value)
-    },
-    audioApi (state, value) {
-      state.audioApi = (value)
-    },
-    editProjectId (state, value) {
-      state.editProjectId = (value)
-    },
-    showModalComponent (state, value) {
-      state.showModalComponent = (value)
-    },
-    showModalDlg (state, dlg) {
-      // reset to initial state each time when shown
-      state.modalDlg = initialStates.modalDlg()
-      Object.assign(state.modalDlg, dlg, { show: true })
-    },
-    hideModalDlg (state, dlg) {
-      // there is a transition!
-      // setting to initial state will show inital data during transition
-      state.modalDlg.show = false
-    },
-    alert (state, dlg) {
-      // reset to initial state before showing
-      if (!state.alert.show && dlg.show) {
-        state.alert = initialStates.alert()
-      }
-      // Object.assign(state.alert, dlg) doesn't trigger change sometimes
-      state.alert = Object.assign({}, state.alert, dlg)
-    },
-
-    setProjects (state, value) {
-      state.projects = (value)
-    },
-    createProject (state, project) {
-      state.projects.push(project)
-    },
-    updateProject (state, { id, changes }) {
-      const project = state.projects.find(item => item.id === id)
-      Object.assign(project, changes)
-    },
-    deleteProject (state, id) {
-      const i = state.projects.findIndex(item => item.id === id)
-      state.projects.splice(i, 1)
-    },
-
-    setCategories (state, value) {
-      state.categories = (value)
-    },
-    createCategory (state, category) {
-      state.categories.push(category)
-    },
-    updateCategory (state, { id, changes }) {
-      const category = state.categories.find(item => item.id === id)
-      Object.assign(category, changes)
-    },
-    deleteCategory (state, id) {
-      const i = state.categories.findIndex(item => item.id === id)
-      state.categories.splice(i, 1)
-    },
-
-    setSessions (state, value) {
-      state.sessions = (value)
-    },
-    createSession (state, session) {
-      state.sessions.push(session)
-    },
-    updateSession (state, { id, changes }) {
-      const session = state.sessions.find(item => item.id === id)
-      Object.assign(session, changes)
-    },
-    deleteSession (state, id) {
-      const i = state.sessions.findIndex(item => item.id === id)
-      state.sessions.splice(i, 1)
-    },
-
-    selectedSessionId (state, value) {
-      state.selectedSessionId = (value)
-    },
-    timerSessionId (state, value) {
-      state.timerSessionId = (value)
-    },
-    timerStatus (state, value) {
-      state.timerStatus = (value)
-    },
-    timerCount (state, value) {
-      state.timerCount = (value)
-    },
-    timerOffset (state, value) {
-      state.timerOffset = (value)
-    }
-
   },
   actions: {
     /**
      * get persisting settings from db and save to store
      * @return {Promise} undefined
     */
-    async initApp (context) {
+    async initApp () {
       try {
         console.log('initApp')
         const selectedProjectId = await db.getSetting('selectedProjectId') || null
-        context.commit('updateSetting', { key: 'selectedProjectId', value: selectedProjectId })
+        ensureSettingKey(this.settings, 'selectedProjectId')
+        this.settings.selectedProjectId = selectedProjectId
         const itemsPerPageSessionTable = await db.getSetting('itemsPerPageSessionTable') || 100
-        context.commit('updateSetting', { key: 'itemsPerPageSessionTable', value: itemsPerPageSessionTable })
+        ensureSettingKey(this.settings, 'itemsPerPageSessionTable')
+        this.settings.itemsPerPageSessionTable = itemsPerPageSessionTable
 
         let dark = await db.getSetting('dark')
         if (dark === null) {
           // detect color-scheme preference if not hard set in settings
           dark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || false
         }
-        context.commit('updateSetting', { key: 'dark', value: dark })
+        ensureSettingKey(this.settings, 'dark')
+        this.settings.dark = dark
         const sound = await db.getSetting('sound') || false
-        context.commit('updateSetting', { key: 'sound', value: sound })
+        ensureSettingKey(this.settings, 'sound')
+        this.settings.sound = sound
         let dbCreationDate = await db.getSetting('dbCreationDate')
         if (dbCreationDate === null) {
           dbCreationDate = Date.now()
           await db.updateSetting('dbCreationDate', dbCreationDate)
         }
-        context.commit('updateSetting', { key: 'dbCreationDate', value: dbCreationDate })
+        ensureSettingKey(this.settings, 'dbCreationDate')
+        this.settings.dbCreationDate = dbCreationDate
 
         const lastBackupDate = await db.getSetting('lastBackupDate')
-        context.commit('updateSetting', { key: 'lastBackupDate', value: lastBackupDate })
+        ensureSettingKey(this.settings, 'lastBackupDate')
+        this.settings.lastBackupDate = lastBackupDate
         const lastBackupReminderDate = await db.getSetting('lastBackupReminderDate')
-        context.commit('updateSetting', { key: 'lastBackupReminderDate', value: lastBackupReminderDate })
-        const projects = await db.getProjects()
-        context.commit('setProjects', projects)
-        const categories = await db.getCategories()
-        context.commit('setCategories', categories)
+        ensureSettingKey(this.settings, 'lastBackupReminderDate')
+        this.settings.lastBackupReminderDate = lastBackupReminderDate
+        this.projects = await db.getProjects()
+        this.categories = await db.getCategories()
       } catch (err) {
         console.error(err)
       }
@@ -238,10 +147,11 @@ export default new Vuex.Store({
      * @param {Object} payload {key: key; value: value}
      * @return {Promise} undefined
     */
-    async updateSetting (context, { key, value }) {
+    async updateSetting ({ key, value }) {
       try {
         await db.updateSetting(key, value)
-        context.commit('updateSetting', { key, value })
+        ensureSettingKey(this.settings, key)
+        this.settings[key] = value
       } catch (err) {
         console.log(err)
       }
@@ -252,12 +162,12 @@ export default new Vuex.Store({
      * @param {Object} project
      * @return {Promise} id of created project
     */
-    async createProject (context, project) {
+    async createProject (project) {
       const id = await db.createProject(project)
       project.id = id
-      context.commit('createProject', project)
+      this.projects.push(project)
       // set selectedProjectId to new project
-      await context.dispatch('updateSetting', { key: 'selectedProjectId', value: id })
+      await this.updateSetting({ key: 'selectedProjectId', value: id })
       return id
     },
 
@@ -266,10 +176,11 @@ export default new Vuex.Store({
      * @param {Object} payload { id, changes }
      * @return {Promise} undefined
     */
-    async updateProject (context, { id, changes }) {
+    async updateProject ({ id, changes }) {
       try {
         await db.updateProject(id, changes)
-        context.commit('updateProject', { id, changes })
+        const project = this.projects.find(item => item.id === id)
+        Object.assign(project, changes)
       } catch (err) {
         console.log(err)
       }
@@ -280,10 +191,11 @@ export default new Vuex.Store({
      * @param {Number} projectId
      * @return {Promise} undefined
     */
-    async deleteProject (context, projectId) {
+    async deleteProject (projectId) {
       try {
         await db.deleteProject(projectId)
-        context.commit('deleteProject', projectId)
+        const i = this.projects.findIndex(item => item.id === projectId)
+        this.projects.splice(i, 1)
         // we don't remove sessions from state because after project delete
         // sessions will be reloaded automatically
       } catch (err) {
@@ -296,10 +208,10 @@ export default new Vuex.Store({
      * @param {Object} category
      * @return {Promise} id of created category
     */
-    async createCategory (context, category) {
+    async createCategory (category) {
       const id = await db.createCategory(category)
       category.id = id
-      context.commit('createCategory', category)
+      this.categories.push(category)
       return id
     },
 
@@ -308,10 +220,11 @@ export default new Vuex.Store({
      * @param {Object} payload { id, changes }
      * @return {Promise} undefined
     */
-    async updateCategory (context, { id, changes }) {
+    async updateCategory ({ id, changes }) {
       try {
         await db.updateCategory(id, changes)
-        context.commit('updateCategory', { id, changes })
+        const category = this.categories.find(item => item.id === id)
+        Object.assign(category, changes)
       } catch (err) {
         console.log(err)
       }
@@ -322,10 +235,11 @@ export default new Vuex.Store({
      * @param {Number} categoryId
      * @return {Promise} undefined
     */
-    async deleteCategory (context, categoryId) {
+    async deleteCategory (categoryId) {
       try {
         await db.deleteCategory(categoryId)
-        context.commit('deleteCategory', categoryId)
+        const i = this.categories.findIndex(item => item.id === categoryId)
+        this.categories.splice(i, 1)
       } catch (err) {
         console.log(err)
       }
@@ -336,12 +250,12 @@ export default new Vuex.Store({
      * @param {Number} projectId
      * @return {Promise} undefined
     */
-    async getSessionsByProjectId (context, projectId) {
+    async getSessionsByProjectId (projectId) {
       try {
         console.log('getSessions')
         const sessions = await db.getSessionsByProjectId(projectId)
         console.log(sessions.length)
-        context.commit('setSessions', sessions)
+        this.sessions = sessions
       } catch (err) {
         console.log(err)
       }
@@ -352,11 +266,11 @@ export default new Vuex.Store({
      * @param {Number} projectId
      * @return {Promise} undefined
     */
-    async createSession (context, projectId) {
+    async createSession (projectId) {
       try {
         console.log('createSession')
-        const defaultCategory = context.getters.getProject(projectId).defaultCategory
-        const defaultCategoryRate = context.getters.getCategory(defaultCategory).rate
+        const defaultCategory = this.getProject(projectId).defaultCategory
+        const defaultCategoryRate = this.getCategory(defaultCategory).rate
         const session = {
           p: projectId, // project
           e: false, // expense
@@ -370,7 +284,7 @@ export default new Vuex.Store({
         // store in db and get id
         const sessionId = await db.createSession(session)
         session.id = sessionId
-        context.commit('createSession', session)
+        this.sessions.push(session)
         return sessionId
       } catch (err) {
         console.log(err)
@@ -382,10 +296,11 @@ export default new Vuex.Store({
      * @param {Object} payload { id, changes }
      * @return {Promise} id of created project
     */
-    async updateSession (context, { id, changes }) {
+    async updateSession ({ id, changes }) {
       try {
         await db.updateSession(id, changes)
-        context.commit('updateSession', { id, changes })
+        const session = this.sessions.find(item => item.id === id)
+        Object.assign(session, changes)
       } catch (err) {
         console.log(err)
       }
@@ -396,10 +311,11 @@ export default new Vuex.Store({
      * @param {Number} sessionId
      * @return {Promise} undefined
     */
-    async deleteSession (context, sessionId) {
+    async deleteSession (sessionId) {
       try {
         await db.deleteSession(sessionId)
-        context.commit('deleteSession', sessionId)
+        const i = this.sessions.findIndex(item => item.id === sessionId)
+        this.sessions.splice(i, 1)
       } catch (err) {
         console.log(err)
       }
@@ -410,13 +326,13 @@ export default new Vuex.Store({
      * @param {Object} expense
      * @return {Promise} undefined
     */
-    async createExpense (context, expense) {
+    async createExpense (expense) {
       try {
         console.log('createExpense')
         // store in db and get id
         const sessionId = await db.createSession(expense)
         expense.id = sessionId
-        context.commit('createSession', expense)
+        this.sessions.push(expense)
         return sessionId
       } catch (err) {
         console.log(err)
@@ -428,13 +344,13 @@ export default new Vuex.Store({
      * @param {Array} newSessions
      * @return {Promise} undefined
     */
-    async importSessions (context, newSessions) {
+    async importSessions (newSessions) {
       try {
         await db.bulkAddSessions(newSessions)
         // get all sessions of project
-        const sessions = await db.getSessionsByProjectId(context.state.settings.selectedProjectId)
+        const sessions = await db.getSessionsByProjectId(this.settings.selectedProjectId)
         console.log(sessions.length)
-        context.commit('setSessions', sessions)
+        this.sessions = sessions
       } catch (err) {
         console.log(err)
       }
@@ -446,14 +362,138 @@ export default new Vuex.Store({
      * @param {Object} payload { id, rate }
      * @return {Promise} undefined
     */
-    async bulkUpdateSessionsRate (context, { id, rate }) {
+    async bulkUpdateSessionsRate ({ id, rate }) {
       try {
         await db.bulkUpdateSessionsRate(id, rate)
-        const selectedProjectId = context.getters.getSetting('selectedProjectId')
-        await context.dispatch('getSessionsByProjectId', selectedProjectId)
+        const selectedProjectId = this.getSetting('selectedProjectId')
+        await this.getSessionsByProjectId(selectedProjectId)
       } catch (err) {
         console.log(err)
       }
     }
   }
 })
+
+const mutationHandlers = {
+  updateSetting (state, { key, value }) {
+    ensureSettingKey(state.settings, key)
+    state.settings[key] = value
+  },
+  clipboardApi (state, value) {
+    state.clipboardApi = value
+  },
+  audioApi (state, value) {
+    state.audioApi = value
+  },
+  editProjectId (state, value) {
+    state.editProjectId = value
+  },
+  showModalComponent (state, value) {
+    state.showModalComponent = value
+  },
+  showModalDlg (state, dlg) {
+    // reset to initial state each time when shown
+    state.modalDlg = initialStates.modalDlg()
+    Object.assign(state.modalDlg, dlg, { show: true })
+  },
+  hideModalDlg (state) {
+    // there is a transition!
+    // setting to initial state will show inital data during transition
+    state.modalDlg.show = false
+  },
+  alert (state, dlg) {
+    // reset to initial state before showing
+    if (!state.alert.show && dlg.show) {
+      state.alert = initialStates.alert()
+    }
+    // Object.assign(state.alert, dlg) doesn't trigger change sometimes
+    state.alert = Object.assign({}, state.alert, dlg)
+  },
+  setProjects (state, value) {
+    state.projects = value
+  },
+  createProject (state, project) {
+    state.projects.push(project)
+  },
+  updateProject (state, { id, changes }) {
+    const project = state.projects.find(item => item.id === id)
+    Object.assign(project, changes)
+  },
+  deleteProject (state, id) {
+    const i = state.projects.findIndex(item => item.id === id)
+    state.projects.splice(i, 1)
+  },
+  setCategories (state, value) {
+    state.categories = value
+  },
+  createCategory (state, category) {
+    state.categories.push(category)
+  },
+  updateCategory (state, { id, changes }) {
+    const category = state.categories.find(item => item.id === id)
+    Object.assign(category, changes)
+  },
+  deleteCategory (state, id) {
+    const i = state.categories.findIndex(item => item.id === id)
+    state.categories.splice(i, 1)
+  },
+  setSessions (state, value) {
+    state.sessions = value
+  },
+  createSession (state, session) {
+    state.sessions.push(session)
+  },
+  updateSession (state, { id, changes }) {
+    const session = state.sessions.find(item => item.id === id)
+    Object.assign(session, changes)
+  },
+  deleteSession (state, id) {
+    const i = state.sessions.findIndex(item => item.id === id)
+    state.sessions.splice(i, 1)
+  },
+  selectedSessionId (state, value) {
+    state.selectedSessionId = value
+  },
+  timerSessionId (state, value) {
+    state.timerSessionId = value
+  },
+  timerStatus (state, value) {
+    state.timerStatus = value
+  },
+  timerCount (state, value) {
+    state.timerCount = value
+  },
+  timerOffset (state, value) {
+    state.timerOffset = value
+  }
+}
+
+const appStore = useAppStore(pinia)
+
+const createLegacyStore = (store) => {
+  return {
+    get state () {
+      return store.$state
+    },
+    getters: store,
+    commit (type, payload) {
+      const handler = mutationHandlers[type]
+      if (!handler) {
+        throw new Error(`Unknown mutation: ${type}`)
+      }
+      return handler(store.$state, payload)
+    },
+    dispatch (type, payload) {
+      const action = store[type]
+      if (typeof action !== 'function') {
+        throw new Error(`Unknown action: ${type}`)
+      }
+      return action(payload)
+    }
+  }
+}
+
+const legacyStore = createLegacyStore(appStore)
+
+export { pinia, useAppStore, appStore, legacyStore }
+export default legacyStore

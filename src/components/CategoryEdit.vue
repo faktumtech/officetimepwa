@@ -2,14 +2,13 @@
   <v-dialog
     v-model="show"
     max-width="500px"
-    :overlayColor="$vuetify.theme.dark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
+    :scrim="isDark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
   >
     <v-card>
       <v-form
         @submit.prevent="save"
         ref="form"
         v-model="valid"
-        lazy-validation
       >
         <v-card-title>
           <span class="headline">{{ formTitle }}</span>
@@ -25,7 +24,7 @@
                   v-model="category.title"
                   label="Category name *"
                   :rules="titleRules"
-                ></v-text-field>
+                />
               </v-col>
               <v-col
                 cols="12"
@@ -36,7 +35,7 @@
                   type="number"
                   :rules="rateRules"
                   min="0"
-                ></v-text-field>
+                />
                 <small>*required</small>
               </v-col>
             </v-row>
@@ -44,9 +43,9 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
-            text
+            variant="text"
             @click="close"
           >
             Cancel
@@ -54,7 +53,7 @@
           <v-btn
             color="primary"
             type="submit"
-            text
+            variant="text"
           >
             Save
           </v-btn>
@@ -82,7 +81,7 @@ export default {
     }
   },
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     },
@@ -94,14 +93,21 @@ export default {
   computed: {
     show: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
     formTitle () {
       return this.itemId === null ? 'New category' : 'Edit category'
+    },
+    isDark () {
+      const current = this.$vuetify?.theme?.global?.current?.value
+      if (current && typeof current.dark !== 'undefined') {
+        return current.dark
+      }
+      return this.$store.getters.getSetting('dark')
     }
   },
   watch: {
@@ -132,7 +138,8 @@ export default {
     },
 
     async save () {
-      if (!this.$refs.form.validate()) {
+      const { valid } = await this.$refs.form.validate()
+      if (!valid) {
         return
       }
       if (this.itemId === null) {

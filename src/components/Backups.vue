@@ -1,27 +1,29 @@
 <template>
   <v-dialog
     fullscreen
-    hide-overlay
+    :scrim="false"
     persistent
     no-click-animation
     eager
-    :value="show"
+    v-model="show"
     @keydown.esc="show = false"
-    class="dlgSticky"
   >
     <v-card>
       <v-toolbar
+        class="dlgSticky"
+        color="transparent"
+        :elevation="1"
       >
         <v-btn
           icon
           @click="show = false"
         >
-          <v-icon>{{ mdiClose }}</v-icon>
+          <v-icon :icon="mdiClose" />
         </v-btn>
         <v-toolbar-title>Backups</v-toolbar-title>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn
-          text
+          variant="text"
           @click="$refs.uploader.click()"
         >
           Restore backup
@@ -32,9 +34,9 @@
           type="file"
           accept="*.bak"
           @change="loadBackup"
-        >
+        />
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="saveBackup"
         >
@@ -55,11 +57,11 @@
               <v-alert
                 :icon="mdiDeleteAlert"
                 prominent
-                text
+                variant="text"
                 type="info"
               >
                 <p>
-                  Please remember that due to the nature of Progressive Web Apps (Pwa) the clearing the browsers site data, will delete all data stored by OfficeTimePwa!<br>
+                  Please remember that due to the nature of Progressive Web Apps (Pwa) the clearing the browsers site data, will delete all data stored by OfficeTimePwa!<br />
                 </p>
                 <p>
                   <b>Please make backups regularly and move them from the download folder to a save location!</b>
@@ -131,7 +133,7 @@ export default {
           }
         )
         await this.$store.dispatch('updateSetting', { key: 'lastBackupDate', value: backupDate })
-      } catch (err) {
+      } catch {
         this.$store.commit('alert',
           {
             show: true,

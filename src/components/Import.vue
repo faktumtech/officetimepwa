@@ -1,60 +1,59 @@
 <template>
   <v-dialog
     fullscreen
-    hide-overlay
+    :scrim="false"
     persistent
     no-click-animation
     eager
-    :value="show"
+    v-model="show"
     @keydown.esc="show = false"
-    class="dlgSticky"
   >
     <v-card>
       <v-toolbar
+        class="dlgSticky"
+        color="transparent"
+        :elevation="1"
       >
         <v-btn
           icon
           @click="show = false"
         >
-          <v-icon>{{ mdiClose }}</v-icon>
+          <v-icon :icon="mdiClose" />
         </v-btn>
         <v-toolbar-title>Import external data</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-toolbar-items>
-          <input
-            ref="uploader"
-            class="d-none"
-            type="file"
-            accept="*.csv"
-            @change="loadData"
-          >
-          <v-btn
-            v-if="loadedItems.length === 0 && parsedItems.length === 0"
-            :disabled="!selectedProjectId"
-            color="primary"
-            text
-            @click="$refs.uploader.click()"
-          >
-            Open csv
-          </v-btn>
-          <v-btn
-            v-if="loadedItems.length > 0"
-            color="primary"
-            text
-            @click="parseData()"
-          >
-            Parse data
-          </v-btn>
-          <v-btn
-            v-if="parsedItems.length > 0"
-            color="primary"
-            text
-            @click="importData()"
-          >
-            Import data
-          </v-btn>
-
-        </v-toolbar-items>
+        <v-spacer />
+        <input
+          ref="uploader"
+          class="d-none"
+          type="file"
+          accept="*.csv"
+          @change="loadData"
+        />
+        <v-btn
+          v-if="loadedItems.length === 0 && parsedItems.length === 0"
+          :disabled="!selectedProjectId"
+          color="primary"
+          variant="text"
+          @click="$refs.uploader.click()"
+        >
+          Open csv
+        </v-btn>
+        <v-btn
+          v-if="loadedItems.length > 0"
+          color="primary"
+          variant="text"
+          @click="parseData()"
+        >
+          Parse data
+        </v-btn>
+        <v-btn
+          v-if="parsedItems.length > 0"
+          color="primary"
+          variant="text"
+          @click="importData()"
+        >
+          Import data
+        </v-btn>
       </v-toolbar>
       <v-card-text
         class="dlgScroll pa-0"
@@ -71,15 +70,15 @@
               <v-alert
                 v-if="!selectedProjectId"
                 :icon="mdiAlert"
-                text
+                variant="text"
                 type="error"
               >
-                  You need to create a project before you can import data!
+                You need to create a project before you can import data!
               </v-alert>
               <v-alert
                 :icon="mdiDatabaseImport"
                 prominent
-                text
+                variant="text"
                 type="info"
               >
                 <p>
@@ -102,7 +101,7 @@
                 :headers="loadedHeaders"
                 :items="loadedItems"
                 :items-per-page="10"
-                :footer-props="footerProps"
+                :items-per-page-options="itemsPerPageOptions"
                 hide-default-header
                 fixed-header
                 height="calc(100vh - 195px)"
@@ -111,28 +110,26 @@
                   v-slot:top
                 >
                   <div
-                    class="pa-2 text-subtitle-1 warning--text"
+                    class="pa-2 text-subtitle-1 text-warning"
                   >
                     Please select the columns to be imported and their target data field!
                   </div>
                 </template>
-                <template
-                  v-slot:header="{ props: { headers } }"
-                >
+                <template v-slot:headers>
                   <thead>
                     <tr>
                       <th
-                        v-for="item in headers" :key="item.value"
+                        v-for="item in loadedHeaders"
+                        :key="item.key"
                         style="font-weight: normal;"
                       >
                         <v-select
                           v-model="item.parserId"
                           :items="parsers"
-                          item-text="text"
+                          item-title="text"
                           item-value="id"
-                          dense
-                        >
-                        </v-select>
+                          density="compact"
+                        />
                       </th>
                     </tr>
                   </thead>
@@ -148,7 +145,7 @@
                 :headers="parsedHeaders"
                 :items="parsedItems"
                 :items-per-page="10"
-                :footer-props="footerProps"
+                :items-per-page-options="itemsPerPageOptions"
                 fixed-header
                 height="calc(100vh - 195px)"
               >
@@ -156,30 +153,22 @@
                   v-slot:top
                 >
                   <div
-                    class="pa-2 text-subtitle-1 warning--text"
+                    class="pa-2 text-subtitle-1 text-warning"
                   >
                     This is the data that will be imported to project <b>{{ selectedProject.title }}</b>!
                   </div>
                 </template>
-                <template
-                  v-slot:[`item.d`]="{ item }"
-                >
-                  {{ Utils.formatDate(item.d) }}
+                <template v-slot:item.d="{ item }">
+                  {{ Utils.formatDate((item.raw || item).d) }}
                 </template>
-                <template
-                  v-slot:[`item.t`]="{ item }"
-                >
-                  {{ Utils.formatTime(item.t) }}
+                <template v-slot:item.t="{ item }">
+                  {{ Utils.formatTime((item.raw || item).t) }}
                 </template>
-                <template
-                  v-slot:[`item.r`]="{ item }"
-                >
-                  {{ Utils.formatAmount(item.r, 2) }}
+                <template v-slot:item.r="{ item }">
+                  {{ Utils.formatAmount((item.raw || item).r, 2) }}
                 </template>
-                <template
-                  v-slot:[`item.a`]="{ item }"
-                >
-                  {{ Utils.formatAmount(item.a, 2) }}
+                <template v-slot:item.a="{ item }">
+                  {{ Utils.formatAmount((item.raw || item).a, 2) }}
                 </template>
               </v-data-table>
             </v-col>
@@ -197,10 +186,8 @@ import Utils from '@/utils/Utils'
 import { mdiClose, mdiDatabaseImport, mdiAlert } from '@mdi/js'
 
 export default {
-  beforeCreate () {
-    this.Utils = Utils
-  },
   data: () => ({
+    Utils,
     mdiClose: mdiClose,
     mdiDatabaseImport: mdiDatabaseImport,
     mdiAlert: mdiAlert,
@@ -208,17 +195,15 @@ export default {
     loadedItems: [],
     parsedItems: [],
     parsedHeaders: [
-      { text: 'Date ', value: 'd' },
-      { text: 'Time ', value: 't' },
-      { text: 'Rate ', value: 'r' },
-      { text: 'Amount ', value: 'a' },
-      { text: 'Expense', value: 'e' },
-      { text: 'Category ', value: 'c' },
-      { text: 'Notes', value: 'n' }
+      { title: 'Date ', key: 'd' },
+      { title: 'Time ', key: 't' },
+      { title: 'Rate ', key: 'r' },
+      { title: 'Amount ', key: 'a' },
+      { title: 'Expense', key: 'e' },
+      { title: 'Category ', key: 'c' },
+      { title: 'Notes', key: 'n' }
     ],
-    footerProps: {
-      'items-per-page-options': [10, 25, 100, -1]
-    },
+    itemsPerPageOptions: [10, 25, 100, -1],
     parsers: [
       { id: 0, targetField: null, text: 'Ignore', funct: Utils.parseIgnore },
       { id: 1, targetField: 'd', text: 'Date (dd/MM/yyyy hh:mm)', funct: Utils.parseDateStr },
@@ -308,7 +293,7 @@ export default {
           const headers = []
           const data = []
           for (let i = 0; i < headersCount; i++) {
-            headers.push({ text: 'Col' + i, value: 'col' + i, parserId: 0 })
+            headers.push({ title: 'Col' + i, key: 'col' + i, parserId: 0 })
           }
 
           for (let i = 0; i < rowsCount; i++) {

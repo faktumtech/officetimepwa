@@ -7,22 +7,22 @@
       class="timerTimeInputHours"
       type="number"
       required
-      dense
-      @input="updateTime"
+      density="compact"
+      @update:model-value="updateTime"
       min="0"
       :disabled="!timerSessionId && !session.id"
-    ></v-text-field>
+    />
     <span class="separator">:</span>
     <v-text-field
       v-model="minutes"
       class="timerTimeInputMinutes"
       type="number"
       required
-      dense
-      @input="updateTime"
+      density="compact"
+      @update:model-value="updateTime"
       min="0"
       :disabled="!timerSessionId && !session.id"
-    ></v-text-field>
+    />
   </div>
 </template>
 
@@ -97,7 +97,7 @@ export default {
         }
       }
     },
-    emitChange: function (val) {
+    emitChange: function (_val) {
       // use input event in order to be compatible with use as 'v-model'
       // https://forum.vuejs.org/t/sync-vs-v-model/19380
       // console.log('emitChange', val, this.hours, this.minutes, this.value, this.timerValue)

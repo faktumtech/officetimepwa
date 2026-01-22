@@ -3,14 +3,13 @@
     v-model="show"
     eager
     max-width="500px"
-    :overlayColor="$vuetify.theme.dark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
+    :scrim="isDark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
   >
     <v-card>
       <v-form
         @submit.prevent="save"
         ref="form"
         v-model="valid"
-        lazy-validation
       >
         <v-card-title>
           <span class="headline">{{ formTitle }}</span>
@@ -26,37 +25,37 @@
                   v-model="project.title"
                   label="Project name *"
                   :rules="titleRules"
-                ></v-text-field>
+                />
               </v-col>
               <v-col
                 cols="12"
               >
-              <v-select
-                v-model="project.defaultCategory"
-                :items="categories"
-                item-text="title"
-                item-value="id"
-                label="Default category *"
-              ></v-select>
-              <v-textarea
-                v-model="project.notes"
-                label="Notes"
-                rows="3"
-              ></v-textarea>
-              <v-checkbox
-                v-model="project.archived"
-                label="Archived project (not shown in Projects selector)"
-              ></v-checkbox>
-              <small>*required</small>
+                <v-select
+                  v-model="project.defaultCategory"
+                  :items="categories"
+                  item-title="title"
+                  item-value="id"
+                  label="Default category *"
+                />
+                <v-textarea
+                  v-model="project.notes"
+                  label="Notes"
+                  rows="3"
+                />
+                <v-checkbox
+                  v-model="project.archived"
+                  label="Archived project (not shown in Projects selector)"
+                />
+                <small>*required</small>
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
-            text
+            variant="text"
             @click="close"
           >
             Cancel
@@ -64,7 +63,7 @@
           <v-btn
             color="primary"
             type="submit"
-            text
+            variant="text"
           >
             Save
           </v-btn>
@@ -87,7 +86,7 @@ export default {
     }
   },
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     },
@@ -99,10 +98,10 @@ export default {
   computed: {
     show: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
     selectedProjectId: {
@@ -120,6 +119,13 @@ export default {
     },
     formTitle () {
       return this.itemId === null ? 'New project' : 'Edit project'
+    },
+    isDark () {
+      const current = this.$vuetify?.theme?.global?.current?.value
+      if (current && typeof current.dark !== 'undefined') {
+        return current.dark
+      }
+      return this.$store.getters.getSetting('dark')
     }
   },
   watch: {
@@ -152,7 +158,8 @@ export default {
     },
 
     async save () {
-      if (!this.$refs.form.validate()) {
+      const { valid } = await this.$refs.form.validate()
+      if (!valid) {
         return
       }
       if (this.itemId === null) {

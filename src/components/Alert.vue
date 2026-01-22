@@ -1,37 +1,34 @@
 <template>
   <v-snackbar
-    :value="show"
+    v-model="show"
     :color="color"
     :timeout="-1"
     elevation="4"
-    text
+    variant="text"
     multi-line
     class="v-snack--has-background"
   >
     <v-container
       class="pa-0"
     >
-      <v-row
-      >
+      <v-row>
         <v-col
           cols="auto"
         >
           <v-icon
             :color="color"
             class="mr-4"
-          >
-            {{ icon }}
-          </v-icon>
+            :icon="icon"
+          />
         </v-col>
-        <v-col
-        >
+        <v-col>
           {{ alert.text }}
         </v-col>
         <v-col
           cols="auto"
         >
           <v-btn
-            text
+            variant="text"
             @click.stop="show = false"
           >
             Close
@@ -107,21 +104,21 @@ export default {
 
       // set icons automatically
       switch (alert.type) {
-        case 'success':
-          this.color = 'success'
-          this.icon = mdiThumbUp
-          break
-        case 'warning':
-          this.color = 'warning'
-          this.icon = mdiAlert
-          break
-        case 'error':
-          this.color = 'error'
-          this.icon = mdiAlertOctagon
-          break
-        default:
-          this.color = 'info'
-          this.icon = mdiInformation
+      case 'success':
+        this.color = 'success'
+        this.icon = mdiThumbUp
+        break
+      case 'warning':
+        this.color = 'warning'
+        this.icon = mdiAlert
+        break
+      case 'error':
+        this.color = 'error'
+        this.icon = mdiAlertOctagon
+        break
+      default:
+        this.color = 'info'
+        this.icon = mdiInformation
       }
     },
     hide: function () {

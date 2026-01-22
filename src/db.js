@@ -1,5 +1,6 @@
 // src/db.js
 import Dexie from 'dexie'
+import { toRaw } from 'vue'
 import Utils from '@/utils/Utils'
 
 const db = new Dexie('officetimedb')
@@ -32,6 +33,26 @@ db.version(2).stores({
   })
 })
 
+const toPlain = (value) => {
+  if (value === null || typeof value !== 'object') {
+    return value
+  }
+  const rawValue = toRaw(value)
+  if (typeof structuredClone === 'function') {
+    try {
+      return structuredClone(rawValue)
+    } catch {
+      // fall through to JSON clone
+    }
+  }
+  try {
+    return JSON.parse(JSON.stringify(rawValue))
+  } catch {
+    // last resort: return raw object (may still fail in Dexie)
+    return rawValue
+  }
+}
+
 export default {
   /**
    * create a backup
@@ -39,8 +60,8 @@ export default {
   */
   dbBackup: async (dateTimeStr) => {
     const backup = {}
-    const appVersion = process.env.PACKAGE_VERSION || '0'
-    const dbVersion = process.env.DEXIEDB_VERSION || 1
+    const appVersion = typeof process.env.PACKAGE_VERSION !== 'undefined' ? process.env.PACKAGE_VERSION : '0' // string
+    const dbVersion = Number(process.env.DB_VERSION || 1) // number
     backup.settings = await db.settings.toArray()
     backup.projects = await db.projects.toArray()
     backup.categories = await db.categories.toArray()
@@ -72,10 +93,10 @@ export default {
    * @return {Promise} undefined
   */
   dbRestore: async (backup) => {
-    await db.settings.bulkPut(backup.settings)
-    await db.projects.bulkPut(backup.projects)
-    await db.categories.bulkPut(backup.categories)
-    await db.sessions.bulkPut(backup.sessions)
+    await db.settings.bulkPut(backup.settings.map(toPlain))
+    await db.projects.bulkPut(backup.projects.map(toPlain))
+    await db.categories.bulkPut(backup.categories.map(toPlain))
+    await db.sessions.bulkPut(backup.sessions.map(toPlain))
   },
 
   /**
@@ -123,7 +144,7 @@ export default {
    * @return {Promise} projectId
   */
   createProject: (project) => {
-    return db.projects.add(project)
+    return db.projects.add(toPlain(project))
   },
 
   /**
@@ -133,7 +154,7 @@ export default {
    * @return {Promise} 1 if updated, 0 if not updated (not found / no changes)
   */
   updateProject: (projectId, changes) => {
-    return db.projects.update(projectId, changes)
+    return db.projects.update(projectId, toPlain(changes))
   },
 
   /**
@@ -169,7 +190,7 @@ export default {
    * @return {Promise} undefined
   */
   createCategory: (category) => {
-    return db.categories.add(category)
+    return db.categories.add(toPlain(category))
   },
 
   /**
@@ -179,7 +200,7 @@ export default {
    * @return {Promise} 1 if updated, 0 if not updated (not found / no changes)
   */
   updateCategory: (categoryId, changes) => {
-    return db.categories.update(categoryId, changes)
+    return db.categories.update(categoryId, toPlain(changes))
   },
 
   /**
@@ -188,7 +209,7 @@ export default {
    * @param {Number} substituteCategoryId Id of category that will substitute deleted category
    * @return {Promise} undefined
   */
-  deleteCategory: async (categoryId, substituteCategoryId) => {
+  deleteCategory: async (categoryId, _substituteCategoryId) => {
     // update all related sessions
     // pending await db.sessions.where({ p: categoryId }).delete()
 
@@ -268,7 +289,7 @@ export default {
    * @return {Promise} sessionId
   */
   createSession: function (session) {
-    return db.sessions.add(session)
+    return db.sessions.add(toPlain(session))
   },
 
   /**
@@ -278,7 +299,7 @@ export default {
    * @return {Promise} 1 if updated, 0 if not updated (not found / no changes)
   */
   updateSession: (sessionId, changes) => {
-    return db.sessions.update(sessionId, changes)
+    return db.sessions.update(sessionId, toPlain(changes))
   },
 
   /**

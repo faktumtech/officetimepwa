@@ -1,34 +1,34 @@
 <template>
   <v-dialog
     fullscreen
-    hide-overlay
+    :scrim="false"
     persistent
     no-click-animation
     eager
-    :value="show"
+    v-model="show"
     @keydown.esc="show = false"
-    class="dlgSticky"
   >
     <v-card>
       <v-toolbar
+        class="dlgSticky"
+        color="transparent"
+        :elevation="1"
       >
         <v-btn
           icon
           @click="show = false"
         >
-          <v-icon>{{ mdiClose }}</v-icon>
+          <v-icon :icon="mdiClose" />
         </v-btn>
         <v-toolbar-title>Categories</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-toolbar-items>
-          <v-btn
-            text
-            color="primary"
-            @click="editItem(null)"
-          >
-            Create category
-          </v-btn>
-        </v-toolbar-items>
+        <v-spacer />
+        <v-btn
+          variant="text"
+          color="primary"
+          @click="editItem(null)"
+        >
+          Create category
+        </v-btn>
       </v-toolbar>
 
       <v-card-text
@@ -44,30 +44,28 @@
               cols="12"
             >
               <v-data-table
+                density="compact"
                 :mobile-breakpoint="0"
                 :headers="headers"
                 :items="categories"
                 :items-per-page="10"
-                :footer-props="footerProps"
-                :sort-by="'id'"
-                :sort-desc="true"
+                :items-per-page-options="itemsPerPageOptions"
+                :sort-by="[{ key: 'id', order: 'desc' }]"
                 fixed-header
                 height="calc(100vh - 150px)"
               >
-                <template v-slot:[`item.actions`]="{ item }">
+                <template v-slot:item.actions="{ item }">
                   <v-icon
-                    small
+                    size="small"
                     class="mr-4"
-                    @click="editItem(item.id)"
-                  >
-                    {{ mdiPencil }}
-                  </v-icon>
+                    @click="editItem((item.raw || item).id)"
+                    :icon="mdiPencil"
+                  />
                   <v-icon
-                    small
-                    @click="deleteItem(item.id)"
-                  >
-                    {{ mdiDelete}}
-                  </v-icon>
+                    size="small"
+                    @click="deleteItem((item.raw || item).id)"
+                    :icon="mdiDelete"
+                  />
                 </template>
               </v-data-table>
             </v-col>
@@ -76,8 +74,7 @@
         <CategoryEdit
           v-model="showEditDlg"
           :itemId="editedItemId"
-        >
-        </CategoryEdit>
+        />
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -99,13 +96,11 @@ export default {
       mdiPencil: mdiPencil,
       mdiDelete: mdiDelete,
       headers: [
-        { text: 'Name ', value: 'title' },
-        { text: 'Rate ', value: 'rate' },
-        { text: 'Actions', value: 'actions', sortable: false }
+        { title: 'Name ', key: 'title' },
+        { title: 'Rate ', key: 'rate' },
+        { title: 'Actions', key: 'actions', sortable: false }
       ],
-      footerProps: {
-        'items-per-page-options': [10, 25, 100, -1]
-      },
+      itemsPerPageOptions: [10, 25, 100, -1],
       showEditDlg: false,
       showDeleteDlg: false,
       editedItemId: null

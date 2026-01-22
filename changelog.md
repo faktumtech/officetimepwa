@@ -9,6 +9,9 @@
 
 ## Changelog
 
+v1.0.0 (2026-01-22)
+- updated to vite, vue3, vuetify3
+
 v0.6.12 (2021-08-20)
 - bug: amount in expense sessions is overwritten when changing time
 

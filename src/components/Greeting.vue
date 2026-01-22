@@ -13,14 +13,9 @@
         offset-xl="4"
       >
         <p
-          class="text-h4 primary--text"
+          class="text-h4 text-primary d-flex align-center"
         >
-          <v-icon
-            x-large
-            class="mr-3"
-          >
-            $vuetify.icons.logo
-          </v-icon>
+          <IconLogo class="logoIcon mr-3" />
           OfficeTimePwa
         </p>
         <p
@@ -34,7 +29,7 @@
           <v-btn
             class="ma-6"
             color="primary"
-            x-large
+            size="x-large"
             @click="showModalComponent('projects')"
           >
             Create your first project
@@ -54,7 +49,7 @@
         <v-alert
           :icon="mdiDeleteAlert"
           prominent
-          text
+          variant="text"
           type="info"
         >
           Clearing the browsers site data, will delete all data stored by OfficeTimePwa! <b>Please make backups regularly!</b>
@@ -65,9 +60,13 @@
 </template>
 
 <script>
+import IconLogo from '@/components/IconLogo'
 import { mdiDeleteAlert } from '@mdi/js'
 
 export default {
+  components: {
+    IconLogo
+  },
   data: () => ({
     mdiDeleteAlert: mdiDeleteAlert
   }),
@@ -81,4 +80,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  .logoIcon {
+    width: 32px;
+    height: 32px;
+  }
 </style>

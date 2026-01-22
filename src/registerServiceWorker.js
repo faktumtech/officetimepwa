@@ -1,35 +1,26 @@
-/* eslint-disable no-console */
 
-import { register } from 'register-service-worker'
+import { registerSW } from 'virtual:pwa-register'
 
-if (process.env.NODE_ENV === 'production') {
-  register(`${process.env.BASE_URL}service-worker.js`, {
-    ready () {
-      console.log(
-        'App is being served from cache by a service worker.\n' +
-        'For more details, visit https://goo.gl/AFskqB'
-      )
-    },
-    registered () {
+if (import.meta.env.PROD) {
+  let swRegistration = null
+
+  registerSW({
+    onRegistered (registration) {
+      swRegistration = registration
       console.log('Service worker has been registered.')
     },
-    cached () {
-      console.log('Content has been cached for offline use.')
-    },
-    updatefound () {
-      console.log('New content is downloading.')
-    },
-    updated (registration) {
-      // allow app to inform about update and to force reload
-      document.dispatchEvent(
-        new CustomEvent('swUpdated', { detail: registration })
-      )
-    },
-    offline () {
-      console.log('No internet connection found. App is running in offline mode.')
-    },
-    error (error) {
+    onRegisterError (error) {
       console.error('Error during service worker registration:', error)
+    },
+    onNeedRefresh () {
+      if (swRegistration) {
+        document.dispatchEvent(
+          new CustomEvent('swUpdated', { detail: swRegistration })
+        )
+      }
+    },
+    onOfflineReady () {
+      console.log('Content has been cached for offline use.')
     }
   })
 }

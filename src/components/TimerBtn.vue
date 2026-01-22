@@ -1,37 +1,35 @@
 <template>
-  <v-fab-transition>
+  <div>
     <v-btn
       v-if="tableTimer || btnStatus!=='running'"
-      @click.left.stop="timerClick"
-      @click.right.prevent.stop="timerClickRight"
+      @click.stop="timerClick"
+      @contextmenu.prevent.stop="timerClickRight"
       :title="btn[btnStatus].title"
       :color="btn[btnStatus].color"
-      elevation="1"
-      fab
-      small
-      left
+      variant="elevated"
+      elevation="3"
+      icon
+      size="small"
       :class="tableTimer ? 'tablebtn' : ''"
     >
-      <v-icon
-      >{{ btn[btnStatus].icon }}</v-icon>
+      <v-icon :icon="btn[btnStatus].icon" />
     </v-btn>
     <v-btn
       v-else
-      @click.left.stop="timerClick"
-      @click.right.prevent="timerClickRight"
-      v-on:keyup.space="timerClick"
-      @keyup.native.ctrl.67="timerClickRight"
+      @click.stop="timerClick"
+      @contextmenu.prevent="timerClickRight"
+      @keyup.space="timerClick"
+      @keyup.ctrl.67="timerClickRight"
       :title="btn[btnStatus].title"
-      elevation="1"
-      fab
-      small
-      left
+      variant="elevated"
+      elevation="3"
+      icon
+      size="small"
       class="pulsingBtn"
     >
-      <v-icon
-      >{{ btn[btnStatus].icon }}</v-icon>
+      <v-icon :icon="btn[btnStatus].icon" />
     </v-btn>
-  </v-fab-transition>
+  </div>
 </template>
 
 <script>
@@ -85,7 +83,7 @@ export default {
       )
     }
   },
-  destroyed () {
+  unmounted () {
     if (!this.tableTimer) {
       window.removeEventListener(
         'keyup',
@@ -184,16 +182,16 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
-  .v-btn--fab.tablebtn {
+  .v-btn--icon.tablebtn {
       height: 28px !important;
       width: 28px !important;
   }
-  .v-btn--icon.tablebtn .v-icon, .v-btn--fab.tablebtn .v-icon {
+  .v-btn--icon.tablebtn .v-icon {
       height: 17px !important;
       font-size: 17px !important;
       width: 17px !important;
   }
-  .v-btn--fab.pulsingBtn {
+  .v-btn--icon.pulsingBtn {
     color: white !important;
     animation-name: pulseBtnColor !important;
     animation-duration: 2s !important;

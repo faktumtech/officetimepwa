@@ -1,17 +1,16 @@
 <template>
   <v-dialog
     persistent
-    :value="show"
+    v-model="show"
     @keydown.esc="show = false"
     max-width="500px"
-    :overlayColor="$vuetify.theme.dark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
+    :scrim="isDark ? 'rgb(222, 222, 222)' : 'rgb(33, 33, 33)'"
   >
     <v-card>
       <v-form
         @submit.prevent="save(true)"
         ref="form"
         v-model="valid"
-        lazy-validation
       >
         <v-card-title>
           <span class="headline">Add expense</span>
@@ -28,47 +27,46 @@
                   label="Amount *"
                   type="number"
                   :rules="amountRules"
-                ></v-text-field>
+                />
                 <v-textarea
                   v-model="expense.n"
                   label="Comments"
                   rows="3"
-                ></v-textarea>
+                />
                 <v-text-field
                   v-model="expense.d"
                   type="datetime-local"
                   required
-                ></v-text-field>
+                />
                 <v-select
                   v-model="expense.p"
                   :items="activeProjects"
                   label="Project"
-                  item-text="title"
+                  item-title="title"
                   item-value="id"
-                >
-                </v-select>
-                  <v-select
+                />
+                <v-select
                   v-model="expense.c"
                   :items="categories"
                   label="Category"
-                  item-text="title"
+                  item-title="title"
                   item-value="id"
-                ></v-select>
+                />
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
-            text
+            variant="text"
             @click="show = false"
           >
             Cancel
           </v-btn>
           <v-btn
-            text
+            variant="text"
             @click="save(false)"
           >
             Save
@@ -76,7 +74,7 @@
           <v-btn
             color="primary"
             type="submit"
-            text
+            variant="text"
           >
             Add another
           </v-btn>
@@ -115,6 +113,16 @@ export default {
     },
     categories () {
       return this.$store.state.categories
+    },
+    selectedProjectId () {
+      return this.$store.getters.getSetting('selectedProjectId')
+    },
+    isDark () {
+      const current = this.$vuetify?.theme?.global?.current?.value
+      if (current && typeof current.dark !== 'undefined') {
+        return current.dark
+      }
+      return this.$store.getters.getSetting('dark')
     }
 
   },
@@ -143,7 +151,8 @@ export default {
     },
     async save (next) {
       console.log('save')
-      if (!this.$refs.form.validate()) {
+      const { valid } = await this.$refs.form.validate()
+      if (!valid) {
         return
       }
 

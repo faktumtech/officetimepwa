@@ -1,25 +1,27 @@
 <template>
   <v-dialog
     fullscreen
-    hide-overlay
+    :scrim="false"
     persistent
     no-click-animation
     eager
-    :value="show"
+    v-model="show"
     @keydown.esc="show = false"
-    class="dlgSticky"
   >
     <v-card>
       <v-toolbar
+        class="dlgSticky"
+        color="transparent"
+        :elevation="1"
       >
         <v-btn
           icon
           @click="show = false"
         >
-          <v-icon>{{ mdiClose }}</v-icon>
+          <v-icon :icon="mdiClose" />
         </v-btn>
         <v-toolbar-title>About</v-toolbar-title>
-        <v-spacer></v-spacer>
+        <v-spacer />
       </v-toolbar>
       <v-card-text
         class="dlgScroll pa-0"
@@ -38,20 +40,15 @@
               offset-xl="4"
             >
               <p
-                class="text-h4 primary--text"
+                class="text-h4 text-primary d-flex align-center"
               >
-                <v-icon
-                  x-large
-                  class="mr-3"
-                >
-                  $vuetify.icons.logo
-                </v-icon>
+                <IconLogo class="logoIcon mr-3" />
                 OfficeTimePwa
               </p>
               <p
                 class="body-1"
               >
-                Time tracking tool for freelancers. Heavely inspired by OfficeTime. All data is stored locally in the browser (through IndexedDB) and is never send to any server.
+                Time tracking tool for freelancers. Heavily inspired by OfficeTime. All data is stored locally in the browser (through IndexedDB) and is never send to any server.
               </p>
               <p
                 class="body-1"
@@ -78,7 +75,7 @@
               xl="4"
               offset-xl="4"
             >
-              <v-simple-table>
+              <v-table>
                 <template v-slot:default>
                   <thead>
                     <tr>
@@ -88,33 +85,27 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr
-                    >
+                    <tr>
                       <td>App Version:</td>
                       <td><b>{{ $store.state.appVersion }}</b></td>
                     </tr>
-                    <tr
-                    >
+                    <tr>
                       <td>DB Version:</td>
                       <td><b>{{ $store.state.dbVersion }}</b></td>
                     </tr>
-                    <tr
-                    >
+                    <tr>
                       <td>Clipboard Api support:</td>
                       <td><b>{{ $store.state.clipboardApi }}</b></td>
                     </tr>
-                    <tr
-                    >
+                    <tr>
                       <td>Audio Api support:</td>
                       <td><b>{{ $store.state.audioApi }}</b></td>
                     </tr>
-                    <tr
-                    >
+                    <tr>
                       <td>Last backup:</td>
                       <td><b>{{ lastBackupDateStr }}</b></td>
                     </tr>
-                    <tr
-                    >
+                    <tr>
                       <td
                         colspan="2"
                         class="text-center"
@@ -122,7 +113,7 @@
                       >
                         <v-btn
                           color="primary"
-                          text
+                          variant="text"
                           @click="reload"
                         >
                           Reload app
@@ -131,7 +122,7 @@
                     </tr>
                   </tbody>
                 </template>
-              </v-simple-table>
+              </v-table>
             </v-col>
           </v-row>
         </v-container>
@@ -143,9 +134,13 @@
 <script>
 import Utils from '@/utils/Utils'
 import db from '@/db'
+import IconLogo from '@/components/IconLogo'
 import { mdiClose, mdiDeleteAlert } from '@mdi/js'
 
 export default {
+  components: {
+    IconLogo
+  },
   data: () => ({
     mdiClose: mdiClose,
     mdiDeleteAlert: mdiDeleteAlert
@@ -168,7 +163,7 @@ export default {
     }
   },
   methods: {
-    mockSessions: async function (params) {
+    mockSessions: async function (_params) {
       await db.mockSessions(this.$store.getters.getSetting('selectedProjectId'), 10000)
       this.reload()
     },
@@ -183,5 +178,9 @@ export default {
 <style scoped>
   tr:hover{
     background: none !important;
+  }
+  .logoIcon {
+    width: 32px;
+    height: 32px;
   }
 </style>
