@@ -10,7 +10,7 @@
 ## Changelog
 
 v1.0.1 (2026-01-24)
-- improved icon use
+- improved icon use and formating
 
 v1.0.0 (2026-01-22)
 - updated to vite, vue3, vuetify3
