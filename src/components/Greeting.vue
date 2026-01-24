@@ -19,7 +19,7 @@
           OfficeTimePwa
         </p>
         <p
-          class="body-1"
+          class="text-body-1"
         >
           Time tracking tool for freelancers. Heavely inspired by OfficeTime. All data is stored locally in the browser (through IndexedDB) and is never send to any server.
         </p>
@@ -36,18 +36,18 @@
           </v-btn>
         </p>
         <p
-          class="body-1"
+          class="text-body-1"
         >
           This application is designed as a Progressive Web Application (PWA) and once installed ('Add to desktop') it can be used offline.
         </p>
         <p
-          class="body-1"
+          class="text-body-1"
         >
           Copyright <b>cfbutt</b>. Licensed under GPL v3. Source code at <a target="_blank" rel="noopener noreferrer" href="https://github.com/cfbutt/officetimepwa">https://github.com/cfbutt/officetimepwa</a>.
         </p>
 
         <v-alert
-          :icon="mdiDeleteAlert"
+          icon="$mdiDeleteAlert"
           prominent
           variant="text"
           type="info"
@@ -61,15 +61,12 @@
 
 <script>
 import IconLogo from '@/components/IconLogo'
-import { mdiDeleteAlert } from '@mdi/js'
 
 export default {
   components: {
     IconLogo
   },
-  data: () => ({
-    mdiDeleteAlert: mdiDeleteAlert
-  }),
+  data: () => ({}),
   methods: {
     showModalComponent: function (component) {
       this.$store.commit('showModalComponent', component)

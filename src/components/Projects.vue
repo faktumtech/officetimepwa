@@ -18,7 +18,7 @@
           icon
           @click="show = false"
         >
-          <v-icon :icon="mdiClose" />
+          <v-icon icon="$mdiClose" />
         </v-btn>
         <v-toolbar-title>Projects</v-toolbar-title>
         <v-spacer />
@@ -61,7 +61,7 @@
                   <v-icon
                     v-if="(item.raw || item).archived"
                     size="small"
-                    :icon="mdiCheckBold"
+                    icon="$mdiCheckBold"
                   />
                 </template>
                 <template v-slot:item.actions="{ item }">
@@ -70,13 +70,13 @@
                     class="mr-4"
                     color="primary"
                     @click="editItem((item.raw || item).id)"
-                    :icon="mdiPencil"
+                    icon="$mdiPencil"
                   />
                   <v-icon
                     size="small"
                     color="primary"
                     @click="deleteItem((item.raw || item).id)"
-                    :icon="mdiDelete"
+                    icon="$mdiDelete"
                   />
                 </template>
               </v-data-table>
@@ -95,7 +95,6 @@
 <script>
 import ProjectEdit from '@/components/ProjectEdit'
 import EventBus from '@/components/EventBus'
-import { mdiClose, mdiPencil, mdiDelete, mdiCheckBold } from '@mdi/js'
 
 export default {
   components: {
@@ -103,10 +102,6 @@ export default {
   },
   data () {
     return {
-      mdiClose: mdiClose,
-      mdiPencil: mdiPencil,
-      mdiDelete: mdiDelete,
-      mdiCheckBold: mdiCheckBold,
       headers: [
         { title: 'Name ', key: 'title' },
         { title: 'Default category ', key: 'defaultCategory' },

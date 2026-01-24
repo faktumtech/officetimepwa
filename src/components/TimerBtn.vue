@@ -34,7 +34,7 @@
 
 <script>
 import Timer from '@/components/Timer'
-import { mdiPlay, mdiPlayPause, mdiStop } from '@mdi/js'
+// import { mdiPlay, mdiPlayPause, mdiStop } from '@mdi/js'
 
 export default {
   name: 'TimerBtn',
@@ -46,17 +46,17 @@ export default {
       btn: {
         stopped: {
           color: 'primary',
-          icon: mdiPlay,
+          icon: '$mdiPlay',
           title: 'Start session\n(Keyboard: space)'
         },
         paused: {
           color: 'error',
-          icon: mdiPlayPause,
+          icon: '$mdiPlayPause',
           title: 'Resume session\n(Keyboard: space)\n\nStop (Right clic)\n(Keyboard: ctrl+space)'
         },
         running: {
           color: 'success',
-          icon: mdiStop,
+          icon: '$mdiStop',
           title: 'Stop\n(Keyboard: ctrl+space)\n\nPause (Right clic)\n(Keyboard: space)'
         }
       }

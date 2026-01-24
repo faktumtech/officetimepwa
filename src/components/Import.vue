@@ -18,7 +18,7 @@
           icon
           @click="show = false"
         >
-          <v-icon :icon="mdiClose" />
+          <v-icon icon="$mdiClose" />
         </v-btn>
         <v-toolbar-title>Import external data</v-toolbar-title>
         <v-spacer />
@@ -69,14 +69,14 @@
             >
               <v-alert
                 v-if="!selectedProjectId"
-                :icon="mdiAlert"
+                icon="$mdiAlert"
                 variant="text"
                 type="error"
               >
                 You need to create a project before you can import data!
               </v-alert>
               <v-alert
-                :icon="mdiDatabaseImport"
+                icon="$mdiDatabaseImport"
                 prominent
                 variant="text"
                 type="info"
@@ -183,14 +183,10 @@
 import Papa from 'papaparse'
 import Utils from '@/utils/Utils'
 // import db from '@/db'
-import { mdiClose, mdiDatabaseImport, mdiAlert } from '@mdi/js'
 
 export default {
   data: () => ({
     Utils,
-    mdiClose: mdiClose,
-    mdiDatabaseImport: mdiDatabaseImport,
-    mdiAlert: mdiAlert,
     loadedHeaders: [],
     loadedItems: [],
     parsedItems: [],

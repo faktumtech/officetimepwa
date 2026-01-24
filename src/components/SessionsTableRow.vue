@@ -18,7 +18,7 @@
       <v-icon
         v-if="session.e"
         size="small"
-        :icon="mdiCurrencyUsd"
+        icon="$mdiCurrencyUsd"
         title="Expense"
       />
     </td>
@@ -115,7 +115,6 @@ import Utils from '@/utils/Utils'
 import TimerBtn from '@/components/TimerBtn'
 import TimerTimeInput from '@/components/TimerTimeInput'
 import TimerAmountInput from '@/components/TimerAmountInput'
-import { mdiCurrencyUsd } from '@mdi/js'
 
 export default {
   name: 'TimerLog',
@@ -126,8 +125,7 @@ export default {
   },
   data () {
     return {
-      Utils,
-      mdiCurrencyUsd: mdiCurrencyUsd
+      Utils
     }
   },
   props: {

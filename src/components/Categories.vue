@@ -18,7 +18,7 @@
           icon
           @click="show = false"
         >
-          <v-icon :icon="mdiClose" />
+          <v-icon icon="$mdiClose" />
         </v-btn>
         <v-toolbar-title>Categories</v-toolbar-title>
         <v-spacer />
@@ -59,12 +59,12 @@
                     size="small"
                     class="mr-4"
                     @click="editItem((item.raw || item).id)"
-                    :icon="mdiPencil"
+                    icon="$mdiPencil"
                   />
                   <v-icon
                     size="small"
                     @click="deleteItem((item.raw || item).id)"
-                    :icon="mdiDelete"
+                    icon="$mdiDelete"
                   />
                 </template>
               </v-data-table>
@@ -84,7 +84,6 @@
 import CategoryEdit from '@/components/CategoryEdit'
 import EventBus from '@/components/EventBus'
 import db from '@/db'
-import { mdiClose, mdiPencil, mdiDelete } from '@mdi/js'
 
 export default {
   components: {
@@ -92,9 +91,6 @@ export default {
   },
   data () {
     return {
-      mdiClose: mdiClose,
-      mdiPencil: mdiPencil,
-      mdiDelete: mdiDelete,
       headers: [
         { title: 'Name ', key: 'title' },
         { title: 'Rate ', key: 'rate' },

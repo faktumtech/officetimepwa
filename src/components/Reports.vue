@@ -18,7 +18,7 @@
           icon
           @click="show = false"
         >
-          <v-icon :icon="mdiClose" />
+          <v-icon icon="$mdiClose" />
         </v-btn>
         <v-toolbar-title>Reports</v-toolbar-title>
         <v-spacer />
@@ -324,7 +324,7 @@
                 </p>
                 <v-alert
                   v-else
-                  :icon="mdiDatabaseOff"
+                  icon="$mdiDatabaseOff"
                   prominent
                   variant="text"
                   type="info"
@@ -345,15 +345,12 @@
 <script>
 import Utils from '@/utils/Utils'
 import db from '@/db'
-import { mdiClose, mdiDatabaseOff, mdiCloseBox, mdiMinusBox, mdiCheckboxBlankOutline } from '@mdi/js'
 import { saveAs } from 'file-saver'
 
 export default {
   data () {
     return {
       Utils,
-      mdiClose: mdiClose,
-      mdiDatabaseOff: mdiDatabaseOff,
       headers: [
         { title: 'Project', key: 'p' },
         { title: 'Date', key: 'd' },
@@ -394,9 +391,9 @@ export default {
       return this.selectedProjects.length > 0 && !this.allProjectsSelected
     },
     iconProjectSelect () {
-      if (this.allProjectsSelected) return mdiCloseBox
-      if (this.someProjectsSelected) return mdiMinusBox
-      return mdiCheckboxBlankOutline
+      if (this.allProjectsSelected) return '$mdiCloseBox'
+      if (this.someProjectsSelected) return '$mdiMinusBox'
+      return '$mdiCheckboxBlankOutline'
     },
     allCategoriesSelected () {
       return this.selectedCategories.length === this.categories.length
@@ -405,9 +402,9 @@ export default {
       return this.selectedCategories.length > 0 && !this.allCategoriesSelected
     },
     iconCategorySelect () {
-      if (this.allCategoriesSelected) return mdiCloseBox
-      if (this.someCategoriesSelected) return mdiMinusBox
-      return mdiCheckboxBlankOutline
+      if (this.allCategoriesSelected) return '$mdiCloseBox'
+      if (this.someCategoriesSelected) return '$mdiMinusBox'
+      return '$mdiCheckboxBlankOutline'
     },
     isDirty () {
       return true

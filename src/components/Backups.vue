@@ -18,7 +18,7 @@
           icon
           @click="show = false"
         >
-          <v-icon :icon="mdiClose" />
+          <v-icon icon="$mdiClose" />
         </v-btn>
         <v-toolbar-title>Backups</v-toolbar-title>
         <v-spacer />
@@ -55,7 +55,7 @@
           >
             <v-col>
               <v-alert
-                :icon="mdiDeleteAlert"
+                icon="$mdiDeleteAlert"
                 prominent
                 variant="text"
                 type="info"
@@ -90,12 +90,9 @@ import Utils from '@/utils/Utils'
 import { saveAs } from 'file-saver'
 import EventBus from '@/components/EventBus'
 import db from '@/db'
-import { mdiClose, mdiDeleteAlert } from '@mdi/js'
 
 export default {
   data: () => ({
-    mdiClose: mdiClose,
-    mdiDeleteAlert: mdiDeleteAlert,
     backup: {}
   }),
   computed: {

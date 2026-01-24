@@ -44,7 +44,7 @@
           v-bind="props"
           aria-label="Settings"
         >
-          <v-icon :icon="mdiPlus" />
+          <v-icon icon="$mdiPlus" />
         </v-btn>
       </template>
       <v-list>
@@ -75,7 +75,7 @@
           v-bind="props"
           aria-label="Menu"
         >
-          <v-icon :icon="mdiDotsVertical" />
+          <v-icon icon="$mdiDotsVertical" />
         </v-btn>
       </template>
       <v-list>
@@ -139,7 +139,6 @@
 <script>
 import TimerBtn from '@/components/TimerBtn'
 import TimerTimeInput from '@/components/TimerTimeInput'
-import { mdiDotsVertical, mdiPlus } from '@mdi/js'
 
 export default {
   components: {
@@ -147,8 +146,6 @@ export default {
     TimerTimeInput
   },
   data: () => ({
-    mdiDotsVertical: mdiDotsVertical,
-    mdiPlus: mdiPlus,
     backup: {}
   }),
   computed: {

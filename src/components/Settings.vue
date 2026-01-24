@@ -18,7 +18,7 @@
           icon
           @click="show = false"
         >
-          <v-icon :icon="mdiClose" />
+          <v-icon icon="$mdiClose" />
         </v-btn>
         <v-toolbar-title>Settings</v-toolbar-title>
       </v-toolbar>
@@ -54,12 +54,10 @@
 </template>
 
 <script>
-import { mdiClose } from '@mdi/js'
 
 export default {
   data () {
     return {
-      mdiClose: mdiClose,
       valid: false,
       dark: this.$store.getters.getSetting('dark'),
       sound: this.$store.getters.getSetting('sound')

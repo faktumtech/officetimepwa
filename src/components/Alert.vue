@@ -44,7 +44,6 @@
  * Alert component that uses v-snackbar
  * use 'no-click-animation' and 'persistent' when using in modal (v-dialog)
  */
-import { mdiThumbUp, mdiInformation, mdiAlert, mdiAlertOctagon } from '@mdi/js'
 
 export default {
   data () {
@@ -106,19 +105,19 @@ export default {
       switch (alert.type) {
       case 'success':
         this.color = 'success'
-        this.icon = mdiThumbUp
+        this.icon = '$mdiThumbUp'
         break
       case 'warning':
         this.color = 'warning'
-        this.icon = mdiAlert
+        this.icon = '$mdiAlert'
         break
       case 'error':
         this.color = 'error'
-        this.icon = mdiAlertOctagon
+        this.icon = '$mdiAlertOctagon'
         break
       default:
         this.color = 'info'
-        this.icon = mdiInformation
+        this.icon = '$mdiInformation'
       }
     },
     hide: function () {

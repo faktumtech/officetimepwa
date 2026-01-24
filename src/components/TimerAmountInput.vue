@@ -14,7 +14,7 @@
         size="small"
         class="ml-1"
         v-bind="props"
-        :icon="mdiPencil"
+        icon="$mdiPencil"
       />
     </template>
     <v-card>
@@ -24,7 +24,7 @@
         v-model="valid"
       >
         <v-card-title>
-          <span class="headline">{{ session.e ? 'Adjust expense' : 'Adjust rate' }}</span>
+          {{ session.e ? 'Adjust expense' : 'Adjust rate' }}
         </v-card-title>
 
         <v-card-text>
@@ -92,7 +92,7 @@
 
 <script>
 import Utils from '@/utils/Utils'
-import { mdiPencil } from '@mdi/js'
+// import { mdiPencil } from '@mdi/js'
 
 export default {
   name: 'TimerTimeInput',
@@ -100,7 +100,7 @@ export default {
     Utils,
     show: false,
     valid: false,
-    mdiPencil: mdiPencil,
+    // mdiPencil: mdiPencil,
     amount: 0,
     rate: 0,
     amountRules: [

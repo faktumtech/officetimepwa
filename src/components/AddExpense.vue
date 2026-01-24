@@ -13,7 +13,7 @@
         v-model="valid"
       >
         <v-card-title>
-          <span class="headline">Add expense</span>
+          Add expense
         </v-card-title>
 
         <v-card-text>

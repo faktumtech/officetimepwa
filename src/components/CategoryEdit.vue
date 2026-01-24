@@ -11,7 +11,7 @@
         v-model="valid"
       >
         <v-card-title>
-          <span class="headline">{{ formTitle }}</span>
+          {{ formTitle }}
         </v-card-title>
 
         <v-card-text>

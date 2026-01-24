@@ -42,7 +42,7 @@
           </p>
           <v-alert
             v-else
-            :icon="mdiDatabaseOff"
+            icon="$mdiDatabaseOff"
             prominent
             variant="text"
             type="info"
@@ -90,7 +90,6 @@
 <script>
 import SessionsTableRow from '@/components/SessionsTableRow'
 import Timer from '@/components/Timer'
-import { mdiDatabaseOff } from '@mdi/js'
 
 export default {
   name: 'TimerTable',
@@ -98,7 +97,6 @@ export default {
     SessionsTableRow
   },
   data: () => ({
-    mdiDatabaseOff: mdiDatabaseOff,
     headers: [
       { title: '', key: 'timer', sortable: false },
       { title: 'Date', key: 'd' },

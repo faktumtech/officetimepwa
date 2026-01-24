@@ -9,7 +9,7 @@
     >
       <v-card>
         <v-card-title>
-          <h3 class="headline mb-0">{{ this.modalDlg.title }}</h3>
+          {{ this.modalDlg.title }}
         </v-card-title>
         <v-card-text>
           {{ this.modalDlg.text }}

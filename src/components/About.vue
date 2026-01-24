@@ -18,7 +18,7 @@
           icon
           @click="show = false"
         >
-          <v-icon :icon="mdiClose" />
+          <v-icon icon="$mdiClose" />
         </v-btn>
         <v-toolbar-title>About</v-toolbar-title>
         <v-spacer />
@@ -40,28 +40,28 @@
               offset-xl="4"
             >
               <p
-                class="text-h4 text-primary d-flex align-center"
+                class="text-h4 text-primary d-flex align-center mb-2"
               >
                 <IconLogo class="logoIcon mr-3" />
                 OfficeTimePwa
               </p>
               <p
-                class="body-1"
+                class="mb-2"
               >
                 Time tracking tool for freelancers. Heavily inspired by OfficeTime. All data is stored locally in the browser (through IndexedDB) and is never send to any server.
               </p>
               <p
-                class="body-1"
+                class="mb-2"
               >
                 This application is designed as a Progressive Web Application (PWA) and once installed ('Add to desktop') it can be used offline.
               </p>
               <p
-                class="body-1"
+                class="mb-2"
               >
                 Copyright <b>cfbutt</b>. Licensed under GPL v3.
               </p>
               <p
-                class="body-1"
+                class="mb-2"
               >
                 Source code at <a target="_blank" rel="noopener noreferrer" href="https://github.com/cfbutt/officetimepwa">https://github.com/cfbutt/officetimepwa</a>.
               </p>
@@ -135,16 +135,12 @@
 import Utils from '@/utils/Utils'
 import db from '@/db'
 import IconLogo from '@/components/IconLogo'
-import { mdiClose, mdiDeleteAlert } from '@mdi/js'
 
 export default {
   components: {
     IconLogo
   },
-  data: () => ({
-    mdiClose: mdiClose,
-    mdiDeleteAlert: mdiDeleteAlert
-  }),
+  data: () => ({}),
   computed: {
     show: {
       get () {

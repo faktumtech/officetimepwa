@@ -1,42 +1,34 @@
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import { aliases as mdiAliases, mdi } from 'vuetify/iconsets/mdi-svg'
+import { aliases, mdi } from 'vuetify/iconsets/mdi-svg' // iconset for vuetify
 
-// basic icons used by vuetify
-// according vuetify/packages/vuetify/src/services/icons/presets/mdi.ts
+// we could import basic icons used by vuetify from @mdi/js
+// see https://github.com/vuetifyjs/vuetify/blob/master/packages/vuetify/src/iconsets/mdi.ts
+// and replace aliases from mdi-svg with imports from @mdi/js
+// but this saves only about 10kb of raw bundle size. Not worth the effort.
+
+// import only the icons used by this app
 import {
-  mdiCheck,
-  mdiCloseCircle,
-  mdiClose,
-  mdiCheckCircle,
-  mdiInformation,
-  mdiExclamation,
   mdiAlert,
-  mdiChevronLeft,
-  mdiChevronRight,
-  mdiCheckboxMarked,
+  mdiAlertOctagon,
   mdiCheckboxBlankOutline,
+  mdiCheckBold,
+  mdiClose,
+  mdiCloseBox,
+  mdiCurrencyUsd,
+  mdiDatabaseImport,
+  mdiDatabaseOff,
+  mdiDelete,
+  mdiDeleteAlert,
+  mdiDotsVertical,
+  mdiInformation,
   mdiMinusBox,
-  mdiCircle,
-  mdiArrowUp,
-  mdiChevronDown,
-  mdiMenu,
-  mdiMenuDown,
-  mdiRadioboxMarked,
-  mdiRadioboxBlank,
   mdiPencil,
-  mdiStarOutline,
-  mdiStar,
-  mdiStarHalfFull,
-  mdiCached,
-  mdiPageFirst,
-  mdiPageLast,
-  mdiUnfoldMoreHorizontal,
-  mdiPaperclip,
+  mdiPlay,
+  mdiPlayPause,
   mdiPlus,
-  mdiMinus
+  mdiStop,
+  mdiThumbUp
 } from '@mdi/js'
 
 const lightTheme = {
@@ -86,45 +78,36 @@ export default createVuetify({
       // variant: 'elevated' // default
     }
   },
-  components,
-  directives,
+  // components,
+  // directives,
   icons: {
     defaultSet: 'mdi',
     aliases: {
-      ...mdiAliases,
-      complete: mdiCheck,
-      cancel: mdiCloseCircle,
-      close: mdiClose,
-      delete: mdiCloseCircle,
-      clear: mdiClose,
-      success: mdiCheckCircle,
-      info: mdiInformation,
-      warning: mdiExclamation,
-      error: mdiAlert,
-      prev: mdiChevronLeft,
-      next: mdiChevronRight,
-      checkboxOn: mdiCheckboxMarked,
-      checkboxOff: mdiCheckboxBlankOutline,
-      checkboxIndeterminate: mdiMinusBox,
-      delimiter: mdiCircle,
-      sort: mdiArrowUp,
-      expand: mdiChevronDown,
-      menu: mdiMenu,
-      subgroup: mdiMenuDown,
-      dropdown: mdiMenuDown,
-      radioOn: mdiRadioboxMarked,
-      radioOff: mdiRadioboxBlank,
-      edit: mdiPencil,
-      ratingEmpty: mdiStarOutline,
-      ratingFull: mdiStar,
-      ratingHalf: mdiStarHalfFull,
-      loading: mdiCached,
-      first: mdiPageFirst,
-      last: mdiPageLast,
-      unfold: mdiUnfoldMoreHorizontal,
-      file: mdiPaperclip,
-      plus: mdiPlus,
-      minus: mdiMinus
+      ...aliases,
+      // add here only the icons used by this app
+      // these icons can then be used in components, without extra imports, like this:
+      // <v-icon icon="$mdiCheck" />
+      mdiAlert,
+      mdiAlertOctagon,
+      mdiCheckboxBlankOutline,
+      mdiCheckBold,
+      mdiClose,
+      mdiCloseBox,
+      mdiCurrencyUsd,
+      mdiDatabaseImport,
+      mdiDatabaseOff,
+      mdiDelete,
+      mdiDeleteAlert,
+      mdiDotsVertical,
+      mdiInformation,
+      mdiMinusBox,
+      mdiPencil,
+      mdiPlay,
+      mdiPlayPause,
+      mdiPlus,
+      mdiStop,
+      mdiThumbUp
+
     },
     sets: {
       mdi

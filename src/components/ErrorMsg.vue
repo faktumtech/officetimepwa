@@ -6,7 +6,7 @@
           <v-col class="ma-2">
             <v-alert
               color="error"
-              :icon="mdiAlert"
+              icon="$mdiAlert"
             >
               {{ msg }}
             </v-alert>
@@ -17,15 +17,12 @@
   </v-app>
 </template>
 <script>
-import { mdiAlert } from '@mdi/js'
 
 export default {
   props: {
     msg: String
   },
-  data: () => ({
-    mdiAlert: mdiAlert
-  }),
+  data: () => ({}),
   mounted: function () {
     console.log('error msg')
   }
