@@ -9,6 +9,9 @@
 
 ## Changelog
 
+v1.1.0 (2026-11-09)
+- update dependencies
+
 v1.0.1 (2026-01-24)
 - improved icon use and formating
 
