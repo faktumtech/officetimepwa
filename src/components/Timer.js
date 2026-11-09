@@ -7,40 +7,80 @@ import Utils from '@/utils/Utils'
 let timer
 let audioContext
 
+// state of the current timer run
+let timerId = null
+let start = 0 // ms timestamp of the run start
+let initialTimerCount = 0 // minutes already counted when the run started
+let timerRate = 0
+
+/**
+ * minutes elapsed since the start of the run (incl. the initial count),
+ * as a float, without the manual offset
+ * @return {Number}
+ */
+function elapsedMinutes () {
+  return (Date.now() - start) / 60000 + initialTimerCount
+}
+
+/**
+ * compute the current timer count and persist it on the session
+ * @return {Promise} undefined
+ */
+async function tick () {
+  // the timerOffset can be manipulated by other components during a timer run
+  const timerCount = Math.floor(elapsedMinutes() + store.state.timerOffset)
+  const amount = Utils.round(timerRate * timerCount / 60, 2)
+  store.commit('timerCount', timerCount)
+  const payload = { id: timerId, changes: { t: timerCount, a: amount } }
+  await store.dispatch('updateSession', payload)
+}
+
 export default {
   /**
    * start timer run and persist timerCount regularily
-   * @param {Number} timerId
-   * @param {Number} initialTimerCount // elapsed time in seconds
-   * @param {Number} timerRate // rate
+   * @param {Number} id
+   * @param {Number} initialCount // elapsed time in minutes
+   * @param {Number} rate // rate
    * @return {undefined}
   */
-  start: function (timerId, initialTimerCount, timerRate) {
+  start: function (id, initialCount, rate) {
     this.sound()
 
     // clear any active timer
     if (timer) {
       clearInterval(timer)
     }
+    timerId = id
+    initialTimerCount = initialCount
+    timerRate = rate
+    // use exact time instead of timer interval to measure the elapsed time
+    start = Date.now()
+
     store.commit('timerSessionId', timerId)
     store.commit('timerStatus', 'running')
     store.commit('timerOffset', 0)
 
-    // use exact time instead of timer interval to measure the elapsed time
-    const start = new Date().getTime()
-
     // start timer and update timerCount on each cycle
-    timer = setInterval(async () => {
-      const now = new Date().getTime()
-      // the timerOffset can be manipulated by other components during a timer run
-      const timerOffset = store.state.timerOffset
-      const timerCount = Math.floor((now - start + timerOffset * 60000 + initialTimerCount * 60000) / 60000)
-      const amount = Utils.round(timerRate * timerCount / 60, 2)
-      // console.log('timer', timerOffset, timerCount)
-      store.commit('timerCount', timerCount)
-      const payload = { id: timerId, changes: { t: timerCount, a: amount } }
-      await store.dispatch('updateSession', payload)
-    }, 1000)
+    timer = setInterval(tick, 1000)
+  },
+  /**
+   * set the running timer to an absolute minute value.
+   * The run clock is restarted at that value, so the seconds are reset to 0
+   * and the next minute step happens exactly 60s after the manual change.
+   * Fast consecutive inputs don't accumulate: each call simply re-anchors
+   * the clock at the given value.
+   * @param {Number} minutes
+   * @return {Promise} undefined
+   */
+  setCount: function (minutes) {
+    if (store.state.timerStatus !== 'running') {
+      return
+    }
+    start = Date.now()
+    initialTimerCount = minutes
+    store.commit('timerOffset', 0)
+    // reflect the change immediately instead of waiting for the next cycle
+    return tick()
   },
   stop: function () {
     if (store.state.timerStatus !== 'stopped') {

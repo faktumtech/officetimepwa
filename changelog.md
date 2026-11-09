@@ -1,6 +1,5 @@
 ## Known issues / bugs
-- On IOS v12 new sessions shows right time in input, but time + tzoffset when shown in table
-- Bug: After adding, editing or deleting a Project or Category, ESC does not close dialog
+- 
 
 ## Roadmap / Ideas
 - Improve TimerTimeInput and make more similar to original Officetime
@@ -8,6 +7,9 @@
 
 
 ## Changelog
+
+v1.2.0 (2026-11-09)
+- new timer logic to avoid time jumping when changing manually a running timer
 
 v1.1.0 (2026-11-09)
 - update dependencies

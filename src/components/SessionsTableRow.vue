@@ -112,6 +112,7 @@
 
 <script>
 import Utils from '@/utils/Utils'
+import Timer from '@/components/Timer'
 import TimerBtn from '@/components/TimerBtn'
 import TimerTimeInput from '@/components/TimerTimeInput'
 import TimerAmountInput from '@/components/TimerAmountInput'
@@ -139,14 +140,6 @@ export default {
     timerStatus () {
       return this.$store.state.timerStatus
     },
-    timerOffset: {
-      set (value) {
-        this.$store.commit('timerOffset', value)
-      },
-      get () {
-        return this.$store.state.timerOffset
-      }
-    },
     selectedSessionId: {
       set (value) {
         this.$store.commit('selectedSessionId', value)
@@ -169,8 +162,7 @@ export default {
     },
     updateTime: async function (timerId, value) {
       if (this.timerStatus === 'running' && timerId === this.timerSessionId) {
-        console.log('updateTime on running timer', value, this.session.t)
-        this.timerOffset = this.timerOffset + value - this.session.t
+        await Timer.setCount(value)
       } else {
         const payload = { id: timerId, changes: { t: value } }
         await this.$store.dispatch('updateSession', payload)

@@ -27,11 +27,15 @@
 </template>
 
 <script>
+import Timer from '@/components/Timer'
 
 export default {
   name: 'TimerTimeInput',
   data: () => ({
-    timerValue: 0
+    // local copies of the fields; kept in sync with session.t by the watcher
+    // so that the setters don't read stale values from the session
+    hoursInput: 0,
+    minutesInput: 0
   }),
   props: {
     session: {
@@ -51,39 +55,48 @@ export default {
     timerStatus () {
       return this.$store.state.timerStatus
     },
-    timerOffset: {
-      set (value) {
-        this.$store.commit('timerOffset', value)
-      },
-      get () {
-        return this.$store.state.timerOffset
-      }
-    },
     hours: {
       get () {
-        return Math.floor(this.session.t / 60)
+        return this.hoursInput
       },
       set (newHours) {
-        this.timerValue = this.minutes + 60 * +newHours
+        // ignore an emptied field, '' would be coerced to 0
+        if (newHours !== '') {
+          this.hoursInput = +newHours
+        }
       }
     },
     minutes: {
       get () {
-        return this.session.t - Math.floor(this.session.t / 60) * 60
+        return this.minutesInput
       },
       set (newMinutes) {
-        this.timerValue = this.hours * 60 + +newMinutes
+        if (newMinutes !== '') {
+          this.minutesInput = +newMinutes
+        }
+      }
+    },
+    timerValue () {
+      return this.hoursInput * 60 + this.minutesInput
+    }
+  },
+  watch: {
+    'session.t': {
+      immediate: true,
+      handler (t) {
+        this.hoursInput = Math.floor(t / 60)
+        this.minutesInput = t - Math.floor(t / 60) * 60
       }
     }
   },
-  mounted: function () {
-    this.timerValue = this.session.t
-  },
   methods: {
-    updateTime: async function () {
+    updateTime: async function (val) {
+      if (val === '') {
+        return
+      }
       if (this.timerStatus === 'running' && this.session.id === this.timerSessionId) {
-        console.log('updateTime on running timer', this.timerValue, this.session.t)
-        this.timerOffset = this.timerOffset + this.timerValue - this.session.t
+        // absolute update, safe against fast consecutive inputs
+        await Timer.setCount(this.timerValue)
       } else {
         // expense > amount is set manually and has nothing to do with rate
         if (this.session.e) {
